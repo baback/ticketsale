@@ -16,7 +16,8 @@
         "list_tables",
         "apply_migration",
         "execute_sql",
-        "get_anon_key"
+        "get_anon_key",
+        "deploy_edge_function"
       ]
     }
   }

@@ -14,16 +14,16 @@
     
     <div class="min-h-screen flex">
         <!-- Left Side - Testimonials -->
-        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-900 dark:to-neutral-950 relative overflow-hidden">
-            <div class="absolute inset-0 flex items-center justify-center p-16">
+        <div class="hidden lg:flex lg:w-1/2 items-center justify-center p-8">
+            <div class="w-full h-full glass rounded-3xl p-12 border border-neutral-200 dark:border-neutral-800 shadow-2xl relative overflow-hidden flex items-center justify-center">
                 <div id="testimonials" class="max-w-2xl">
                     <!-- Testimonials will be injected here -->
                 </div>
+                
+                <!-- Decorative elements -->
+                <div class="absolute top-10 left-10 w-32 h-32 rounded-full bg-black/5 dark:bg-white/5 blur-3xl"></div>
+                <div class="absolute bottom-10 right-10 w-40 h-40 rounded-full bg-black/5 dark:bg-white/5 blur-3xl"></div>
             </div>
-            
-            <!-- Decorative elements -->
-            <div class="absolute top-10 left-10 w-32 h-32 rounded-full bg-black/5 dark:bg-white/5 blur-3xl"></div>
-            <div class="absolute bottom-10 right-10 w-40 h-40 rounded-full bg-black/5 dark:bg-white/5 blur-3xl"></div>
         </div>
 
         <!-- Right Side - Login Form -->
@@ -38,82 +38,101 @@
                 </div>
 
                 <!-- Header -->
-                <div class="text-center space-y-2">
-                    <h1 class="text-3xl font-bold font-display">Welcome Back</h1>
-                    <p class="text-neutral-600 dark:text-neutral-400">Sign in to access your tickets</p>
+                <div class="text-center space-y-1">
+                    <h1 class="text-2xl font-bold font-display">Welcome Back</h1>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">Sign in to access your tickets</p>
                 </div>
 
                 <!-- Login Form -->
-                <div class="space-y-6">
-                    <!-- Google Sign In -->
-                    <button type="button" class="w-full px-6 py-4 rounded-2xl glass border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm flex items-center justify-center gap-3">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        Continue with Google
-                    </button>
-
-                    <!-- Divider -->
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-neutral-200 dark:border-neutral-800"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-4 bg-white dark:bg-neutral-950 text-neutral-500">Or continue with email</span>
-                        </div>
+                <div class="space-y-4">
+                    <!-- Toggle between Login and Sign Up -->
+                    <div class="flex gap-2 p-1 glass rounded-full border border-neutral-200 dark:border-neutral-800">
+                        <button type="button" id="loginTab" class="flex-1 px-4 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium transition-all">
+                            Login
+                        </button>
+                        <button type="button" id="signupTab" class="flex-1 px-4 py-2 rounded-full text-neutral-600 dark:text-neutral-400 text-sm font-medium transition-all">
+                            Sign Up
+                        </button>
                     </div>
 
-                    <!-- Email Form -->
-                    <form id="emailForm" class="space-y-4">
+                    <!-- Login Form -->
+                    <form id="loginForm" class="space-y-3">
                         <div>
-                            <label for="email" class="block text-sm font-medium mb-2">Email address</label>
+                            <label for="loginEmail" class="block text-xs font-medium mb-1.5">Email</label>
                             <input 
                                 type="email" 
-                                id="email" 
+                                id="loginEmail" 
                                 required
                                 placeholder="you@example.com"
-                                class="w-full px-6 py-4 rounded-2xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm"
+                                class="w-full px-4 py-3 rounded-xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm text-sm"
                             />
                         </div>
 
-                        <button type="submit" class="w-full px-6 py-4 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform shadow-lg">
-                            Continue
+                        <div>
+                            <label for="loginPassword" class="block text-xs font-medium mb-1.5">Password</label>
+                            <input 
+                                type="password" 
+                                id="loginPassword" 
+                                required
+                                placeholder="••••••••"
+                                class="w-full px-4 py-3 rounded-xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm text-sm"
+                            />
+                        </div>
+
+                        <button type="submit" class="w-full px-4 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:scale-105 transition-transform shadow-lg">
+                            Login
                         </button>
                     </form>
 
-                    <!-- OTP Form (Hidden by default) -->
-                    <form id="otpForm" class="space-y-4 hidden">
+                    <!-- Sign Up Form (Hidden by default) -->
+                    <form id="signupForm" class="space-y-3 hidden">
                         <div>
-                            <label for="otp" class="block text-sm font-medium mb-2">Enter verification code</label>
+                            <label for="signupName" class="block text-xs font-medium mb-1.5">Full Name</label>
                             <input 
                                 type="text" 
-                                id="otp" 
+                                id="signupName" 
                                 required
-                                placeholder="000000"
-                                maxlength="6"
-                                class="w-full px-6 py-4 rounded-2xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm text-center text-2xl tracking-widest"
+                                placeholder="John Doe"
+                                class="w-full px-4 py-3 rounded-xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm text-sm"
                             />
-                            <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-2 text-center">
-                                We sent a code to <span id="emailDisplay" class="font-medium"></span>
-                            </p>
                         </div>
 
-                        <button type="submit" class="w-full px-6 py-4 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform shadow-lg">
-                            Verify & Sign In
-                        </button>
+                        <div>
+                            <label for="signupEmail" class="block text-xs font-medium mb-1.5">Email</label>
+                            <input 
+                                type="email" 
+                                id="signupEmail" 
+                                required
+                                placeholder="you@example.com"
+                                class="w-full px-4 py-3 rounded-xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm text-sm"
+                            />
+                        </div>
 
-                        <button type="button" id="backBtn" class="w-full text-sm text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors">
-                            ← Back to email
+                        <div>
+                            <label for="signupPassword" class="block text-xs font-medium mb-1.5">Password</label>
+                            <input 
+                                type="password" 
+                                id="signupPassword" 
+                                required
+                                placeholder="••••••••"
+                                minlength="6"
+                                class="w-full px-4 py-3 rounded-xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm text-sm"
+                            />
+                            <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">At least 6 characters</p>
+                        </div>
+
+                        <button type="submit" class="w-full px-4 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:scale-105 transition-transform shadow-lg">
+                            Sign Up
                         </button>
                     </form>
+
+                    <!-- Error/Success Message -->
+                    <div id="message" class="hidden p-3 rounded-xl text-xs text-center"></div>
                 </div>
 
                 <!-- Footer -->
                 <div class="text-center text-sm text-neutral-600 dark:text-neutral-400">
-                    <p>Are you an organizer? <a href="../organizer/login/" class="text-black dark:text-white hover:opacity-60 transition-opacity font-medium">Sign in here</a></p>
+                    <p>New to ticketsale.ca? Create an account to get started</p>
                 </div>
 
                 <!-- Theme Toggle -->
@@ -132,6 +151,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../src/scripts/supabase.js"></script>
     <script src="../src/scripts/login.js"></script>
 </body>
 </html>

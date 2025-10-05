@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Email Change - ticketsale.ca</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif; background-color: #0a0a0a;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #171717; border-radius: 24px; border: 1px solid #262626; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);">
+                    <tr>
+                        <td style="padding: 40px 40px 20px 40px; text-align: center;">
+                            <svg width="120" height="16" viewBox="0 0 120 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <text x="0" y="12" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ticketsale.ca</text>
+                            </svg>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 20px 40px; text-align: center;">
+                            <div style="width: 64px; height: 64px; background-color: #262626; border-radius: 50%; display: inline-block; text-align: center; line-height: 64px;">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" stroke-width="2" style="vertical-align: middle;">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px; text-align: center;">
+                            <h2 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">Confirm Email Change</h2>
+                            <p style="margin: 0; font-size: 16px; line-height: 24px; color: #a3a3a3;">
+                                Click the button below to confirm your new email address.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px 40px 40px; text-align: center;">
+                            <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 32px; background-color: #ffffff; color: #000000; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 15px; letter-spacing: -0.2px;">
+                                Confirm Email Change
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <div style="border-top: 1px solid #262626;"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px 40px 40px 40px; text-align: center;">
+                            <p style="margin: 0 0 12px 0; font-size: 13px; color: #a3a3a3;">
+                                Or copy and paste this link:
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #737373; word-break: break-all;">
+                                {{ .ConfirmationURL }}
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px 40px; background-color: #0a0a0a; text-align: center; border-top: 1px solid #262626;">
+                            <p style="margin: 0 0 8px 0; font-size: 13px; color: #a3a3a3;">
+                                If you didn't request this change, please contact support immediately.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #737373;">
+                                © 2025 ticketsale.ca
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

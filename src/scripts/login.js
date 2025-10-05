@@ -2,13 +2,11 @@
 const themeToggle = document.getElementById('themeToggle');
 const html = document.documentElement;
 
-// Set dark mode as default
 if (!localStorage.getItem('theme')) {
     localStorage.setItem('theme', 'dark');
     html.classList.add('dark');
 }
 
-// Load saved theme
 if (localStorage.getItem('theme') === 'dark') {
     html.classList.add('dark');
 } else {
@@ -21,117 +19,199 @@ themeToggle.addEventListener('click', () => {
     localStorage.setItem('theme', theme);
 });
 
-// Testimonials data
+// Tab switching
+const loginTab = document.getElementById('loginTab');
+const signupTab = document.getElementById('signupTab');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const messageDiv = document.getElementById('message');
+
+loginTab.addEventListener('click', () => {
+    loginTab.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
+    loginTab.classList.remove('text-neutral-600', 'dark:text-neutral-400');
+    signupTab.classList.remove('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
+    signupTab.classList.add('text-neutral-600', 'dark:text-neutral-400');
+    
+    loginForm.classList.remove('hidden');
+    signupForm.classList.add('hidden');
+    hideMessage();
+});
+
+signupTab.addEventListener('click', () => {
+    signupTab.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
+    signupTab.classList.remove('text-neutral-600', 'dark:text-neutral-400');
+    loginTab.classList.remove('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
+    loginTab.classList.add('text-neutral-600', 'dark:text-neutral-400');
+    
+    signupForm.classList.remove('hidden');
+    loginForm.classList.add('hidden');
+    hideMessage();
+});
+
+// Message helpers
+function showMessage(text, isError = false) {
+    messageDiv.textContent = text;
+    messageDiv.classList.remove('hidden');
+    if (isError) {
+        messageDiv.classList.add('bg-red-100', 'dark:bg-red-900/20', 'text-red-600', 'dark:text-red-400');
+        messageDiv.classList.remove('bg-green-100', 'dark:bg-green-900/20', 'text-green-600', 'dark:text-green-400');
+    } else {
+        messageDiv.classList.add('bg-green-100', 'dark:bg-green-900/20', 'text-green-600', 'dark:text-green-400');
+        messageDiv.classList.remove('bg-red-100', 'dark:bg-red-900/20', 'text-red-600', 'dark:text-red-400');
+    }
+}
+
+function hideMessage() {
+    messageDiv.classList.add('hidden');
+}
+
+// Single login page for all users
+
+// Login handler
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMessage();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
+    
+    try {
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
+        
+        if (error) throw error;
+        
+        showMessage('Login successful! Redirecting...');
+        
+        // Redirect after short delay
+        setTimeout(() => {
+            window.location.href = '/dashboard/';
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        showMessage(error.message || 'Login failed. Please check your credentials.', true);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
+    }
+});
+
+// Signup handler
+signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMessage();
+    
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    
+    const submitBtn = signupForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating account...';
+    
+    try {
+        // Sign up the user (trigger will automatically create user profile)
+        const { data, error } = await window.supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    full_name: name
+                }
+            }
+        });
+        
+        if (error) throw error;
+        
+        showMessage('Account created successfully! Redirecting...');
+        
+        // Redirect after short delay
+        setTimeout(() => {
+            window.location.href = '/dashboard/';
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Signup error:', error);
+        showMessage(error.message || 'Signup failed. Please try again.', true);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign Up';
+    }
+});
+
+// Testimonials rotation - Mixed audience (buyers and organizers)
 const testimonials = [
     {
-        quote: "Best ticket buying experience ever. Clean, fast, and no hidden fees. Got my tickets in seconds!",
+        text: "ticketsale.ca made selling out our venue effortless. The platform is intuitive and our fans love it.",
         author: "Sarah Chen",
-        role: "Music Enthusiast"
+        role: "Event Organizer",
+        image: "https://i.pravatar.cc/150?img=5"
     },
     {
-        quote: "I've been to 20+ events this year, all through ticketsale. The seamless experience keeps me coming back.",
+        text: "Best ticketing experience I've had. Clean interface, fast checkout, and my tickets were instantly available.",
         author: "Marcus Johnson",
-        role: "Festival Regular"
+        role: "Concert Enthusiast",
+        image: "https://i.pravatar.cc/150?img=12"
     },
     {
-        quote: "Finally, a ticketing platform that doesn't make me want to pull my hair out. Simple and beautiful.",
-        author: "Emma Rodriguez",
-        role: "Concert Goer"
+        text: "We switched to ticketsale.ca and saw a 40% increase in ticket sales. The analytics are game-changing.",
+        author: "Alex Rivera",
+        role: "Festival Director",
+        image: "https://i.pravatar.cc/150?img=14"
     },
     {
-        quote: "The mobile tickets are so convenient. No more printing or worrying about losing paper tickets.",
+        text: "Finally, a ticketing platform that doesn't take a huge cut. More money stays with us, and attendees appreciate the fair pricing.",
+        author: "Jordan Lee",
+        role: "Music Venue Owner",
+        image: "https://i.pravatar.cc/150?img=60"
+    },
+    {
+        text: "I love how easy it is to find events and buy tickets. No hidden fees, just straightforward pricing.",
+        author: "Emily Rodriguez",
+        role: "Theater Fan",
+        image: "https://i.pravatar.cc/150?img=47"
+    },
+    {
+        text: "The mobile experience is fantastic. Got my tickets in seconds and the QR code worked perfectly at the venue.",
         author: "David Kim",
-        role: "Tech Conference Attendee"
-    },
-    {
-        quote: "I love how I can see all my upcoming events in one place. Makes planning so much easier!",
-        author: "Lisa Thompson",
-        role: "Event Enthusiast"
+        role: "Sports Fan",
+        image: "https://i.pravatar.cc/150?img=33"
     }
 ];
 
-// Testimonial rotation
 let currentTestimonial = 0;
-const testimonialContainer = document.getElementById('testimonials');
 
-function renderTestimonial(index) {
-    const testimonial = testimonials[index];
-    testimonialContainer.innerHTML = `
-        <div class="testimonial-content space-y-6 animate-fade-in">
-            <svg class="w-12 h-12 text-black/20 dark:text-white/20" fill="currentColor" viewBox="0 0 24 24">
+function rotateTestimonials() {
+    const container = document.getElementById('testimonials');
+    if (!container) return;
+    
+    const testimonial = testimonials[currentTestimonial];
+    container.innerHTML = `
+        <div class="space-y-6 fade-in">
+            <svg class="w-12 h-12 text-neutral-400 dark:text-neutral-600" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
             </svg>
-            <p class="text-2xl md:text-3xl font-medium leading-relaxed">
-                "${testimonial.quote}"
+            <p class="text-xl md:text-2xl font-medium leading-relaxed">
+                "${testimonial.text}"
             </p>
-            <div class="space-y-1">
-                <p class="font-bold text-lg">${testimonial.author}</p>
-                <p class="text-neutral-600 dark:text-neutral-400">${testimonial.role}</p>
+            <div class="flex items-center gap-4 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <img src="${testimonial.image}" alt="${testimonial.author}" class="w-14 h-14 rounded-full border-2 border-neutral-200 dark:border-neutral-800 shadow-lg" />
+                <div>
+                    <div class="font-semibold text-lg">${testimonial.author}</div>
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400">${testimonial.role}</div>
+                </div>
             </div>
         </div>
     `;
-}
-
-function rotateTestimonials() {
-    testimonialContainer.style.opacity = '0';
     
-    setTimeout(() => {
-        currentTestimonial = (currentTestimonial + 1) % testimonials.length;
-        renderTestimonial(currentTestimonial);
-        testimonialContainer.style.opacity = '1';
-    }, 500);
+    currentTestimonial = (currentTestimonial + 1) % testimonials.length;
 }
 
 // Initialize testimonials
-if (testimonialContainer) {
-    testimonialContainer.style.transition = 'opacity 0.5s ease-in-out';
-    renderTestimonial(0);
-    setInterval(rotateTestimonials, 5000);
-}
-
-// Form handling
-const emailForm = document.getElementById('emailForm');
-const otpForm = document.getElementById('otpForm');
-const emailInput = document.getElementById('email');
-const otpInput = document.getElementById('otp');
-const emailDisplay = document.getElementById('emailDisplay');
-const backBtn = document.getElementById('backBtn');
-
-emailForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = emailInput.value;
-    
-    // Simulate sending OTP
-    console.log('Sending OTP to:', email);
-    
-    // Show OTP form
-    emailForm.classList.add('hidden');
-    otpForm.classList.remove('hidden');
-    emailDisplay.textContent = email;
-    
-    // Focus on OTP input
-    setTimeout(() => otpInput.focus(), 100);
-});
-
-otpForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const otp = otpInput.value;
-    
-    // Simulate OTP verification
-    console.log('Verifying OTP:', otp);
-    
-    // Redirect to dashboard (you can change this)
-    alert('Login successful! Redirecting...');
-    window.location.href = '/';
-});
-
-backBtn.addEventListener('click', () => {
-    otpForm.classList.add('hidden');
-    emailForm.classList.remove('hidden');
-    otpInput.value = '';
-});
-
-// Auto-format OTP input (numbers only)
-otpInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/\D/g, '');
-});
+rotateTestimonials();
+setInterval(rotateTestimonials, 5000);

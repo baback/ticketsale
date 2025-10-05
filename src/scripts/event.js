@@ -19,6 +19,21 @@ themeToggle.addEventListener('click', () => {
     localStorage.setItem('theme', theme);
 });
 
+// Check if user is logged in and update nav
+async function updateNavAuth() {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const signInLink = document.querySelector('a[href="../login/"]');
+    
+    if (session && signInLink) {
+        // User is logged in, change to Dashboard
+        signInLink.href = '../dashboard/';
+        signInLink.textContent = 'Dashboard';
+    }
+}
+
+// Initialize auth check
+updateNavAuth();
+
 // Get event ID from URL (extracts ID from slug format: event-name-uuid)
 function getEventId() {
     const urlParams = new URLSearchParams(window.location.search);

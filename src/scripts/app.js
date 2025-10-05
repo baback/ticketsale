@@ -19,6 +19,18 @@ themeToggle.addEventListener('click', () => {
     localStorage.setItem('theme', theme);
 });
 
+// Check if user is logged in and update nav
+async function updateNavAuth() {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const signInLink = document.querySelector('a[href="./login/"]');
+    
+    if (session && signInLink) {
+        // User is logged in, change to Dashboard
+        signInLink.href = './dashboard/';
+        signInLink.textContent = 'Dashboard';
+    }
+}
+
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -29,6 +41,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+// Initialize auth check
+updateNavAuth();
 
 // State
 let events = [];

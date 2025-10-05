@@ -4,6 +4,8 @@ module.exports = {
     "./*.html",
     "./organizer/**/*.html",
     "./login/**/*.html",
+    "./dashboard/**/*.html",
+    "./events/**/*.html",
     "./terms/**/*.html",
     "./privacy/**/*.html",
     "./support/**/*.html",
