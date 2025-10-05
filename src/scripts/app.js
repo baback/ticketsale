@@ -392,7 +392,8 @@ function attachCategoryListeners() {
     });
 }
 
-// Initialize events on page load
+// Initialize on page load
 if (document.getElementById('eventsGrid')) {
+    loadCategories();
     loadEvents();
 }
