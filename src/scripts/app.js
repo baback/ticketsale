@@ -115,7 +115,7 @@ function renderEvents(eventsToRender = events) {
     }
 
     eventsGrid.innerHTML = eventsToRender.map(event => `
-        <div class="group cursor-pointer rounded-3xl overflow-hidden relative h-[400px] border border-neutral-200 dark:border-neutral-800 hover:shadow-2xl transition-all duration-500">
+        <a href="./events/?event=${event.slug}" class="group cursor-pointer rounded-3xl overflow-hidden relative h-[400px] border border-neutral-200 dark:border-neutral-800 hover:shadow-2xl transition-all duration-500 block">
             <div class="absolute inset-0">
                 <img src="${event.image}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" loading="lazy" />
             </div>
@@ -144,13 +144,13 @@ function renderEvents(eventsToRender = events) {
                     </div>
                     <div class="flex items-center justify-between pt-2">
                         <span class="text-3xl font-bold font-display">${event.price}</span>
-                        <a href="./login/" class="px-6 py-3 rounded-full bg-white text-black font-medium hover:scale-105 transition-transform shadow-lg inline-block">
-                            Get Tickets
-                        </a>
+                        <span class="px-6 py-3 rounded-full bg-white text-black font-medium group-hover:scale-105 transition-transform shadow-lg inline-block">
+                            View Details
+                        </span>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     `).join('');
 }
 
@@ -243,28 +243,37 @@ async function loadEvents() {
 
         if (error) throw error;
 
-        events = data.map(event => ({
-            id: event.id,
-            title: event.title,
-            date: new Date(event.event_date).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
-            }),
-            location: event.location,
-            price: event.ticket_types && event.ticket_types.length > 0 
-                ? `$${Math.min(...event.ticket_types.map(t => t.price))}`
-                : '$0',
-            category: event.event_category_mappings && event.event_category_mappings.length > 0
-                ? event.event_category_mappings[0].event_categories.name
-                : 'Other',
-            status: event.ticket_types && event.ticket_types.some(t => t.available < 10) 
-                ? 'Almost Sold Out' 
-                : event.ticket_types && event.ticket_types.some(t => t.available < 50)
-                ? 'Selling Fast'
-                : 'Available',
-            image: event.image_url
-        }));
+        events = data.map(event => {
+            // Create SEO-friendly slug from title and ID
+            const slug = event.title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            
+            return {
+                id: event.id,
+                slug: `${slug}-${event.id}`,
+                title: event.title,
+                date: new Date(event.event_date).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                }),
+                location: event.location,
+                price: event.ticket_types && event.ticket_types.length > 0 
+                    ? `$${Math.min(...event.ticket_types.map(t => t.price))}`
+                    : '$0',
+                category: event.event_category_mappings && event.event_category_mappings.length > 0
+                    ? event.event_category_mappings[0].event_categories.name
+                    : 'Other',
+                status: event.ticket_types && event.ticket_types.some(t => t.available < 10) 
+                    ? 'Almost Sold Out' 
+                    : event.ticket_types && event.ticket_types.some(t => t.available < 50)
+                    ? 'Selling Fast'
+                    : 'Available',
+                image: event.image_url
+            };
+        });
 
         renderEvents();
     } catch (error) {
