@@ -280,6 +280,40 @@ categoryButtons.forEach(button => {
     });
 });
 
+// Load categories from Supabase
+async function loadCategories() {
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('event_categories')
+            .select('*')
+            .order('name');
+
+        if (error) throw error;
+
+        // Update category buttons
+        const categoryContainer = document.querySelector('#categories .flex');
+        if (categoryContainer && data) {
+            const buttons = data.map(cat => `
+                <button type="button" class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:border-neutral-400 dark:hover:border-neutral-600 transition-all shadow-sm" data-category="${cat.name}">
+                    ${cat.name}
+                </button>
+            `).join('');
+            
+            categoryContainer.innerHTML = `
+                <button type="button" class="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black whitespace-nowrap transition-all shadow-sm font-medium" data-category="All Events">
+                    All Events
+                </button>
+                ${buttons}
+            `;
+
+            // Re-attach event listeners
+            attachCategoryListeners();
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
 // Load events from Supabase
 async function loadEvents() {
     try {
@@ -292,6 +326,11 @@ async function loadEvents() {
                     name,
                     price,
                     available
+                ),
+                event_category_mappings (
+                    event_categories (
+                        name
+                    )
                 )
             `)
             .eq('status', 'published')
@@ -312,7 +351,9 @@ async function loadEvents() {
             price: event.ticket_types && event.ticket_types.length > 0 
                 ? `$${Math.min(...event.ticket_types.map(t => t.price))}`
                 : '$0',
-            category: event.category || 'Other',
+            category: event.event_category_mappings && event.event_category_mappings.length > 0
+                ? event.event_category_mappings[0].event_categories.name
+                : event.category || 'Other',
             status: event.ticket_types && event.ticket_types.some(t => t.available < 10) 
                 ? 'Almost Sold Out' 
                 : event.ticket_types && event.ticket_types.some(t => t.available < 50)
@@ -328,6 +369,27 @@ async function loadEvents() {
         events = fallbackEvents;
         renderEvents();
     }
+}
+
+// Attach category button listeners
+function attachCategoryListeners() {
+    const categoryButtons = document.querySelectorAll('#categories button');
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Update active state
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black', 'font-medium');
+                btn.classList.add('glass', 'border', 'border-neutral-200', 'dark:border-neutral-800');
+            });
+            
+            button.classList.remove('glass', 'border', 'border-neutral-200', 'dark:border-neutral-800');
+            button.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black', 'font-medium');
+            
+            // Update category and filter
+            currentCategory = button.dataset.category || button.textContent.trim();
+            filterEvents();
+        });
+    });
 }
 
 // Initialize events on page load
