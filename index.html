@@ -55,23 +55,16 @@
 
             <!-- Search & Filter -->
             <div class="max-w-3xl mx-auto mb-16">
-                <div class="flex gap-3">
-                    <div class="flex-1 relative">
-                        <input 
-                            type="text" 
-                            placeholder="Search events..." 
-                            class="w-full px-6 py-4 rounded-2xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm"
-                        />
-                        <svg class="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                        </svg>
-                    </div>
-                    <button class="px-6 py-4 rounded-2xl glass border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                        </svg>
-                    </button>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        placeholder="Search events..." 
+                        class="w-full px-6 py-4 rounded-2xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm"
+                    />
+                    <svg class="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -81,10 +74,10 @@
     <section id="categories" class="py-8 px-6">
         <div class="max-w-7xl mx-auto">
             <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-thin">
-                <button type="button" class="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black whitespace-nowrap hover:scale-105 transition-transform shadow-sm font-medium">All Events</button>
-                <button type="button" class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">Music</button>
-                <button type="button" class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">Arts</button>
-                <button type="button" class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">Tech</button>
+                <button type="button" class="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black whitespace-nowrap transition-all shadow-sm font-medium">All Events</button>
+                <button type="button" class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:border-neutral-400 dark:hover:border-neutral-600 transition-all shadow-sm">Music</button>
+                <button type="button" class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:border-neutral-400 dark:hover:border-neutral-600 transition-all shadow-sm">Arts</button>
+                <button type="button" class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:border-neutral-400 dark:hover:border-neutral-600 transition-all shadow-sm">Tech</button>
             </div>
         </div>
     </section>
