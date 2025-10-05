@@ -43,7 +43,7 @@ let allCategories = [];
 function showLoading() {
     const eventsGrid = document.getElementById('eventsGrid');
     if (!eventsGrid) return;
-    
+
     eventsGrid.innerHTML = `
         <div class="col-span-full flex flex-col items-center justify-center py-20">
             <div class="animate-spin rounded-full h-16 w-16 border-4 border-neutral-200 dark:border-neutral-800 border-t-black dark:border-t-white mb-4"></div>
@@ -56,7 +56,7 @@ function showLoading() {
 function showError(message) {
     const eventsGrid = document.getElementById('eventsGrid');
     if (!eventsGrid) return;
-    
+
     eventsGrid.innerHTML = `
         <div class="col-span-full text-center py-20">
             <svg class="w-16 h-16 mx-auto mb-4 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -156,9 +156,9 @@ async function loadCategories() {
         if (error) throw error;
 
         // Filter categories that have published events
-        const categoriesWithEvents = data.filter(cat => 
-            cat.event_category_mappings && 
-            cat.event_category_mappings.some(mapping => 
+        const categoriesWithEvents = data.filter(cat =>
+            cat.event_category_mappings &&
+            cat.event_category_mappings.some(mapping =>
                 mapping.events && mapping.events.status === 'published'
             )
         );
@@ -173,7 +173,7 @@ async function loadCategories() {
                     ${cat.name}
                 </button>
             `).join('');
-            
+
             categoryContainer.innerHTML = `
                 <button type="button" class="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black whitespace-nowrap transition-all shadow-sm font-medium" data-category="All Events">
                     All Events
@@ -192,9 +192,9 @@ async function loadCategories() {
 // Load events from Supabase
 async function loadEvents() {
     showLoading();
-    
+
     try {
-        const { data, error} = await window.supabaseClient
+        const { data, error } = await window.supabaseClient
             .from('events')
             .select(`
                 *,
@@ -219,23 +219,23 @@ async function loadEvents() {
         events = data.map(event => ({
             id: event.id,
             title: event.title,
-            date: new Date(event.event_date).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
+            date: new Date(event.event_date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
             }),
             location: event.location,
-            price: event.ticket_types && event.ticket_types.length > 0 
+            price: event.ticket_types && event.ticket_types.length > 0
                 ? `$${Math.min(...event.ticket_types.map(t => t.price))}`
                 : '$0',
             category: event.event_category_mappings && event.event_category_mappings.length > 0
                 ? event.event_category_mappings[0].event_categories.name
                 : 'Other',
-            status: event.ticket_types && event.ticket_types.some(t => t.available < 10) 
-                ? 'Almost Sold Out' 
+            status: event.ticket_types && event.ticket_types.some(t => t.available < 10)
+                ? 'Almost Sold Out'
                 : event.ticket_types && event.ticket_types.some(t => t.available < 50)
-                ? 'Selling Fast'
-                : 'Available',
+                    ? 'Selling Fast'
+                    : 'Available',
             image: event.image_url
         }));
 
@@ -247,9 +247,9 @@ async function loadEvents() {
 }
 
 
-    if (!eventsGrid) return;
+if (!eventsGrid) return;
 
-    eventsGrid.innerHTML = eventsToRender.map(event => `
+eventsGrid.innerHTML = eventsToRender.map(event => `
         <div class="group cursor-pointer rounded-3xl overflow-hidden relative h-[400px] border border-neutral-200 dark:border-neutral-800 hover:shadow-2xl transition-all duration-500">
             <!-- Background Image -->
             <div class="absolute inset-0">
@@ -447,9 +447,7 @@ async function loadEvents() {
         renderEvents();
     } catch (error) {
         console.error('Error loading events:', error);
-        // Use fallback data if Supabase fails
-        events = fallbackEvents;
-        renderEvents();
+        showError('Please check your connection and try again.');
     }
 }
 
