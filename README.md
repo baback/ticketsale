@@ -1,3 +1,5 @@
+<!-- @format -->
+
 # ticketsale.ca
 
 A minimal, artistic ticket sales platform for event organizers who want to sell out their events.
@@ -25,16 +27,19 @@ Make sure you have Node.js installed on your system.
 ### Installation
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Start the development server:
+
 ```bash
 npm run dev
 ```
 
 This will:
+
 - Compile Tailwind CSS and watch for changes
 - Start the local server at https://localhost:7070
 - Auto-reload on file changes

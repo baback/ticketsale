@@ -35,8 +35,11 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Sample events data
-const events = [
+// Events will be loaded from Supabase
+let events = [];
+
+// Sample events data (fallback)
+const fallbackEvents = [
     {
         id: 1,
         title: "Midnight Jazz Sessions",
@@ -277,7 +280,57 @@ categoryButtons.forEach(button => {
     });
 });
 
+// Load events from Supabase
+async function loadEvents() {
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('events')
+            .select(`
+                *,
+                ticket_types (
+                    id,
+                    name,
+                    price,
+                    available
+                )
+            `)
+            .eq('status', 'published')
+            .order('event_date', { ascending: true });
+
+        if (error) throw error;
+
+        // Transform Supabase data to match our format
+        events = data.map(event => ({
+            id: event.id,
+            title: event.title,
+            date: new Date(event.event_date).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            }),
+            location: event.location,
+            price: event.ticket_types && event.ticket_types.length > 0 
+                ? `$${Math.min(...event.ticket_types.map(t => t.price))}`
+                : '$0',
+            category: event.category || 'Other',
+            status: event.ticket_types && event.ticket_types.some(t => t.available < 10) 
+                ? 'Almost Sold Out' 
+                : event.ticket_types && event.ticket_types.some(t => t.available < 50)
+                ? 'Selling Fast'
+                : 'Available',
+            image: event.image_url
+        }));
+
+        renderEvents();
+    } catch (error) {
+        console.error('Error loading events:', error);
+        // Use fallback data if Supabase fails
+        events = fallbackEvents;
+        renderEvents();
+    }
+}
+
 // Initialize events on page load
 if (document.getElementById('eventsGrid')) {
-    renderEvents();
+    loadEvents();
 }
