@@ -37,9 +37,8 @@ async function checkAuth() {
 async function loadUserData(user) {
     // Display email in nav
     document.getElementById('userEmail').textContent = user.email;
-    document.getElementById('dashboardEmail').textContent = user.email;
     
-    // Get user role from database
+    // Get user data from database
     try {
         const { data, error } = await window.supabaseClient
             .from('users')
@@ -48,7 +47,14 @@ async function loadUserData(user) {
             .single();
         
         if (data) {
-            document.getElementById('userRole').textContent = data.role;
+            // Get first name from full name
+            const firstName = data.full_name ? data.full_name.split(' ')[0] : null;
+            
+            // Update welcome message with first name
+            const welcomeElement = document.getElementById('welcomeMessage');
+            if (firstName && welcomeElement) {
+                welcomeElement.textContent = `Welcome, ${firstName}!`;
+            }
         }
     } catch (error) {
         console.error('Error loading user data:', error);
