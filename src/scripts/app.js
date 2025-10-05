@@ -211,6 +211,72 @@ function renderEvents(eventsToRender = events) {
     `).join('');
 }
 
+// Filter state
+let currentCategory = 'All Events';
+let searchQuery = '';
+
+// Filter events based on category and search
+function filterEvents() {
+    let filtered = events;
+    
+    // Filter by category
+    if (currentCategory !== 'All Events') {
+        filtered = filtered.filter(event => event.category === currentCategory);
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+        filtered = filtered.filter(event => 
+            event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.category.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }
+    
+    renderEvents(filtered);
+    
+    // Show message if no results
+    if (filtered.length === 0) {
+        document.getElementById('eventsGrid').innerHTML = `
+            <div class="col-span-full text-center py-20">
+                <svg class="w-16 h-16 mx-auto mb-4 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <h3 class="text-2xl font-bold mb-2">No events found</h3>
+                <p class="text-neutral-600 dark:text-neutral-400">Try adjusting your search or filters</p>
+            </div>
+        `;
+    }
+}
+
+// Search functionality
+const searchInput = document.querySelector('input[type="text"][placeholder="Search events..."]');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        filterEvents();
+    });
+}
+
+// Category buttons
+const categoryButtons = document.querySelectorAll('#categories button');
+categoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        // Update active state
+        categoryButtons.forEach(btn => {
+            btn.classList.remove('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
+            btn.classList.add('glass', 'border', 'border-neutral-200', 'dark:border-neutral-800');
+        });
+        
+        button.classList.remove('glass', 'border', 'border-neutral-200', 'dark:border-neutral-800');
+        button.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
+        
+        // Update category and filter
+        currentCategory = button.textContent.trim();
+        filterEvents();
+    });
+});
+
 // Initialize events on page load
 if (document.getElementById('eventsGrid')) {
     renderEvents();
