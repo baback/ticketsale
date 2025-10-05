@@ -218,23 +218,23 @@ let searchQuery = '';
 // Filter events based on category and search
 function filterEvents() {
     let filtered = events;
-    
+
     // Filter by category
     if (currentCategory !== 'All Events') {
         filtered = filtered.filter(event => event.category === currentCategory);
     }
-    
+
     // Filter by search query
     if (searchQuery) {
-        filtered = filtered.filter(event => 
+        filtered = filtered.filter(event =>
             event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
             event.category.toLowerCase().includes(searchQuery.toLowerCase())
         );
     }
-    
+
     renderEvents(filtered);
-    
+
     // Show message if no results
     if (filtered.length === 0) {
         document.getElementById('eventsGrid').innerHTML = `
@@ -267,10 +267,10 @@ categoryButtons.forEach(button => {
             btn.classList.remove('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
             btn.classList.add('glass', 'border', 'border-neutral-200', 'dark:border-neutral-800');
         });
-        
+
         button.classList.remove('glass', 'border', 'border-neutral-200', 'dark:border-neutral-800');
         button.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
-        
+
         // Update category and filter
         currentCategory = button.textContent.trim();
         filterEvents();
