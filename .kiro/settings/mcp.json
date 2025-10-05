@@ -17,7 +17,8 @@
         "apply_migration",
         "execute_sql",
         "get_anon_key",
-        "deploy_edge_function"
+        "deploy_edge_function",
+        "get_logs"
       ]
     }
   }

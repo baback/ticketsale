@@ -129,12 +129,12 @@ signupForm.addEventListener('submit', async (e) => {
         
         if (error) throw error;
         
-        showMessage('Account created successfully! Redirecting...');
+        showMessage('Account created successfully! Please check your email to confirm your account.');
         
-        // Redirect after short delay
+        // Redirect to confirmation page
         setTimeout(() => {
-            window.location.href = '/dashboard/';
-        }, 1000);
+            window.location.href = '/login/confirm/';
+        }, 1500);
         
     } catch (error) {
         console.error('Signup error:', error);

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Your Email - ticketsale.ca</title>
+    <link rel="icon" type="image/svg+xml" href="../../src/img/logo/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../src/styles/output.css">
+</head>
+<body class="bg-white dark:bg-neutral-950 text-black dark:text-neutral-100 font-sans transition-colors duration-300">
+    
+    <!-- Navigation -->
+    <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
+        <div class="glass rounded-full px-4 md:px-6 py-3 shadow-lg border border-neutral-200 dark:border-neutral-800">
+            <div class="flex justify-between items-center">
+                <a href="/" class="flex items-center gap-2 hover:opacity-60 transition-opacity">
+                    <img src="../../src/img/logo/full-black.svg" alt="ticketsale.ca" class="h-3 md:h-4 dark:hidden" />
+                    <img src="../../src/img/logo/full-white.svg" alt="ticketsale.ca" class="h-3 md:h-4 hidden dark:block" />
+                </a>
+                <div class="flex items-center gap-2 md:gap-4">
+                    <a href="/" class="hover:opacity-60 transition-opacity text-xs md:text-sm hidden sm:block">Browse</a>
+                    <a href="../" class="px-3 md:px-5 py-1.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-xs md:text-sm font-medium">
+                        Back to Login
+                    </a>
+                    <button id="themeToggle" class="p-1.5 md:p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                        </svg>
+                        <svg class="w-4 h-4 md:w-5 md:h-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5" />
+                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="min-h-screen flex items-center justify-center px-6 pt-20">
+        <div class="max-w-md w-full">
+            <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800 shadow-2xl text-center space-y-6">
+                
+                <!-- Icon -->
+                <div class="w-16 h-16 mx-auto rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-neutral-600 dark:text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                </div>
+
+                <!-- Content -->
+                <div class="space-y-4">
+                    <h1 class="text-2xl font-bold">Check Your Email</h1>
+                    <p class="text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        We've sent a confirmation link to your email address. Click the link to verify your account and complete your registration.
+                    </p>
+                </div>
+
+                <!-- Email Shortcuts -->
+                <div class="space-y-4">
+                    <p class="text-sm text-neutral-500 dark:text-neutral-500">Quick access to your inbox:</p>
+                    <div class="flex gap-3 justify-center">
+                        <a href="https://gmail.com" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-full glass border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-.904.732-1.636 1.636-1.636h3.819l6.545 4.91 6.545-4.91h3.819A1.636 1.636 0 0 1 24 5.457z"/>
+                            </svg>
+                            Gmail
+                        </a>
+                        <a href="https://outlook.live.com" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-full glass border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7.88 12.04q0 .45-.11.87-.1.41-.33.74-.22.33-.58.52-.37.2-.87.2t-.85-.2q-.35-.21-.57-.55-.22-.33-.33-.75-.1-.42-.1-.83 0-.43.1-.85.11-.41.33-.74.22-.33.57-.52.35-.2.85-.2.5 0 .87.2.36.19.58.52.22.33.33.74.11.42.11.85zM21.5 9v10.5q0 .75-.37 1.35-.38.6-1.02.95-.65.35-1.49.35H5.4q-.75 0-1.4-.35-.65-.35-1.02-.95Q2.6 20.25 2.6 19.5V9q0-.75.38-1.35.37-.6 1.02-.95.65-.35 1.4-.35h13.22q.84 0 1.49.35.64.35 1.02.95.37.6.37 1.35zM7.88 10.5q0 .9-.22 1.68-.22.78-.65 1.34-.43.57-1.07.89-.65.32-1.51.32-.86 0-1.51-.32-.64-.32-1.07-.89-.43-.56-.65-1.34Q1.98 11.4 1.98 10.5q0-.9.22-1.68.22-.78.65-1.34.43-.57 1.07-.89.65-.32 1.51-.32.86 0 1.51.32.64.32 1.07.89.43.56.65 1.34.22.78.22 1.68z"/>
+                            </svg>
+                            Outlook
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Help Text -->
+                <div class="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                    <p class="text-xs text-neutral-500 dark:text-neutral-500">
+                        Didn't receive the email? Check your spam folder or 
+                        <a href="../" class="text-black dark:text-white hover:opacity-60 transition-opacity">try signing up again</a>.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        if (!localStorage.getItem('theme')) {
+            localStorage.setItem('theme', 'dark');
+            html.classList.add('dark');
+        }
+
+        if (localStorage.getItem('theme') === 'dark') {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const theme = html.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        });
+    </script>
+</body>
+</html>

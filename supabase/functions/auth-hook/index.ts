@@ -1,19 +1,25 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+const SITE_URL = Deno.env.get('SITE_URL') || 'https://ticketsale.ca';
 
 Deno.serve(async (req: Request) => {
-  const { event, user } = await req.json();
-  
-  if (event === 'user.created') {
-    // Send confirmation email
-    await sendEmail(user.email, 'Confirm your email - ticketsale.ca', getConfirmEmailTemplate());
-  } else if (event === 'user.confirmed') {
-    // Send welcome email  
-    await sendEmail(user.email, 'Welcome to ticketsale.ca', getWelcomeEmailTemplate());
+  try {
+    const { event, user } = await req.json();
+    
+    if (event === 'user.created') {
+      // Send confirmation email
+      await sendEmail(user.email, 'Confirm your email - ticketsale.ca', getConfirmEmailTemplate());
+    } else if (event === 'user.confirmed') {
+      // Send welcome email  
+      await sendEmail(user.email, 'Welcome to ticketsale.ca', getWelcomeEmailTemplate());
+    }
+    
+    return new Response('OK');
+  } catch (error) {
+    console.error('Error:', error);
+    return new Response('OK'); // Always return OK so signup doesn't fail
   }
-  
-  return new Response('OK');
 });
 
 async function sendEmail(to: string, subject: string, html: string) {
@@ -30,30 +36,6 @@ async function sendEmail(to: string, subject: string, html: string) {
       html,
     }),
   });
-}
-
-
-async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${RESEND_API_KEY}`,
-    },
-    body: JSON.stringify({
-      from: 'ticketsale.ca <noreply@ticketsale.ca>',
-      to: [to],
-      subject,
-      html,
-    }),
-  });
-
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(`Resend API error: ${error}`);
-  }
-
-  return await res.json();
 }
 
 function getConfirmEmailTemplate(): string {
