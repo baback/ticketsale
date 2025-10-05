@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - ticketsale.ca</title>
+    <link rel="icon" type="image/svg+xml" href="../src/img/logo/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../src/styles/output.css">
+</head>
+<body class="bg-white dark:bg-neutral-950 text-black dark:text-neutral-100 font-sans transition-colors duration-300">
+    
+    <!-- Navigation -->
+    <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
+        <div class="glass rounded-full px-6 py-3 shadow-lg border border-neutral-200 dark:border-neutral-800">
+            <div class="flex justify-between items-center">
+                <a href="/" class="flex items-center gap-2 hover:opacity-60 transition-opacity">
+                    <img src="../src/img/logo/full-black.svg" alt="ticketsale.ca" class="h-4 dark:hidden" />
+                    <img src="../src/img/logo/full-white.svg" alt="ticketsale.ca" class="h-4 hidden dark:block" />
+                </a>
+                <div class="flex items-center gap-4">
+                    <a href="/" class="hover:opacity-60 transition-opacity text-sm">Home</a>
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
+                        <svg class="w-5 h-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                        <svg class="w-5 h-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="min-h-screen flex items-center justify-center px-6 pt-32 pb-20">
+        <div class="max-w-2xl w-full">
+            <div class="text-center space-y-12">
+                <div class="space-y-6">
+                    <div class="inline-block p-6 rounded-3xl glass border border-neutral-200 dark:border-neutral-800 shadow-lg">
+                        <svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-5xl md:text-6xl font-bold font-display">Get in Touch</h1>
+                    <p class="text-xl text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto leading-relaxed">
+                        Have questions or need help? We're here for you.
+                    </p>
+                </div>
+
+                <div class="glass rounded-3xl p-12 border border-neutral-200 dark:border-neutral-800 shadow-lg space-y-6">
+                    <p class="text-lg text-neutral-600 dark:text-neutral-400">
+                        Send any inquiries to:
+                    </p>
+                    <a href="mailto:hi@ticketsale.ca" class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform shadow-lg text-lg">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        hi@ticketsale.ca
+                    </a>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                        We typically respond within 24 hours
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="glass rounded-3xl p-12 border border-neutral-200 dark:border-neutral-800 shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <img src="../src/img/logo/full-black.svg" alt="ticketsale.ca" class="h-4 dark:hidden" />
+                        <img src="../src/img/logo/full-white.svg" alt="ticketsale.ca" class="h-4 hidden dark:block" />
+                    </div>
+                    <div class="flex gap-8 text-sm">
+                        <a href="../terms/" class="hover:opacity-60 transition-opacity">Terms</a>
+                        <a href="../privacy/" class="hover:opacity-60 transition-opacity">Privacy</a>
+                        <a href="../support/" class="hover:opacity-60 transition-opacity">Support</a>
+                    </div>
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400">
+                        © 2025 ticketsale.ca
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../src/scripts/theme.js"></script>
+</body>
+</html>

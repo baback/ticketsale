@@ -1,0 +1,23 @@
+{
+  "name": "ticketsale",
+  "version": "1.0.0",
+  "description": "A minimal ticket sales platform for event organizers",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npm run watch:css & npm run serve",
+    "watch:css": "tailwindcss -i ./src/styles/input.css -o ./src/styles/output.css --watch",
+    "build:css": "tailwindcss -i ./src/styles/input.css -o ./src/styles/output.css --minify",
+    "serve": "http-server ./ -p 7070 -a localhost -o"
+  },
+  "keywords": [
+    "ticketing",
+    "events",
+    "sales"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "tailwindcss": "^3.4.0"
+  }
+}

@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.float-animation {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-out forwards;
+}
+
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+    animation: shimmer 3s infinite;
+    background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+    background-size: 1000px 100%;
+}
+
+/* Custom scrollbar for dark mode */
+@layer utilities {
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-track {
+        @apply bg-neutral-100 dark:bg-neutral-900;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        @apply bg-neutral-400 dark:bg-neutral-600 rounded-full;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        @apply bg-neutral-500 dark:bg-neutral-500;
+    }
+    
+    .glass {
+        @apply bg-white/50 dark:bg-neutral-900/50 backdrop-blur-xl;
+    }
+    
+    .bento-card {
+        @apply rounded-3xl p-8 transition-all duration-300;
+    }
+    
+    .bento-card:hover {
+        @apply scale-[1.02];
+    }
+}

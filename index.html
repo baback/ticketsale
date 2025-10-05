@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ticketsale.ca - Empower Your Events</title>
+    <link rel="icon" type="image/svg+xml" href="./src/img/logo/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/styles/output.css">
+</head>
+<body class="bg-white dark:bg-neutral-950 text-black dark:text-neutral-100 font-sans transition-colors duration-300">
+    
+    <!-- Navigation -->
+    <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
+        <div class="glass rounded-full px-6 py-3 shadow-lg border border-neutral-200 dark:border-neutral-800">
+            <div class="flex justify-between items-center">
+                <a href="/" class="flex items-center gap-2 hover:opacity-60 transition-opacity">
+                    <img src="./src/img/logo/full-black.svg" alt="ticketsale.ca" class="h-4 dark:hidden" />
+                    <img src="./src/img/logo/full-white.svg" alt="ticketsale.ca" class="h-4 hidden dark:block" />
+                </a>
+                <div class="flex items-center gap-4">
+                    <a href="#events" class="hover:opacity-60 transition-opacity hidden md:block text-sm">Events</a>
+                    <a href="#categories" class="hover:opacity-60 transition-opacity hidden md:block text-sm">Categories</a>
+                    <a href="./login/" class="hover:opacity-60 transition-opacity text-sm">Sign In</a>
+                    <a href="./organizer/" class="px-5 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-sm font-medium">
+                        For Organizers
+                    </a>
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
+                        <svg class="w-5 h-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                        <svg class="w-5 h-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-40 pb-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center space-y-6 mb-16">
+                <h1 class="text-6xl md:text-8xl font-bold tracking-tight leading-none font-display">
+                    Discover Events
+                </h1>
+                <p class="text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
+                    Find your next experience. From concerts to conferences, all in one place.
+                </p>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="max-w-3xl mx-auto mb-16">
+                <div class="flex gap-3">
+                    <div class="flex-1 relative">
+                        <input 
+                            type="text" 
+                            placeholder="Search events..." 
+                            class="w-full px-6 py-4 rounded-2xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm"
+                        />
+                        <svg class="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                    </div>
+                    <button class="px-6 py-4 rounded-2xl glass border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section id="categories" class="py-8 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-thin">
+                <button class="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black whitespace-nowrap hover:scale-105 transition-transform shadow-sm font-medium">All Events</button>
+                <button class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">Music</button>
+                <button class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">Arts</button>
+                <button class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">Tech</button>
+                <button class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">Sports</button>
+                <button class="px-6 py-3 rounded-full glass border border-neutral-200 dark:border-neutral-800 whitespace-nowrap hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all shadow-sm">Food & Drink</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Grid -->
+    <section id="events" class="py-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="eventsGrid">
+                <!-- Events will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 px-6 mt-20">
+        <div class="max-w-7xl mx-auto">
+            <div class="glass rounded-3xl p-12 border border-neutral-200 dark:border-neutral-800 shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <img src="./src/img/logo/full-black.svg" alt="ticketsale.ca" class="h-4 dark:hidden" />
+                        <img src="./src/img/logo/full-white.svg" alt="ticketsale.ca" class="h-4 hidden dark:block" />
+                    </div>
+                    <div class="flex gap-8 text-sm">
+                        <a href="./terms/" class="hover:opacity-60 transition-opacity">Terms</a>
+                        <a href="./privacy/" class="hover:opacity-60 transition-opacity">Privacy</a>
+                        <a href="./support/" class="hover:opacity-60 transition-opacity">Support</a>
+                    </div>
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400">
+                        © 2025 ticketsale.ca
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./src/scripts/app.js"></script>
+</body>
+</html>
