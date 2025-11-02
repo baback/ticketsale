@@ -1,11 +1,28 @@
 // Events page functionality
 // Theme and auth are handled by shared.js
 
-// State
+// Check if we're viewing a single event or listing
+const urlParams = new URLSearchParams(window.location.search);
+const isSingleEvent = urlParams.has('event');
+
+// State for event listing
 let events = [];
 let allCategories = [];
 let currentCategory = 'All Events';
 let searchQuery = '';
+
+// Get event ID from URL
+function getEventId() {
+    const slug = urlParams.get('event');
+    if (!slug) return null;
+    
+    // Extract UUID from slug (last 5 parts)
+    const parts = slug.split('-');
+    if (parts.length >= 5) {
+        return parts.slice(-5).join('-');
+    }
+    return null;
+}
 
 // Show loading skeletons
 function showLoading() {
@@ -197,16 +214,7 @@ if (searchInput) {
     });
 }
 
-// Initialize
-if (document.getElementById('eventsGrid')) {
-    loadCategories();
-    loadEvents();
-    }
-    
-    return null;
-}
-
-// Show skeleton loading
+// Show skeleton loading for single event
 function showSkeleton() {
     const content = document.getElementById('eventContent');
     content.innerHTML = `
@@ -438,5 +446,22 @@ async function loadEvent() {
     }
 }
 
-// Initialize
-loadEvent();
+// Initialize based on URL
+if (isSingleEvent) {
+    // Show single event details, hide listing
+    const listingSection = document.getElementById('eventsListing');
+    const singleSection = document.getElementById('singleEventView');
+    if (listingSection) listingSection.classList.add('hidden');
+    if (singleSection) singleSection.classList.remove('hidden');
+    loadEvent();
+} else {
+    // Show event listing, hide single view
+    const listingSection = document.getElementById('eventsListing');
+    const singleSection = document.getElementById('singleEventView');
+    if (singleSection) singleSection.classList.add('hidden');
+    if (listingSection) listingSection.classList.remove('hidden');
+    if (document.getElementById('eventsGrid')) {
+        loadCategories();
+        loadEvents();
+    }
+}

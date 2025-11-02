@@ -40,11 +40,13 @@
                     <img src="../src/img/logo/full-white.svg" alt="ticketsale.ca" class="h-3 md:h-4 hidden dark:block" />
                 </a>
                 <div class="flex items-center gap-2 md:gap-4">
-                    <a href="/" class="hover:opacity-60 transition-opacity text-xs md:text-sm">Home</a>
+                    <a href="/#events" class="hover:opacity-60 transition-opacity hidden lg:block text-sm">Events</a>
+                    <a href="/#categories" class="hover:opacity-60 transition-opacity hidden lg:block text-sm">Categories</a>
                     
                     <!-- Logged Out State -->
-                    <a href="../login/" id="signInLink" class="px-3 md:px-5 py-1.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-xs md:text-sm font-medium">
-                        Sign In
+                    <a href="../login/" id="signInLink" class="hover:opacity-60 transition-opacity text-xs md:text-sm">Sign In</a>
+                    <a href="../organizer/" id="organizersLink" class="px-3 md:px-5 py-1.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-xs md:text-sm font-medium whitespace-nowrap">
+                        Organizers
                     </a>
                     
                     <!-- Logged In State (Hidden by default) -->
@@ -71,8 +73,15 @@
         </div>
     </nav>
 
-    <!-- Events Section -->
-    <section id="events" class="pt-32 pb-16 px-6">
+    <!-- Single Event View (shown when ?event= param exists) -->
+    <div id="singleEventView" class="hidden pt-32 pb-16 px-6">
+        <div class="max-w-6xl mx-auto" id="eventContent">
+            <!-- Single event content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Events Listing (shown by default) -->
+    <section id="eventsListing" class="pt-32 pb-16 px-6">
         <div class="max-w-7xl mx-auto">
             <div class="text-center space-y-4 mb-12">
                 <h2 class="text-5xl md:text-6xl font-bold tracking-tight font-display">Browse Events</h2>
