@@ -34,7 +34,7 @@ async function initDashboard() {
 async function loadUserProfile(user) {
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('users')
       .select('*')
       .eq('id', user.id)
       .single();
@@ -234,7 +234,7 @@ async function loadEvents() {
     const { data: { user } } = await supabase.auth.getUser();
     
     // Check if user is an organizer
-    if (!userProfile || !userProfile.is_organizer) {
+    if (!userProfile || (userProfile.role !== 'organizer' && userProfile.role !== 'both')) {
       document.getElementById('eventsList').classList.add('hidden');
       document.getElementById('eventsEmpty').classList.add('hidden');
       document.getElementById('notOrganizerState').classList.remove('hidden');
@@ -306,7 +306,7 @@ async function editName() {
     const { data: { user } } = await supabase.auth.getUser();
     
     const { error } = await supabase
-      .from('profiles')
+      .from('users')
       .update({ full_name: newName })
       .eq('id', user.id);
     
