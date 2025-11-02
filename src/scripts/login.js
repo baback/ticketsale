@@ -1,3 +1,19 @@
+// Check if user is already logged in and redirect to dashboard
+async function checkAuthAndRedirect() {
+    try {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (session) {
+            // User is already logged in, redirect to dashboard
+            window.location.href = '/dashboard/';
+        }
+    } catch (error) {
+        console.error('Error checking auth:', error);
+    }
+}
+
+// Run auth check
+checkAuthAndRedirect();
+
 // Theme Toggle
 const themeToggle = document.getElementById('themeToggle');
 const html = document.documentElement;
