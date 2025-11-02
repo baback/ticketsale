@@ -1,5 +1,17 @@
 /** @format */
 
+// Initialize theme
+if (!localStorage.getItem('theme')) {
+  localStorage.setItem('theme', 'dark');
+  document.documentElement.classList.add('dark');
+}
+
+if (localStorage.getItem('theme') === 'dark') {
+  document.documentElement.classList.add('dark');
+} else {
+  document.documentElement.classList.remove('dark');
+}
+
 // Dashboard functionality
 let currentMode = 'buyer'; // 'buyer' or 'organizer'
 let userProfile = null;
@@ -44,13 +56,20 @@ async function loadUserProfile(user) {
     userProfile = data;
     
     // Update UI with user info
-    const userEmail = document.getElementById('userEmail');
     const userName = document.getElementById('userName');
+    const userDisplayName = document.getElementById('userDisplayName');
+    const userEmailShort = document.getElementById('userEmailShort');
+    const userAvatar = document.getElementById('userAvatar');
     const settingsEmail = document.getElementById('settingsEmail');
     const settingsName = document.getElementById('settingsName');
     
-    if (userEmail) userEmail.textContent = user.email;
-    if (userName) userName.textContent = userProfile.full_name || user.email.split('@')[0];
+    const displayName = userProfile.full_name || user.email.split('@')[0];
+    const initials = getInitials(displayName);
+    
+    if (userName) userName.textContent = displayName;
+    if (userDisplayName) userDisplayName.textContent = displayName;
+    if (userEmailShort) userEmailShort.textContent = user.email;
+    if (userAvatar) userAvatar.textContent = initials;
     if (settingsEmail) settingsEmail.textContent = user.email;
     if (settingsName) settingsName.textContent = userProfile.full_name || 'Not set';
     
@@ -58,29 +77,77 @@ async function loadUserProfile(user) {
     console.error('Error loading profile:', error);
     // If profile doesn't exist, user info from auth is still available
     const user = (await supabase.auth.getUser()).data.user;
-    const userEmail = document.getElementById('userEmail');
     const userName = document.getElementById('userName');
+    const userDisplayName = document.getElementById('userDisplayName');
+    const userEmailShort = document.getElementById('userEmailShort');
+    const userAvatar = document.getElementById('userAvatar');
     const settingsEmail = document.getElementById('settingsEmail');
     
-    if (userEmail) userEmail.textContent = user.email;
-    if (userName) userName.textContent = user.email.split('@')[0];
+    const displayName = user.email.split('@')[0];
+    const initials = getInitials(displayName);
+    
+    if (userName) userName.textContent = displayName;
+    if (userDisplayName) userDisplayName.textContent = displayName;
+    if (userEmailShort) userEmailShort.textContent = user.email;
+    if (userAvatar) userAvatar.textContent = initials;
     if (settingsEmail) settingsEmail.textContent = user.email;
   }
 }
 
+// Get user initials
+function getInitials(name) {
+  if (!name) return 'U';
+  const parts = name.split(' ');
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+}
+
 // Set up event listeners
 function setupEventListeners() {
-  // Mode toggle buttons
-  const buyerModeBtn = document.getElementById('buyerModeBtn');
-  const organizerModeBtn = document.getElementById('organizerModeBtn');
+  // User menu dropdown
+  const userMenuBtn = document.getElementById('userMenuBtn');
+  const userDropdown = document.getElementById('userDropdown');
   
-  if (buyerModeBtn) {
-    buyerModeBtn.addEventListener('click', () => switchMode('buyer'));
+  if (userMenuBtn && userDropdown) {
+    userMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userDropdown.classList.toggle('hidden');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      userDropdown.classList.add('hidden');
+    });
   }
   
-  if (organizerModeBtn) {
-    organizerModeBtn.addEventListener('click', () => switchMode('organizer'));
+  // Mode switch button in dropdown
+  const switchModeBtn = document.getElementById('switchModeBtn');
+  if (switchModeBtn) {
+    switchModeBtn.addEventListener('click', () => {
+      const newMode = currentMode === 'buyer' ? 'organizer' : 'buyer';
+      switchMode(newMode);
+      userDropdown.classList.add('hidden');
+    });
   }
+  
+  // Theme toggle in dropdown
+  const dropdownThemeToggle = document.getElementById('dropdownThemeToggle');
+  if (dropdownThemeToggle) {
+    dropdownThemeToggle.addEventListener('click', toggleTheme);
+  }
+  
+  // Navigation items
+  const navOverview = document.getElementById('navOverview');
+  const navTickets = document.getElementById('navTickets');
+  const navEvents = document.getElementById('navEvents');
+  const navSettings = document.getElementById('navSettings');
+  
+  if (navOverview) navOverview.addEventListener('click', (e) => { e.preventDefault(); showSection('overview'); });
+  if (navTickets) navTickets.addEventListener('click', (e) => { e.preventDefault(); showSection('tickets'); });
+  if (navEvents) navEvents.addEventListener('click', (e) => { e.preventDefault(); showSection('events'); });
+  if (navSettings) navSettings.addEventListener('click', (e) => { e.preventDefault(); showSection('settings'); });
   
   // Create event buttons
   const createEventBtn = document.getElementById('createEventBtn');
@@ -121,35 +188,55 @@ function setupEventListeners() {
 function switchMode(mode) {
   currentMode = mode;
   
-  const buyerModeBtn = document.getElementById('buyerModeBtn');
-  const organizerModeBtn = document.getElementById('organizerModeBtn');
   const buyerContent = document.getElementById('buyerContent');
   const organizerContent = document.getElementById('organizerContent');
+  const switchModeText = document.getElementById('switchModeText');
+  const currentModeText = document.getElementById('currentModeText');
+  const navTickets = document.getElementById('navTickets');
+  const navEvents = document.getElementById('navEvents');
   
   if (mode === 'buyer') {
-    // Update button styles
-    buyerModeBtn.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
-    buyerModeBtn.classList.remove('hover:bg-neutral-100', 'dark:hover:bg-neutral-800');
-    organizerModeBtn.classList.remove('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
-    organizerModeBtn.classList.add('hover:bg-neutral-100', 'dark:hover:bg-neutral-800');
-    
     // Show/hide content
     buyerContent.classList.remove('hidden');
     organizerContent.classList.add('hidden');
-  } else {
-    // Update button styles
-    organizerModeBtn.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
-    organizerModeBtn.classList.remove('hover:bg-neutral-100', 'dark:hover:bg-neutral-800');
-    buyerModeBtn.classList.remove('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
-    buyerModeBtn.classList.add('hover:bg-neutral-100', 'dark:hover:bg-neutral-800');
     
+    // Update UI text
+    if (switchModeText) switchModeText.textContent = 'Switch to Organizer';
+    if (currentModeText) currentModeText.textContent = 'Buyer Mode';
+    
+    // Update navigation
+    if (navTickets) navTickets.classList.remove('hidden');
+    if (navEvents) navEvents.classList.add('hidden');
+  } else {
     // Show/hide content
     organizerContent.classList.remove('hidden');
     buyerContent.classList.add('hidden');
+    
+    // Update UI text
+    if (switchModeText) switchModeText.textContent = 'Switch to Buyer';
+    if (currentModeText) currentModeText.textContent = 'Organizer Mode';
+    
+    // Update navigation
+    if (navTickets) navTickets.classList.add('hidden');
+    if (navEvents) navEvents.classList.remove('hidden');
   }
   
   // Load content for the selected mode
   loadContent();
+}
+
+// Show different sections
+function showSection(section) {
+  // This will be expanded later for different views
+  console.log('Showing section:', section);
+}
+
+// Toggle theme
+function toggleTheme() {
+  const html = document.documentElement;
+  html.classList.toggle('dark');
+  const theme = html.classList.contains('dark') ? 'dark' : 'light';
+  localStorage.setItem('theme', theme);
 }
 
 // Load content based on current mode
