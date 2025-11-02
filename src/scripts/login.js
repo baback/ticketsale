@@ -24,7 +24,12 @@ const loginTab = document.getElementById('loginTab');
 const signupTab = document.getElementById('signupTab');
 const loginForm = document.getElementById('loginForm');
 const signupForm = document.getElementById('signupForm');
+const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+const backToLoginBtn = document.getElementById('backToLoginBtn');
 const messageDiv = document.getElementById('message');
+const pageTitle = document.getElementById('pageTitle');
+const pageSubtitle = document.getElementById('pageSubtitle');
 
 loginTab.addEventListener('click', () => {
     loginTab.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
@@ -34,6 +39,9 @@ loginTab.addEventListener('click', () => {
     
     loginForm.classList.remove('hidden');
     signupForm.classList.add('hidden');
+    forgotPasswordForm.classList.add('hidden');
+    pageTitle.textContent = 'Welcome Back';
+    pageSubtitle.textContent = 'Sign in to access your tickets';
     hideMessage();
 });
 
@@ -45,6 +53,26 @@ signupTab.addEventListener('click', () => {
     
     signupForm.classList.remove('hidden');
     loginForm.classList.add('hidden');
+    forgotPasswordForm.classList.add('hidden');
+    pageTitle.textContent = 'Create Account';
+    pageSubtitle.textContent = 'Join ticketsale.ca today';
+    hideMessage();
+});
+
+forgotPasswordBtn.addEventListener('click', () => {
+    loginForm.classList.add('hidden');
+    signupForm.classList.add('hidden');
+    forgotPasswordForm.classList.remove('hidden');
+    pageTitle.textContent = 'Reset Password';
+    pageSubtitle.textContent = 'Enter your email to receive a reset link';
+    hideMessage();
+});
+
+backToLoginBtn.addEventListener('click', () => {
+    forgotPasswordForm.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+    pageTitle.textContent = 'Welcome Back';
+    pageSubtitle.textContent = 'Sign in to access your tickets';
     hideMessage();
 });
 
@@ -211,6 +239,51 @@ function rotateTestimonials() {
     
     currentTestimonial = (currentTestimonial + 1) % testimonials.length;
 }
+
+// Forgot password handler
+forgotPasswordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMessage();
+    
+    const email = document.getElementById('resetEmail').value;
+    
+    const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    
+    try {
+        // Use current origin for redirect (works for both localhost and production)
+        const redirectUrl = `${window.location.origin}/login/reset-password/`;
+        console.log('Reset redirect URL:', redirectUrl);
+        
+        const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: redirectUrl
+        });
+        
+        if (error) throw error;
+        
+        showMessage('Password reset link sent! Check your email.');
+        
+        // Clear form and go back to login after delay
+        setTimeout(() => {
+            document.getElementById('resetEmail').value = '';
+            backToLoginBtn.click();
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Password reset error:', error);
+        
+        // Handle rate limit error specifically
+        if (error.message && error.message.includes('rate limit')) {
+            showMessage('Too many requests. Please wait a few minutes and try again.', true);
+        } else {
+            showMessage(error.message || 'Failed to send reset link. Please try again.', true);
+        }
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Reset Link';
+    }
+});
 
 // Initialize testimonials
 rotateTestimonials();
