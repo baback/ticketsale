@@ -46,27 +46,32 @@
                             class="h-3 md:h-4 hidden dark:block" />
                     </a>
                     <div class="flex items-center gap-2 md:gap-4">
-                        <a href="/"
-                            class="hover:opacity-60 transition-opacity text-xs md:text-sm hidden sm:block">Browse</a>
-                        <a href="#features"
-                            class="hover:opacity-60 transition-opacity hidden lg:block text-sm">Features</a>
-                        <a href="#pricing"
-                            class="hover:opacity-60 transition-opacity hidden lg:block text-sm">Pricing</a>
-                        <a href="../login/"
-                            class="px-3 md:px-5 py-1.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-xs md:text-sm font-medium">
+                        <a href="/" class="hover:opacity-60 transition-opacity text-xs md:text-sm hidden sm:block">Browse</a>
+                        <a href="#features" class="hover:opacity-60 transition-opacity hidden lg:block text-sm">Features</a>
+                        <a href="#pricing" class="hover:opacity-60 transition-opacity hidden lg:block text-sm">Pricing</a>
+                        
+                        <!-- Logged Out State -->
+                        <a href="../login/" id="signInLink" class="px-3 md:px-5 py-1.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-xs md:text-sm font-medium">
                             Sign In
                         </a>
-                        <button id="themeToggle"
-                            class="p-1.5 md:p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
-                            <svg class="w-4 h-4 md:w-5 md:h-5 dark:hidden" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
+                        
+                        <!-- Logged In State (Hidden by default) -->
+                        <a href="../dashboard/" id="dashboardLink" class="hidden px-3 md:px-5 py-1.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-xs md:text-sm font-medium whitespace-nowrap">
+                            Dashboard
+                        </a>
+                        <a href="../dashboard/" id="userAvatarLink" class="hidden">
+                            <div id="headerUserAvatar" class="w-8 h-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-semibold text-xs hover:scale-110 transition-transform">
+                                U
+                            </div>
+                        </a>
+                        
+                        <button type="button" id="themeToggle" class="p-1.5 md:p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all" aria-label="Toggle theme">
+                            <svg class="w-4 h-4 md:w-5 md:h-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                             </svg>
-                            <svg class="w-4 h-4 md:w-5 md:h-5 hidden dark:block" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4 md:w-5 md:h-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="5" />
-                                <path
-                                    d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                                <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                             </svg>
                         </button>
                     </div>

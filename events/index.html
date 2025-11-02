@@ -71,12 +71,42 @@
         </div>
     </nav>
 
-    <!-- Event Content -->
-    <main class="pt-32 pb-16 px-6">
-        <div class="max-w-6xl mx-auto" id="eventContent">
-            <!-- Content will be loaded here -->
+    <!-- Events Section -->
+    <section id="events" class="pt-32 pb-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center space-y-4 mb-12">
+                <h2 class="text-5xl md:text-6xl font-bold tracking-tight font-display">Browse Events</h2>
+                <p class="text-xl text-neutral-600 dark:text-neutral-400">
+                    Find your next experience
+                </p>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="max-w-3xl mx-auto mb-12">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        placeholder="Search events..." 
+                        class="w-full px-6 py-4 rounded-full glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-all shadow-sm pl-14"
+                    />
+                    <svg class="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="flex gap-3 overflow-x-auto pb-4 mb-12 scrollbar-hide">
+                <!-- Categories will be loaded here -->
+            </div>
+
+            <!-- Events Grid -->
+            <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Events will be loaded here -->
+            </div>
         </div>
-    </main>
+    </section>
 
     <!-- Footer -->
     <footer class="py-16 px-6 mt-20">
