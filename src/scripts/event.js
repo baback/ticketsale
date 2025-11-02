@@ -272,11 +272,15 @@ function showError(message) {
 }
 
 // Render event
-function renderEvent(event) {
+async function renderEvent(event) {
     const content = document.getElementById('eventContent');
     
     // Update page title
     document.title = `${event.title} - ticketsale.ca`;
+    
+    // Check if user is logged in
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const isLoggedIn = !!session;
     
     // Format date
     const eventDate = new Date(event.event_date);
@@ -385,7 +389,7 @@ function renderEvent(event) {
                         </div>
                         `}
                         
-                        <a href="../checkout/?event=${event.id}" id="getTicketsBtn" class="block w-full py-4 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold text-center hover:scale-105 transition-transform shadow-lg">
+                        <a href="${isLoggedIn ? `../checkout/?event=${event.id}` : `../login/?redirect=${encodeURIComponent('/checkout/?event=' + event.id)}`}" class="block w-full py-4 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold text-center hover:scale-105 transition-transform shadow-lg">
                             Get Tickets
                         </a>
                     </div>
