@@ -385,7 +385,7 @@ function renderEvent(event) {
                         </div>
                         `}
                         
-                        <a href="../login/" class="block w-full py-4 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold text-center hover:scale-105 transition-transform shadow-lg">
+                        <a href="../checkout/?event=${event.id}" id="getTicketsBtn" class="block w-full py-4 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold text-center hover:scale-105 transition-transform shadow-lg">
                             Get Tickets
                         </a>
                     </div>

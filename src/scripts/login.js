@@ -1,10 +1,17 @@
-// Check if user is already logged in and redirect to dashboard
+// Check if user is already logged in and redirect
 async function checkAuthAndRedirect() {
     try {
         const { data: { session } } = await window.supabaseClient.auth.getSession();
         if (session) {
-            // User is already logged in, redirect to dashboard
-            window.location.href = '/dashboard/';
+            // Check for redirect parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('redirect');
+            
+            if (redirect) {
+                window.location.href = redirect;
+            } else {
+                window.location.href = '/dashboard/';
+            }
         }
     } catch (error) {
         console.error('Error checking auth:', error);
@@ -133,9 +140,17 @@ loginForm.addEventListener('submit', async (e) => {
         
         showMessage('Login successful! Redirecting...');
         
+        // Check for redirect parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect');
+        
         // Redirect after short delay
         setTimeout(() => {
-            window.location.href = '/dashboard/';
+            if (redirect) {
+                window.location.href = redirect;
+            } else {
+                window.location.href = '/dashboard/';
+            }
         }, 1000);
         
     } catch (error) {
