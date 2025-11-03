@@ -251,7 +251,9 @@ async function loadContent() {
 // Load user's tickets
 async function loadTickets() {
   try {
+    console.log('Loading tickets...');
     const { data: { user } } = await supabase.auth.getUser();
+    console.log('User ID:', user.id);
     
     const { data: tickets, error } = await supabase
       .from('tickets')
@@ -269,6 +271,8 @@ async function loadTickets() {
       `)
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
+    
+    console.log('Tickets query result:', { tickets, error });
     
     if (error) throw error;
     
