@@ -248,8 +248,40 @@ function showError() {
 
 // Checkout button handler
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
-    // TODO: Implement payment processing
-    alert('Payment processing will be implemented next. Selected tickets: ' + JSON.stringify(ticketSelections));
+    const btn = document.getElementById('checkoutBtn');
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+    
+    try {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        
+        if (!session) {
+            window.location.href = `../login/?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+            return;
+        }
+        
+        // Call Edge Function to create Stripe checkout session
+        const { data, error } = await window.supabaseClient.functions.invoke('create-checkout-session', {
+            body: {
+                eventId: eventId,
+                ticketSelections: ticketSelections
+            }
+        });
+        
+        if (error) throw error;
+        
+        if (data.url) {
+            // Redirect to Stripe Checkout
+            window.location.href = data.url;
+        } else {
+            throw new Error('No checkout URL returned');
+        }
+    } catch (error) {
+        console.error('Checkout error:', error);
+        alert('Failed to process checkout. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Proceed to Payment';
+    }
 });
 
 // Check authentication
