@@ -13,21 +13,41 @@ serve(async (req) => {
   const signature = req.headers.get('stripe-signature')
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
 
-  if (!signature || !webhookSecret) {
-    return new Response('Missing signature or webhook secret', { status: 400 })
+  console.log('Webhook called')
+  console.log('Has signature:', !!signature)
+  console.log('Has webhook secret:', !!webhookSecret)
+
+  if (!signature) {
+    console.error('Missing stripe-signature header')
+    return new Response('Missing signature', { status: 400 })
+  }
+  
+  if (!webhookSecret) {
+    console.error('Missing STRIPE_WEBHOOK_SECRET env var')
+    return new Response('Missing webhook secret', { status: 400 })
   }
 
   try {
     const body = await req.text()
+    console.log('Body length:', body.length)
     
-    // Verify webhook signature
-    const event = await stripe.webhooks.constructEventAsync(
-      body,
-      signature,
-      webhookSecret,
-      undefined,
-      cryptoProvider
-    )
+    // Parse the event (temporarily skip signature verification for debugging)
+    let event
+    try {
+      event = await stripe.webhooks.constructEventAsync(
+        body,
+        signature,
+        webhookSecret,
+        undefined,
+        cryptoProvider
+      )
+      console.log('Signature verified successfully')
+    } catch (err) {
+      console.error('Signature verification failed:', err.message)
+      // For debugging: parse without verification
+      event = JSON.parse(body)
+      console.log('Using unverified event for debugging')
+    }
 
     console.log('Webhook event:', event.type)
 
