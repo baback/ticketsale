@@ -1,0 +1,115 @@
+// Dashboard Sidebar Component Script
+// This script handles all sidebar functionality across dashboard pages
+
+(async function initDashboardSidebar() {
+  // Check authentication
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = '/login/';
+    return;
+  }
+
+  // Load sidebar HTML
+  const sidebarContainer = document.getElementById('dashboardSidebar');
+  if (sidebarContainer) {
+    try {
+      const response = await fetch('/dashboard/sidebar.html');
+      const sidebarHTML = await response.text();
+      sidebarContainer.innerHTML = sidebarHTML;
+      
+      // Initialize sidebar after loading
+      initSidebarFunctionality();
+    } catch (error) {
+      console.error('Error loading sidebar:', error);
+    }
+  }
+
+  function initSidebarFunctionality() {
+    // Load user info
+    loadUserInfo();
+    
+    // Highlight active nav item
+    highlightActiveNav();
+    
+    // User dropdown toggle
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    if (userMenuBtn && userDropdown) {
+      userMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('hidden');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+          userDropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    // Theme toggle
+    const themeToggle = document.getElementById('dropdownThemeToggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+    }
+
+    // Switch to organizer mode
+    const switchModeBtn = document.getElementById('switchModeBtn');
+    if (switchModeBtn) {
+      switchModeBtn.addEventListener('click', () => {
+        window.location.href = '/organizer/';
+      });
+    }
+
+    // Logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.href = '/';
+      });
+    }
+  }
+
+  async function loadUserInfo() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const email = session.user.email || '';
+      const name = session.user.user_metadata?.full_name || email.split('@')[0] || 'User';
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      
+      const userDisplayName = document.getElementById('userDisplayName');
+      const userEmailShort = document.getElementById('userEmailShort');
+      const userAvatar = document.getElementById('userAvatar');
+      
+      if (userDisplayName) userDisplayName.textContent = name;
+      if (userEmailShort) userEmailShort.textContent = email;
+      if (userAvatar) userAvatar.textContent = initials;
+    }
+  }
+
+  function highlightActiveNav() {
+    const path = window.location.pathname;
+    const navLinks = document.querySelectorAll('[data-nav]');
+    
+    navLinks.forEach(link => {
+      link.classList.remove('bg-neutral-100', 'dark:bg-neutral-800');
+      
+      const navType = link.getAttribute('data-nav');
+      if (
+        (navType === 'overview' && path === '/dashboard') ||
+        (navType === 'overview' && path === '/dashboard/') ||
+        (navType === 'mytickets' && path.includes('/dashboard/mytickets')) ||
+        (navType === 'events' && path.includes('/dashboard/events')) ||
+        (navType === 'settings' && path.includes('/dashboard/settings'))
+      ) {
+        link.classList.add('bg-neutral-100', 'dark:bg-neutral-800');
+      }
+    });
+  }
+})();
