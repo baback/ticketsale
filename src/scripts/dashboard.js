@@ -259,43 +259,53 @@ async function loadTickets() {
     const { data: { user } } = await supabase.auth.getUser();
     console.log('User ID:', user.id);
     
-    // Get orders with tickets
-    const { data: orders, error } = await supabase
+    // Get orders with tickets - using separate queries to avoid PostgreSQL join issues
+    const { data: orders, error: ordersError } = await supabase
       .from('orders')
-      .select(`
-        id,
-        status,
-        total,
-        created_at,
-        events!event_id (
-          id,
-          name,
-          venue,
-          event_date
-        ),
-        order_items (
-          id,
-          quantity,
-          ticket_types (
-            name,
-            price
-          )
-        ),
-        tickets (
-          id,
-          ticket_number,
-          qr_code,
-          status,
-          created_at
-        )
-      `)
+      .select('id, status, total, created_at, event_id')
       .eq('user_id', user.id)
       .eq('status', 'completed')
       .order('created_at', { ascending: false });
     
-    console.log('Orders query result:', { orders, error });
+    console.log('Orders query result:', { orders, error: ordersError });
     
-    if (error) throw error;
+    if (ordersError) throw ordersError;
+    
+    // Fetch related data separately
+    if (orders && orders.length > 0) {
+      const eventIds = [...new Set(orders.map(o => o.event_id))];
+      
+      const { data: events } = await supabase
+        .from('events')
+        .select('id, name, venue, event_date')
+        .in('id', eventIds);
+      
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('id, order_id, quantity, ticket_type_id')
+        .in('order_id', orders.map(o => o.id));
+      
+      const ticketTypeIds = [...new Set(orderItems?.map(oi => oi.ticket_type_id) || [])];
+      const { data: ticketTypes } = await supabase
+        .from('ticket_types')
+        .select('id, name, price')
+        .in('id', ticketTypeIds);
+      
+      const { data: tickets } = await supabase
+        .from('tickets')
+        .select('id, order_id, ticket_number, qr_code, status, created_at')
+        .in('order_id', orders.map(o => o.id));
+      
+      // Combine the data
+      orders.forEach(order => {
+        order.events = events?.find(e => e.id === order.event_id);
+        order.order_items = orderItems?.filter(oi => oi.order_id === order.id).map(oi => ({
+          ...oi,
+          ticket_types: ticketTypes?.find(tt => tt.id === oi.ticket_type_id)
+        })) || [];
+        order.tickets = tickets?.filter(t => t.order_id === order.id) || [];
+      });
+    }
     
     const ticketsList = document.getElementById('ticketsList');
     const ticketsEmpty = document.getElementById('ticketsEmpty');
@@ -361,41 +371,49 @@ async function loadTickets() {
 // View tickets modal with PDF download link
 async function viewTickets(orderId) {
   try {
-    const { data: order, error } = await supabase
+    // Get order with separate queries
+    const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select(`
-        id,
-        status,
-        total,
-        created_at,
-        events!event_id (
-          id,
-          name,
-          venue,
-          event_date
-        ),
-        order_items (
-          *,
-          ticket_types (
-            name,
-            price
-          )
-        ),
-        tickets (
-          id,
-          ticket_number,
-          qr_code,
-          status,
-          created_at
-        )
-      `)
+      .select('id, status, total, created_at, event_id')
       .eq('id', orderId)
       .single();
     
-    if (error) throw error;
+    if (orderError) throw orderError;
     
-    const event = order.events;
-    const tickets = order.tickets || [];
+    // Get event
+    const { data: event } = await supabase
+      .from('events')
+      .select('id, name, venue, event_date')
+      .eq('id', order.event_id)
+      .single();
+    
+    // Get order items
+    const { data: orderItems } = await supabase
+      .from('order_items')
+      .select('id, order_id, quantity, ticket_type_id')
+      .eq('order_id', orderId);
+    
+    // Get ticket types
+    const ticketTypeIds = orderItems?.map(oi => oi.ticket_type_id) || [];
+    const { data: ticketTypes } = await supabase
+      .from('ticket_types')
+      .select('id, name, price')
+      .in('id', ticketTypeIds);
+    
+    // Get tickets
+    const { data: tickets } = await supabase
+      .from('tickets')
+      .select('id, order_id, ticket_number, qr_code, status, created_at')
+      .eq('order_id', orderId);
+    
+    // Combine data
+    order.events = event;
+    order.order_items = orderItems?.map(oi => ({
+      ...oi,
+      ticket_types: ticketTypes?.find(tt => tt.id === oi.ticket_type_id)
+    })) || [];
+    order.tickets = tickets || [];
+    
     const ticketType = order.order_items[0]?.ticket_types;
     
     const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
