@@ -6,9 +6,11 @@ module.exports = {
     "./login/**/*.html",
     "./dashboard/**/*.html",
     "./events/**/*.html",
+    "./checkout/**/*.html",
     "./terms/**/*.html",
     "./privacy/**/*.html",
     "./support/**/*.html",
+    "./auth/**/*.html",
     "./src/scripts/**/*.js"
   ],
   darkMode: 'class',
