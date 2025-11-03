@@ -228,7 +228,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
       return `
         <div class="ticket">
           <div class="ticket-header">
-            <img src="https://ticketsale.ca/img/full-white.png" alt="ticketsale.ca" style="width: 180px; height: auto;" />
+            <img src="https://ticketsale.ca/img/logo/full-white.png" alt="ticketsale.ca" style="width: 180px; height: auto;" />
           </div>
           <div class="ticket-body">
             <h1 class="event-name">${event.title}</h1>
@@ -475,7 +475,7 @@ function getEmailTemplate(
                 <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #171717; border-radius: 24px; border: 1px solid #262626; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);">
                     <tr>
                         <td style="padding: 40px 40px 20px 40px; text-align: center;">
-                            <img src="https://ticketsale.ca/img/full-white.png" alt="ticketsale.ca" width="150" style="display: inline-block; max-width: 150px; height: auto;" />
+                            <img src="https://ticketsale.ca/img/logo/full-white.png" alt="ticketsale.ca" width="150" style="display: inline-block; max-width: 150px; height: auto;" />
                         </td>
                     </tr>
                     <tr>
