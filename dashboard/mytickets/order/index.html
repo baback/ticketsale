@@ -4,30 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details - ticketsale.ca</title>
-    <link rel="stylesheet" href="../../src/styles/output.css">
+    <link rel="stylesheet" href="../../../src/styles/output.css">
 </head>
 <body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
-    <!-- Navigation -->
-    <nav class="border-b border-neutral-200 dark:border-neutral-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 border-r border-neutral-200 dark:border-neutral-800 flex flex-col">
+            <div class="p-6 border-b border-neutral-200 dark:border-neutral-800">
                 <a href="/" class="flex items-center">
                     <svg width="120" height="13" viewBox="0 0 433 47" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-black dark:text-white">
                         <path d="M7.25872 3.48535C8.45986 2.59539 9.96562 2.21848 11.4443 2.43848H55.8896C57.3682 2.65852 58.857 3.73049 59.747 4.93164C60.637 6.13283 61.0129 7.6385 60.7929 9.11719L59.1337 20.2676C57.6551 20.0476 56.1493 20.4245 54.9482 21.3145C53.7472 22.2044 52.9485 23.5351 52.7284 25.0137C52.5084 26.4923 52.8853 27.998 53.7753 29.1992C54.6653 30.4003 55.9959 31.1989 57.4745 31.4189L55.8154 42.5693C55.5953 44.0479 54.7967 45.3786 53.5956 46.2686C52.3944 47.1586 50.8888 47.5355 49.4101 47.3154H4.96477C3.48608 47.0954 1.99735 46.0235 1.10735 44.8223C0.217404 43.6211 -0.158589 42.1154 0.0614515 40.6367L1.72063 29.4863C3.19928 29.7063 4.70502 29.3294 5.90618 28.4395C7.10721 27.5495 7.90588 26.2188 8.1259 24.7402C8.34591 23.2616 7.969 21.7558 7.07903 20.5547C6.18904 19.3537 4.85838 18.555 3.37981 18.335L5.03899 7.18457C5.25902 5.70601 6.0577 4.37535 7.25872 3.48535ZM282.819 11.1826C284.486 11.1826 286.114 11.3796 287.705 11.7734C289.311 12.1673 290.728 12.8185 291.955 13.7275C293.197 14.6215 294.107 15.8413 294.683 17.3867C295.273 18.9322 295.372 20.8644 294.978 23.1826L291.092 46.5459H283.183L284.001 41.75H283.728C283.077 42.7197 282.228 43.6291 281.183 44.4775C280.137 45.3109 278.894 45.9848 277.455 46.5C276.016 46.9999 274.387 47.25 272.569 47.25C270.357 47.25 268.432 46.8562 266.796 46.0684C265.16 45.2654 263.955 44.0838 263.183 42.5234C262.425 40.9628 262.235 39.0379 262.614 36.75C262.948 34.7806 263.584 33.152 264.523 31.8643C265.478 30.5764 266.645 29.5462 268.023 28.7734C269.417 27.9856 270.933 27.3939 272.569 27C274.221 26.6061 275.902 26.3185 277.614 26.1367C279.705 25.9246 281.395 25.7277 282.683 25.5459C283.986 25.3641 284.963 25.0912 285.614 24.7275C286.266 24.3488 286.659 23.7727 286.796 23V22.8643C287.069 21.1522 286.797 19.8261 285.978 18.8867C285.16 17.9473 283.796 17.4775 281.887 17.4775C279.887 17.4776 278.205 17.9172 276.842 18.7959C275.478 19.6746 274.485 20.7123 273.864 21.9092L266.41 20.8184C267.349 18.6973 268.637 16.9242 270.273 15.5C271.91 14.0607 273.796 12.9855 275.933 12.2734C278.084 11.5462 280.38 11.1826 282.819 11.1826Z" fill="currentColor"/>
                     </svg>
                 </a>
-                <a href="/dashboard" class="text-sm hover:underline flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                    Back to Dashboard
-                </a>
             </div>
-        </div>
-    </nav>
+            <nav class="flex-1 p-4 space-y-1">
+                <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/events" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Browse Events</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-neutral-200 dark:border-neutral-800">
+                <button id="signOutBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors text-red-600 dark:text-red-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Sign Out</span>
+                </button>
+            </div>
+        </aside>
 
-    <!-- Main Content -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div id="loading" class="text-center py-20">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white"></div>
             <p class="mt-6 text-lg text-neutral-600 dark:text-neutral-400">Loading order details...</p>
@@ -44,13 +60,16 @@
             </div>
         </div>
 
-        <div id="content" class="hidden space-y-6">
-            <!-- Order header will be inserted here -->
-        </div>
-    </main>
+                <div id="content" class="hidden space-y-6">
+                    <!-- Order header will be inserted here -->
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../../src/scripts/supabase.js"></script>
-    <script src="../../src/scripts/order-details.js"></script>
+    <script src="../../../src/scripts/supabase.js"></script>
+    <script src="../../../src/scripts/order-details.js"></script>
+    <script src="../../../src/scripts/dashboard.js"></script>
 </body>
 </html>

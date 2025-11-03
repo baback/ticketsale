@@ -228,9 +228,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
       return `
         <div class="ticket">
           <div class="ticket-header">
-            <svg width="180" height="20" viewBox="0 0 433 47" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7.25872 3.48535C8.45986 2.59539 9.96562 2.21848 11.4443 2.43848H55.8896C57.3682 2.65852 58.857 3.73049 59.747 4.93164C60.637 6.13283 61.0129 7.6385 60.7929 9.11719L59.1337 20.2676C57.6551 20.0476 56.1493 20.4245 54.9482 21.3145C53.7472 22.2044 52.9485 23.5351 52.7284 25.0137C52.5084 26.4923 52.8853 27.998 53.7753 29.1992C54.6653 30.4003 55.9959 31.1989 57.4745 31.4189L55.8154 42.5693C55.5953 44.0479 54.7967 45.3786 53.5956 46.2686C52.3944 47.1586 50.8888 47.5355 49.4101 47.3154H4.96477C3.48608 47.0954 1.99735 46.0235 1.10735 44.8223C0.217404 43.6211 -0.158589 42.1154 0.0614515 40.6367L1.72063 29.4863C3.19928 29.7063 4.70502 29.3294 5.90618 28.4395C7.10721 27.5495 7.90588 26.2188 8.1259 24.7402C8.34591 23.2616 7.969 21.7558 7.07903 20.5547C6.18904 19.3537 4.85838 18.555 3.37981 18.335L5.03899 7.18457C5.25902 5.70601 6.0577 4.37535 7.25872 3.48535Z" fill="white"/>
-            </svg>
+            <img src="https://ticketsale.ca/img/full-white.png" alt="ticketsale.ca" style="width: 180px; height: auto;" />
           </div>
           <div class="ticket-body">
             <h1 class="event-name">${event.title}</h1>
@@ -404,7 +402,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
     const ticketType = order.order_items[0]?.ticket_types?.name || 'General Admission'
     const totalAmount = `$${Number(order.total).toFixed(2)}`
     const orderNumber = `#${order.id.slice(0, 8).toUpperCase()}`
-    const dashboardUrl = `${Deno.env.get('SITE_URL') || 'https://ticketsale.ca'}`
+    const dashboardUrl = `${Deno.env.get('SITE_URL') || 'https://ticketsale.ca'}/dashboard`
 
     const emailTemplate = getEmailTemplate(
       orderNumber,
@@ -477,9 +475,7 @@ function getEmailTemplate(
                 <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #171717; border-radius: 24px; border: 1px solid #262626; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);">
                     <tr>
                         <td style="padding: 40px 40px 20px 40px; text-align: center;">
-                            <svg width="150" height="16" viewBox="0 0 433 47" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7.25872 3.48535C8.45986 2.59539 9.96562 2.21848 11.4443 2.43848H55.8896C57.3682 2.65852 58.857 3.73049 59.747 4.93164C60.637 6.13283 61.0129 7.6385 60.7929 9.11719L59.1337 20.2676C57.6551 20.0476 56.1493 20.4245 54.9482 21.3145C53.7472 22.2044 52.9485 23.5351 52.7284 25.0137C52.5084 26.4923 52.8853 27.998 53.7753 29.1992C54.6653 30.4003 55.9959 31.1989 57.4745 31.4189L55.8154 42.5693C55.5953 44.0479 54.7967 45.3786 53.5956 46.2686C52.3944 47.1586 50.8888 47.5355 49.4101 47.3154H4.96477C3.48608 47.0954 1.99735 46.0235 1.10735 44.8223C0.217404 43.6211 -0.158589 42.1154 0.0614515 40.6367L1.72063 29.4863C3.19928 29.7063 4.70502 29.3294 5.90618 28.4395C7.10721 27.5495 7.90588 26.2188 8.1259 24.7402C8.34591 23.2616 7.969 21.7558 7.07903 20.5547C6.18904 19.3537 4.85838 18.555 3.37981 18.335L5.03899 7.18457C5.25902 5.70601 6.0577 4.37535 7.25872 3.48535Z" fill="white"/>
-                            </svg>
+                            <img src="https://ticketsale.ca/img/full-white.png" alt="ticketsale.ca" width="150" style="display: inline-block; max-width: 150px; height: auto;" />
                         </td>
                     </tr>
                     <tr>
