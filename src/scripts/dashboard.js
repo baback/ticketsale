@@ -323,7 +323,7 @@ async function loadTickets() {
         }
         
         console.log('Combining data...');
-        // Combine the data
+        // Combine the data  
         orders.forEach(order => {
           order.events = events?.find(e => e.id === order.event_id);
           order.order_items = orderItems?.filter(oi => oi.order_id === order.id).map(oi => ({
