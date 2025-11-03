@@ -43,28 +43,13 @@
     <script src="../../src/scripts/supabase.js"></script>
     <script src="../../src/scripts/dashboard-sidebar.js"></script>
     <script>
-        // User dropdown
-        document.getElementById('userMenuBtn').addEventListener('click', () => {
-            document.getElementById('userDropdown').classList.toggle('hidden');
-        });
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            window.location.href = '/';
-        });
-        
-        // Load user info
-        async function loadUserInfo() {
+        // Load tickets on page load
+        async function init() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
                 window.location.href = '/login/';
                 return;
             }
-            const email = session.user.email || '';
-            const name = session.user.user_metadata?.full_name || email.split('@')[0] || 'User';
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            document.getElementById('userDisplayName').textContent = name;
-            document.getElementById('userEmailShort').textContent = email;
-            document.getElementById('userAvatar').textContent = initials;
             
             // Load tickets
             loadTickets(session.user.id);
@@ -148,7 +133,8 @@
             }
         }
         
-        loadUserInfo();
+        // Initialize on page load
+        init();
     </script>
 </body>
 </html>
