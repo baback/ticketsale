@@ -251,31 +251,48 @@ async function loadContent() {
   }
 }
 
-// Load user's tickets
+// Load user's tickets with orders
 async function loadTickets() {
   try {
     console.log('Loading tickets...');
     const { data: { user } } = await supabase.auth.getUser();
     console.log('User ID:', user.id);
     
-    const { data: tickets, error } = await supabase
-      .from('tickets')
+    // Get orders with tickets
+    const { data: orders, error } = await supabase
+      .from('orders')
       .select(`
-        *,
-        events (
-          title,
-          location,
+        id,
+        status,
+        total,
+        created_at,
+        events!event_id (
+          id,
+          name,
+          venue,
           event_date
         ),
-        ticket_types (
-          name,
-          price
+        order_items (
+          id,
+          quantity,
+          ticket_types (
+            name,
+            price
+          )
+        ),
+        tickets (
+          id,
+          ticket_number,
+          qr_code,
+          status,
+          created_at
         )
       `)
       .eq('user_id', user.id)
+      .eq('status', 'completed')
       .order('created_at', { ascending: false });
     
-    console.log('Tickets query result:', { tickets, error });
+    console.log('Orders query result:', { orders, error });
     
     if (error) throw error;
     
@@ -283,18 +300,33 @@ async function loadTickets() {
     const ticketsEmpty = document.getElementById('ticketsEmpty');
     const ticketCount = document.getElementById('ticketCount');
     
-    if (tickets && tickets.length > 0) {
+    // Count total tickets
+    const totalTickets = orders?.reduce((sum, order) => sum + (order.tickets?.length || 0), 0) || 0;
+    
+    if (orders && orders.length > 0 && totalTickets > 0) {
       ticketsList.classList.remove('hidden');
       ticketsEmpty.classList.add('hidden');
-      ticketCount.textContent = `${tickets.length} ticket${tickets.length !== 1 ? 's' : ''}`;
+      ticketCount.textContent = `${totalTickets} ticket${totalTickets !== 1 ? 's' : ''}`;
       
-      ticketsList.innerHTML = tickets.map(ticket => `
+      ticketsList.innerHTML = orders.map(order => {
+        const event = order.events;
+        const tickets = order.tickets || [];
+        const ticketType = order.order_items[0]?.ticket_types;
+        const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        return `
         <div class="glass rounded-xl p-4 border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
-              <h3 class="font-semibold mb-1">${ticket.events.title}</h3>
-              <p class="text-sm text-neutral-600 dark:text-neutral-400">${ticket.events.location}</p>
-              <p class="text-sm text-neutral-600 dark:text-neutral-400">${new Date(ticket.events.event_date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</p>
+              <h3 class="font-semibold mb-1">${event.name}</h3>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">${event.venue || 'TBA'}</p>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">${eventDate}</p>
               <div class="mt-2 inline-block px-2 py-1 rounded-full text-xs font-medium ${
                 ticket.status === 'valid' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
                 ticket.status === 'used' ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400' :
