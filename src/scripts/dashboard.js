@@ -109,42 +109,12 @@ function getInitials(name) {
 
 // Set up event listeners
 function setupEventListeners() {
-  // User menu dropdown
-  const userMenuBtn = document.getElementById('userMenuBtn');
-  const userDropdown = document.getElementById('userDropdown');
+  // NOTE: Sidebar event listeners are handled by dashboard-sidebar.js
+  // This function only handles dashboard-specific functionality
   
-  if (userMenuBtn && userDropdown) {
-    userMenuBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      userDropdown.classList.toggle('hidden');
-    });
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', () => {
-      userDropdown.classList.add('hidden');
-    });
-  }
-  
-  // Mode switch button in dropdown
-  const switchModeBtn = document.getElementById('switchModeBtn');
-  if (switchModeBtn) {
-    switchModeBtn.addEventListener('click', () => {
-      const newMode = currentMode === 'buyer' ? 'organizer' : 'buyer';
-      switchMode(newMode);
-      userDropdown.classList.add('hidden');
-    });
-  }
-  
-  // Theme toggle in dropdown
-  const dropdownThemeToggle = document.getElementById('dropdownThemeToggle');
-  if (dropdownThemeToggle) {
-    dropdownThemeToggle.addEventListener('click', toggleTheme);
-  }
-  
-  // Navigation items
+  // Navigation items (for single-page navigation within dashboard)
   const navOverview = document.getElementById('navOverview');
   const navTickets = document.getElementById('navTickets');
-  const navEvents = document.getElementById('navEvents');
   const navSettings = document.getElementById('navSettings');
   
   if (navOverview) navOverview.addEventListener('click', (e) => { e.preventDefault(); showSection('overview'); });
