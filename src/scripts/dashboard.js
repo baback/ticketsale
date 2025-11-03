@@ -248,8 +248,9 @@ async function loadTickets() {
         
         const { data: events, error: eventsError } = await supabase
           .from('events')
-          .select('id, title, location, event_date')
-          .in('id', eventIds);
+          .select('id, title, location, event_date, image_url')
+          .in('id', eventIds)
+          .gte('event_date', new Date().toISOString()); // Only upcoming events
         
         if (eventsError) {
           console.error('Events query error:', eventsError);
@@ -321,7 +322,12 @@ async function loadTickets() {
       ticketsEmpty.classList.add('hidden');
       ticketCount.textContent = `${totalTickets} ticket${totalTickets !== 1 ? 's' : ''}`;
       
-      ticketsList.innerHTML = orders.map(order => {
+      const viewAllLink = document.getElementById('viewAllTickets');
+      if (orders.length > 3 && viewAllLink) {
+        viewAllLink.classList.remove('hidden');
+      }
+      
+      ticketsList.innerHTML = orders.slice(0, 3).map(order => {
         const event = order.events;
         const tickets = order.tickets || [];
         const ticketType = order.order_items[0]?.ticket_types;
@@ -335,24 +341,33 @@ async function loadTickets() {
         });
         
         return `
-          <a href="/dashboard/mytickets/order/?id=${order.id}" class="block glass rounded-xl p-6 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-            <div class="flex items-start justify-between gap-4 mb-4">
-              <div class="flex-1">
-                <h3 class="text-lg font-semibold mb-1">${event.title}</h3>
-                <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-1">${event.location || 'TBA'}</p>
-                <p class="text-sm text-neutral-600 dark:text-neutral-400">${eventDate}</p>
-              </div>
-              <div class="text-right">
-                <div class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 mb-2">
-                  ${tickets.length} Ticket${tickets.length !== 1 ? 's' : ''}
+          <a href="/dashboard/mytickets/order/?id=${order.id}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
+            <div class="flex gap-4">
+              ${event.image_url ? `
+                <div class="w-32 h-32 shrink-0">
+                  <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover" />
                 </div>
-                <p class="text-sm text-neutral-600 dark:text-neutral-400">${ticketType?.name || 'General'}</p>
-              </div>
-            </div>
-            <div class="border-t border-neutral-200 dark:border-neutral-800 pt-4 mt-4">
-              <div class="flex items-center justify-between">
-                <div class="text-sm text-neutral-600 dark:text-neutral-400">Order #${order.id.slice(0, 8).toUpperCase()}</div>
-                <div class="text-sm font-medium text-neutral-900 dark:text-white">View Tickets →</div>
+              ` : ''}
+              <div class="flex-1 p-4">
+                <div class="flex items-start justify-between gap-4 mb-2">
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold mb-1">${event.title}</h3>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-1">${event.location || 'TBA'}</p>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">${eventDate}</p>
+                  </div>
+                  <div class="text-right">
+                    <div class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 mb-2">
+                      ${tickets.length} Ticket${tickets.length !== 1 ? 's' : ''}
+                    </div>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">${ticketType?.name || 'General'}</p>
+                  </div>
+                </div>
+                <div class="border-t border-neutral-200 dark:border-neutral-800 pt-3 mt-3">
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400">Order #${order.id.slice(0, 8).toUpperCase()}</div>
+                    <div class="text-sm font-medium text-neutral-900 dark:text-white">View Tickets →</div>
+                  </div>
+                </div>
               </div>
             </div>
           </a>
