@@ -18,6 +18,10 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting checkout session creation...')
+    console.log('Stripe key exists:', !!Deno.env.get('STRIPE_SECRET_KEY'))
+    
+    // Create client for auth verification
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -26,6 +30,12 @@ serve(async (req) => {
           headers: { Authorization: req.headers.get('Authorization')! },
         },
       }
+    )
+    
+    // Create service role client for database operations (bypasses RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
     // Get user from JWT
@@ -37,21 +47,25 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
+    console.log('User authenticated:', user.id)
+
     // Get request body
     const { eventId, ticketSelections } = await req.json()
+    console.log('Request data:', { eventId, ticketSelections })
 
     if (!eventId || !ticketSelections || Object.keys(ticketSelections).length === 0) {
       throw new Error('Missing required fields')
     }
 
     // Get event details
-    const { data: event, error: eventError } = await supabaseClient
+    const { data: event, error: eventError } = await supabaseAdmin
       .from('events')
       .select('*, ticket_types(*)')
       .eq('id', eventId)
       .single()
 
     if (eventError || !event) {
+      console.error('Event fetch error:', eventError)
       throw new Error('Event not found')
     }
 
@@ -104,14 +118,14 @@ serve(async (req) => {
     const total = subtotal + serviceFee
 
     // Get user profile
-    const { data: profile } = await supabaseClient
+    const { data: profile } = await supabaseAdmin
       .from('users')
       .select('email, full_name')
       .eq('id', user.id)
       .single()
 
     // Create order in database
-    const { data: order, error: orderError } = await supabaseClient
+    const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert({
         user_id: user.id,
@@ -128,7 +142,8 @@ serve(async (req) => {
       .single()
 
     if (orderError || !order) {
-      throw new Error('Failed to create order')
+      console.error('Order creation error:', orderError)
+      throw new Error(`Failed to create order: ${orderError?.message || 'Unknown error'}`)
     }
 
     // Create order items
@@ -137,7 +152,7 @@ serve(async (req) => {
       const unitPrice = ticketType.price
       const itemSubtotal = unitPrice * (quantity as number)
 
-      await supabaseClient
+      await supabaseAdmin
         .from('order_items')
         .insert({
           order_id: order.id,
@@ -165,7 +180,7 @@ serve(async (req) => {
     })
 
     // Update order with Stripe session ID
-    await supabaseClient
+    await supabaseAdmin
       .from('orders')
       .update({
         stripe_checkout_session_id: session.id,
@@ -181,8 +196,13 @@ serve(async (req) => {
     )
   } catch (error) {
     console.error('Error:', error)
+    console.error('Error details:', JSON.stringify(error, null, 2))
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString(),
+        stack: error.stack 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
