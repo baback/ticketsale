@@ -249,8 +249,7 @@ async function loadTickets() {
         const { data: events, error: eventsError } = await supabase
           .from('events')
           .select('id, title, location, event_date, image_url')
-          .in('id', eventIds)
-          .gte('event_date', new Date().toISOString()); // Only upcoming events
+          .in('id', eventIds);
         
         if (eventsError) {
           console.error('Events query error:', eventsError);
@@ -314,20 +313,27 @@ async function loadTickets() {
     const ticketsEmpty = document.getElementById('ticketsEmpty');
     const ticketCount = document.getElementById('ticketCount');
     
-    // Count total tickets
-    const totalTickets = orders?.reduce((sum, order) => sum + (order.tickets?.length || 0), 0) || 0;
+    // Filter to only show upcoming events
+    const now = new Date();
+    const upcomingOrders = orders?.filter(order => {
+      const eventDate = new Date(order.events?.event_date);
+      return eventDate >= now;
+    }) || [];
     
-    if (orders && orders.length > 0 && totalTickets > 0) {
+    // Count total tickets for upcoming events
+    const totalTickets = upcomingOrders.reduce((sum, order) => sum + (order.tickets?.length || 0), 0);
+    
+    if (upcomingOrders.length > 0 && totalTickets > 0) {
       ticketsList.classList.remove('hidden');
       ticketsEmpty.classList.add('hidden');
       ticketCount.textContent = `${totalTickets} ticket${totalTickets !== 1 ? 's' : ''}`;
       
       const viewAllLink = document.getElementById('viewAllTickets');
-      if (orders.length > 3 && viewAllLink) {
+      if (upcomingOrders.length > 3 && viewAllLink) {
         viewAllLink.classList.remove('hidden');
       }
       
-      ticketsList.innerHTML = orders.slice(0, 3).map(order => {
+      ticketsList.innerHTML = upcomingOrders.slice(0, 3).map(order => {
         const event = order.events;
         const tickets = order.tickets || [];
         const ticketType = order.order_items[0]?.ticket_types;
