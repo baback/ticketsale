@@ -119,7 +119,6 @@ function setupEventListeners() {
   
   if (navOverview) navOverview.addEventListener('click', (e) => { e.preventDefault(); showSection('overview'); });
   if (navTickets) navTickets.addEventListener('click', (e) => { e.preventDefault(); showSection('tickets'); });
-  if (navEvents) navEvents.addEventListener('click', (e) => { e.preventDefault(); showSection('events'); });
   if (navSettings) navSettings.addEventListener('click', (e) => { e.preventDefault(); showSection('settings'); });
   
   // Create event buttons
