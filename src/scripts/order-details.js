@@ -89,18 +89,25 @@ function displayOrder(order) {
 
   const content = document.getElementById('content');
   content.innerHTML = `
-    <!-- Header with Event Image -->
-    <div class="glass rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
+    <!-- Compact Header with Image Overlay -->
+    <div class="glass rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 relative">
       ${event.image_url ? `
-        <div class="aspect-[21/9] w-full overflow-hidden">
+        <div class="relative h-48 w-full overflow-hidden">
           <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+            <h1 class="text-2xl font-bold mb-1">${event.title}</h1>
+            <p class="text-sm opacity-90 mb-1">${eventDate}</p>
+            <p class="text-sm opacity-90">${event.location || 'TBA'}</p>
+          </div>
         </div>
-      ` : ''}
-      <div class="p-8">
-        <h1 class="text-3xl font-bold mb-2">${event.title}</h1>
-        <p class="text-lg text-neutral-600 dark:text-neutral-400 mb-4">${eventDate}</p>
-        <p class="text-neutral-600 dark:text-neutral-400">${event.location || 'TBA'}</p>
-      </div>
+      ` : `
+        <div class="p-6">
+          <h1 class="text-2xl font-bold mb-1">${event.title}</h1>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-1">${eventDate}</p>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">${event.location || 'TBA'}</p>
+        </div>
+      `}
     </div>
 
     <!-- Order Summary -->
