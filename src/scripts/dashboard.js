@@ -258,8 +258,8 @@ async function loadTickets() {
       .select(`
         *,
         events (
-          name,
-          venue,
+          title,
+          location,
           event_date
         ),
         ticket_types (
@@ -268,7 +268,7 @@ async function loadTickets() {
         )
       `)
       .eq('user_id', user.id)
-      .order('purchase_date', { ascending: false });
+      .order('created_at', { ascending: false });
     
     if (error) throw error;
     
@@ -285,8 +285,8 @@ async function loadTickets() {
         <div class="glass rounded-xl p-4 border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
-              <h3 class="font-semibold mb-1">${ticket.events.name}</h3>
-              <p class="text-sm text-neutral-600 dark:text-neutral-400">${ticket.events.venue}</p>
+              <h3 class="font-semibold mb-1">${ticket.events.title}</h3>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">${ticket.events.location}</p>
               <p class="text-sm text-neutral-600 dark:text-neutral-400">${new Date(ticket.events.event_date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</p>
               <div class="mt-2 inline-block px-2 py-1 rounded-full text-xs font-medium ${
                 ticket.status === 'valid' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :

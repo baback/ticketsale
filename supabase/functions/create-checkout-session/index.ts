@@ -134,6 +134,7 @@ serve(async (req) => {
         subtotal: subtotal,
         service_fee: serviceFee,
         total: total,
+        total_amount: total,
         currency: 'cad',
         customer_email: profile?.email || user.email,
         customer_name: profile?.full_name,
