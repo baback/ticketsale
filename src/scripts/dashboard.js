@@ -16,11 +16,8 @@ if (localStorage.getItem('theme') === 'dark') {
 let currentMode = 'buyer'; // 'buyer' or 'organizer'
 let userProfile = null;
 
-// Use the global supabase client
-const supabase = window.supabaseClient || window.supabase?.createClient?.(
-  'https://ltvesfeyxyxdzyuqtrmr.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dmVzZmV5eHl4ZHp5dXF0cm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2ODE3MjksImV4cCI6MjA3NTI1NzcyOX0.7LqHe_nqNq_UEA7mi_H1DXBYeIhIg2wTjyMx-gshzBY'
-);
+// Use the global supabase client (already declared in supabase.js)
+// Access it via window.supabaseClient or the global supabase variable
 
 // Initialize dashboard
 async function initDashboard() {
