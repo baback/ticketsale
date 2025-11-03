@@ -347,9 +347,42 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
     }
 
     const pdfBuffer = await pdfResponse.arrayBuffer()
-    const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)))
     
     console.log('PDF generated successfully, size:', pdfBuffer.byteLength)
+
+    // Upload PDF to Supabase Storage
+    let pdfUrl = ''
+    try {
+      const fileName = `${order.id}.pdf`
+      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+        .from('ticket-pdfs')
+        .upload(fileName, pdfBuffer, {
+          contentType: 'application/pdf',
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (uploadError) {
+        console.error('PDF upload error:', uploadError)
+      } else {
+        // Get public URL
+        const { data: { publicUrl } } = supabaseAdmin.storage
+          .from('ticket-pdfs')
+          .getPublicUrl(fileName)
+        
+        pdfUrl = publicUrl
+        
+        // Save URL to database
+        await supabaseAdmin
+          .from('orders')
+          .update({ ticket_pdf_url: publicUrl })
+          .eq('id', order.id)
+        
+        console.log('PDF uploaded and URL saved:', publicUrl)
+      }
+    } catch (uploadErr) {
+      console.error('Error uploading PDF:', uploadErr)
+    }
 
     // Prepare email
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
@@ -375,13 +408,15 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
 
     const emailTemplate = getEmailTemplate(
       orderNumber,
-      event.name,
+      event.title,
       eventDate,
-      event.venue || 'TBA',
+      event.location || 'TBA',
       tickets.length.toString(),
       ticketType,
       totalAmount,
-      dashboardUrl
+      dashboardUrl,
+      pdfUrl,
+      order.id
     )
 
     // Send email with Resend
@@ -395,14 +430,9 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
       body: JSON.stringify({
         from: 'ticketsale.ca <tickets@ticketsale.ca>',
         to: [user.user.email],
-        subject: `Your Tickets for ${event.name}`,
+        subject: `Your Tickets for ${event.title}`,
         html: emailTemplate,
-        attachments: [
-          {
-            filename: `tickets-${order.id.slice(0, 8)}.pdf`,
-            content: pdfBase64,
-          },
-        ],
+        // No attachments - sending links instead
       }),
     })
 
@@ -429,7 +459,9 @@ function getEmailTemplate(
   ticketCount: string,
   ticketType: string,
   totalAmount: string,
-  dashboardUrl: string
+  dashboardUrl: string,
+  pdfUrl: string,
+  orderId: string
 ): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -463,7 +495,7 @@ function getEmailTemplate(
                         <td style="padding: 0 40px 30px 40px; text-align: center;">
                             <h2 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">Your Tickets Are Ready!</h2>
                             <p style="margin: 0; font-size: 16px; line-height: 24px; color: #a3a3a3;">
-                                Thanks for your purchase! Your tickets are attached to this email as a PDF.
+                                Thanks for your purchase! Your tickets are ready to view and download.
                             </p>
                         </td>
                     </tr>
@@ -521,12 +553,14 @@ function getEmailTemplate(
                     </tr>
                     <tr>
                         <td style="padding: 30px 40px 40px 40px; text-align: center;">
-                            <p style="margin: 0 0 16px 0; font-size: 13px; color: #a3a3a3;">
-                                You can also view and download your tickets anytime from your dashboard.
-                            </p>
-                            <a href="${dashboardUrl}" style="display: inline-block; padding: 12px 24px; background-color: #262626; color: #ffffff; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 14px; letter-spacing: -0.2px;">
-                                View Dashboard
+                            <a href="${dashboardUrl}/mytickets/order/?id=${orderId}" style="display: block; padding: 16px 32px; background-color: #ffffff; color: #000000; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 15px; letter-spacing: -0.2px; text-align: center; margin-bottom: 12px;">
+                                View Your Tickets
                             </a>
+                            ${pdfUrl ? `
+                            <a href="${pdfUrl}" style="display: block; padding: 16px 32px; background-color: #262626; color: #ffffff; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 15px; letter-spacing: -0.2px; text-align: center;">
+                                Download PDF
+                            </a>
+                            ` : ''}
                         </td>
                     </tr>
                     <tr>
