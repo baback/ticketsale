@@ -15,6 +15,7 @@ if (localStorage.getItem('theme') === 'dark') {
 // Dashboard functionality
 let currentMode = 'buyer'; // 'buyer' or 'organizer'
 let userProfile = null;
+const supabase = window.supabaseClient;
 
 // Initialize dashboard
 async function initDashboard() {
