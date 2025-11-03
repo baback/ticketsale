@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Tickets - ticketsale.ca</title>
     <link rel="stylesheet" href="../../src/styles/output.css">
+    <script>
+        // Initialize theme immediately to prevent flash
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
 <body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
     <div id="dashboardSidebar"></div>
@@ -19,9 +27,36 @@
 
             <!-- Tickets List -->
             <div id="ticketsList" class="space-y-4">
-                <div class="text-center py-20">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white"></div>
-                    <p class="mt-4 text-neutral-600 dark:text-neutral-400">Loading tickets...</p>
+                <!-- Skeleton Loading -->
+                <div class="glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 animate-pulse">
+                    <div class="flex gap-4">
+                        <div class="w-32 h-32 shrink-0 bg-neutral-200 dark:bg-neutral-800"></div>
+                        <div class="flex-1 p-4 space-y-3">
+                            <div class="h-6 bg-neutral-200 dark:bg-neutral-800 rounded w-3/4"></div>
+                            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-1/2"></div>
+                            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-2/3"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 animate-pulse">
+                    <div class="flex gap-4">
+                        <div class="w-32 h-32 shrink-0 bg-neutral-200 dark:bg-neutral-800"></div>
+                        <div class="flex-1 p-4 space-y-3">
+                            <div class="h-6 bg-neutral-200 dark:bg-neutral-800 rounded w-3/4"></div>
+                            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-1/2"></div>
+                            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-2/3"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 animate-pulse">
+                    <div class="flex gap-4">
+                        <div class="w-32 h-32 shrink-0 bg-neutral-200 dark:bg-neutral-800"></div>
+                        <div class="flex-1 p-4 space-y-3">
+                            <div class="h-6 bg-neutral-200 dark:bg-neutral-800 rounded w-3/4"></div>
+                            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-1/2"></div>
+                            <div class="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-2/3"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -43,6 +78,13 @@
     <script src="../../src/scripts/supabase.js"></script>
     <script src="../../src/scripts/dashboard-sidebar.js"></script>
     <script>
+        // Initialize theme from localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+        }
+
         // Load tickets on page load
         async function init() {
             const { data: { session } } = await supabase.auth.getSession();
@@ -65,9 +107,14 @@
                     .eq('status', 'completed')
                     .order('created_at', { ascending: false });
 
+                const ticketsList = document.getElementById('ticketsList');
+                const ticketsEmpty = document.getElementById('ticketsEmpty');
+                const ticketCount = document.getElementById('ticketCount');
+
                 if (!orders || orders.length === 0) {
-                    document.getElementById('ticketsList').classList.add('hidden');
-                    document.getElementById('ticketsEmpty').classList.remove('hidden');
+                    if (ticketsList) ticketsList.classList.add('hidden');
+                    if (ticketsEmpty) ticketsEmpty.classList.remove('hidden');
+                    if (ticketCount) ticketCount.textContent = '0 tickets';
                     return;
                 }
 
@@ -88,10 +135,13 @@
                     .select('id, name')
                     .in('id', ticketTypeIds);
 
-                document.getElementById('ticketCount').textContent = `${tickets.length} ticket${tickets.length !== 1 ? 's' : ''}`;
+                if (ticketCount) ticketCount.textContent = `${tickets.length} ticket${tickets.length !== 1 ? 's' : ''}`;
 
-                const ticketsList = document.getElementById('ticketsList');
-                ticketsList.innerHTML = orders.map(order => {
+                // Show tickets list, hide empty state
+                if (ticketsList) ticketsList.classList.remove('hidden');
+                if (ticketsEmpty) ticketsEmpty.classList.add('hidden');
+                if (ticketsList) {
+                    ticketsList.innerHTML = orders.map(order => {
                     const event = events.find(e => e.id === order.event_id);
                     const orderTickets = tickets.filter(t => t.order_id === order.id);
                     const ticketType = ticketTypes.find(tt => tt.id === orderTickets[0]?.ticket_type_id);
@@ -106,13 +156,13 @@
 
                     return `
                         <a href="/dashboard/mytickets/order/?id=${order.id}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-                            <div class="flex gap-4">
+                            <div class="flex">
                                 ${event.image_url ? `
-                                    <div class="w-32 h-32 shrink-0">
-                                        <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover" />
+                                    <div class="w-32 h-full shrink-0 bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden">
+                                        <img src="${event.image_url}" alt="${event.title}" class="absolute inset-0 w-full h-full object-cover" />
                                     </div>
                                 ` : ''}
-                                <div class="flex-1 p-4">
+                                <div class="flex-1 p-4 min-h-[128px]">
                                     <div class="flex items-start justify-between gap-4 mb-2">
                                         <div class="flex-1">
                                             <h3 class="text-lg font-semibold mb-1">${event.title}</h3>
@@ -136,9 +186,18 @@
                             </div>
                         </a>
                     `;
-                }).join('');
+                    }).join('');
+                }
             } catch (error) {
                 console.error('Error loading tickets:', error);
+                // Show empty state on error
+                const ticketsList = document.getElementById('ticketsList');
+                const ticketsEmpty = document.getElementById('ticketsEmpty');
+                const ticketCount = document.getElementById('ticketCount');
+                
+                if (ticketsList) ticketsList.classList.add('hidden');
+                if (ticketsEmpty) ticketsEmpty.classList.remove('hidden');
+                if (ticketCount) ticketCount.textContent = '0 tickets';
             }
         }
         

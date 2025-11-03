@@ -87,9 +87,18 @@
       const userEmailShort = document.getElementById('userEmailShort');
       const userAvatar = document.getElementById('userAvatar');
       
-      if (userDisplayName) userDisplayName.textContent = name;
-      if (userEmailShort) userEmailShort.textContent = email;
-      if (userAvatar) userAvatar.textContent = initials;
+      if (userDisplayName) {
+        userDisplayName.className = 'text-sm font-medium truncate';
+        userDisplayName.textContent = name;
+      }
+      if (userEmailShort) {
+        userEmailShort.className = 'text-xs text-neutral-600 dark:text-neutral-400 truncate';
+        userEmailShort.textContent = email;
+      }
+      if (userAvatar) {
+        userAvatar.className = 'w-10 h-10 shrink-0 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-semibold text-sm';
+        userAvatar.textContent = initials;
+      }
     }
   }
 

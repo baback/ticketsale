@@ -41,7 +41,7 @@ async function initDashboard() {
     
   } catch (error) {
     console.error('Dashboard initialization error:', error);
-    showError('Failed to load dashboard');
+    // Silently handle - user will see empty states
   }
 }
 
@@ -69,10 +69,22 @@ async function loadUserProfile(user) {
     const displayName = userProfile.full_name || user.email.split('@')[0];
     const initials = getInitials(displayName);
     
-    if (userName) userName.textContent = displayName;
-    if (userDisplayName) userDisplayName.textContent = displayName;
-    if (userEmailShort) userEmailShort.textContent = user.email;
-    if (userAvatar) userAvatar.textContent = initials;
+    if (userName) {
+      userName.className = '';
+      userName.textContent = displayName;
+    }
+    if (userDisplayName) {
+      userDisplayName.className = 'text-sm font-medium truncate';
+      userDisplayName.textContent = displayName;
+    }
+    if (userEmailShort) {
+      userEmailShort.className = 'text-xs text-neutral-600 dark:text-neutral-400 truncate';
+      userEmailShort.textContent = user.email;
+    }
+    if (userAvatar) {
+      userAvatar.className = 'w-10 h-10 shrink-0 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-semibold text-sm';
+      userAvatar.textContent = initials;
+    }
     if (settingsEmail) settingsEmail.textContent = user.email;
     if (settingsName) settingsName.textContent = userProfile.full_name || 'Not set';
     
@@ -89,10 +101,22 @@ async function loadUserProfile(user) {
     const displayName = user.email.split('@')[0];
     const initials = getInitials(displayName);
     
-    if (userName) userName.textContent = displayName;
-    if (userDisplayName) userDisplayName.textContent = displayName;
-    if (userEmailShort) userEmailShort.textContent = user.email;
-    if (userAvatar) userAvatar.textContent = initials;
+    if (userName) {
+      userName.className = '';
+      userName.textContent = displayName;
+    }
+    if (userDisplayName) {
+      userDisplayName.className = 'text-sm font-medium truncate';
+      userDisplayName.textContent = displayName;
+    }
+    if (userEmailShort) {
+      userEmailShort.className = 'text-xs text-neutral-600 dark:text-neutral-400 truncate';
+      userEmailShort.textContent = user.email;
+    }
+    if (userAvatar) {
+      userAvatar.className = 'w-10 h-10 shrink-0 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-semibold text-sm';
+      userAvatar.textContent = initials;
+    }
     if (settingsEmail) settingsEmail.textContent = user.email;
   }
 }
@@ -324,16 +348,18 @@ async function loadTickets() {
     const totalTickets = upcomingOrders.reduce((sum, order) => sum + (order.tickets?.length || 0), 0);
     
     if (upcomingOrders.length > 0 && totalTickets > 0) {
-      ticketsList.classList.remove('hidden');
-      ticketsEmpty.classList.add('hidden');
-      ticketCount.textContent = `${totalTickets} ticket${totalTickets !== 1 ? 's' : ''}`;
+      // Show tickets, hide empty state
+      if (ticketsList) ticketsList.classList.remove('hidden');
+      if (ticketsEmpty) ticketsEmpty.classList.add('hidden');
+      if (ticketCount) ticketCount.textContent = `${totalTickets} ticket${totalTickets !== 1 ? 's' : ''}`;
       
       const viewAllLink = document.getElementById('viewAllTickets');
       if (upcomingOrders.length > 3 && viewAllLink) {
         viewAllLink.classList.remove('hidden');
       }
       
-      ticketsList.innerHTML = upcomingOrders.slice(0, 3).map(order => {
+      if (ticketsList) {
+        ticketsList.innerHTML = upcomingOrders.slice(0, 3).map(order => {
         const event = order.events;
         const tickets = order.tickets || [];
         const ticketType = order.order_items[0]?.ticket_types;
@@ -348,13 +374,13 @@ async function loadTickets() {
         
         return `
           <a href="/dashboard/mytickets/order/?id=${order.id}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-            <div class="flex gap-4">
+            <div class="flex">
               ${event.image_url ? `
-                <div class="w-32 h-32 shrink-0">
-                  <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover" />
+                <div class="w-32 h-full shrink-0 bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden">
+                  <img src="${event.image_url}" alt="${event.title}" class="absolute inset-0 w-full h-full object-cover" />
                 </div>
               ` : ''}
-              <div class="flex-1 p-4">
+              <div class="flex-1 p-4 min-h-[128px]">
                 <div class="flex items-start justify-between gap-4 mb-2">
                   <div class="flex-1">
                     <h3 class="text-lg font-semibold mb-1">${event.title}</h3>
@@ -378,16 +404,25 @@ async function loadTickets() {
             </div>
           </a>
         `;
-      }).join('');
+        }).join('');
+      }
     } else {
-      ticketsList.classList.add('hidden');
-      ticketsEmpty.classList.remove('hidden');
-      ticketCount.textContent = '0 tickets';
+      // Show empty state, hide tickets
+      if (ticketsList) ticketsList.classList.add('hidden');
+      if (ticketsEmpty) ticketsEmpty.classList.remove('hidden');
+      if (ticketCount) ticketCount.textContent = '0 tickets';
     }
     
   } catch (error) {
     console.error('Error loading tickets:', error);
-    showError('Failed to load tickets');
+    // Show empty state on error
+    const ticketsList = document.getElementById('ticketsList');
+    const ticketsEmpty = document.getElementById('ticketsEmpty');
+    const ticketCount = document.getElementById('ticketCount');
+    
+    if (ticketsList) ticketsList.classList.add('hidden');
+    if (ticketsEmpty) ticketsEmpty.classList.remove('hidden');
+    if (ticketCount) ticketCount.textContent = '0 tickets';
   }
 }
 
@@ -566,7 +601,9 @@ async function viewTickets(orderId) {
     
   } catch (error) {
     console.error('Error viewing tickets:', error);
-    showError('Failed to load tickets');
+    // Close any existing modal and fail silently
+    const existingModal = document.querySelector('.fixed.inset-0.bg-black\\/50');
+    if (existingModal) existingModal.remove();
   }
 }
 
@@ -637,7 +674,12 @@ async function loadEvents() {
     
   } catch (error) {
     console.error('Error loading events:', error);
-    showError('Failed to load events');
+    // Show empty state on error
+    const eventsList = document.getElementById('eventsList');
+    const eventsEmpty = document.getElementById('eventsEmpty');
+    
+    if (eventsList) eventsList.classList.add('hidden');
+    if (eventsEmpty) eventsEmpty.classList.remove('hidden');
   }
 }
 
@@ -665,11 +707,15 @@ async function editName() {
       userProfile.full_name = newName;
     }
     
-    showSuccess('Name updated successfully');
+    // Success - no alert needed, UI already updated
     
   } catch (error) {
     console.error('Error updating name:', error);
-    showError('Failed to update name');
+    // Revert UI on error
+    const settingsName = document.getElementById('settingsName');
+    if (settingsName && userProfile?.full_name) {
+      settingsName.textContent = userProfile.full_name;
+    }
   }
 }
 
@@ -680,7 +726,7 @@ async function changePassword() {
   if (!newPassword) return;
   
   if (newPassword.length < 6) {
-    showError('Password must be at least 6 characters');
+    alert('Password must be at least 6 characters');
     return;
   }
   
@@ -691,11 +737,11 @@ async function changePassword() {
     
     if (error) throw error;
     
-    showSuccess('Password updated successfully');
+    alert('Password updated successfully');
     
   } catch (error) {
     console.error('Error updating password:', error);
-    showError('Failed to update password');
+    alert('Failed to update password. Please try again.');
   }
 }
 
@@ -707,18 +753,9 @@ async function handleLogout() {
     window.location.href = '../login/';
   } catch (error) {
     console.error('Logout error:', error);
-    showError('Failed to logout');
+    // Force redirect anyway
+    window.location.href = '../login/';
   }
-}
-
-// Show error message
-function showError(message) {
-  alert(message); // Simple for MVP, can be replaced with toast notifications
-}
-
-// Show success message
-function showSuccess(message) {
-  alert(message); // Simple for MVP, can be replaced with toast notifications
 }
 
 // Initialize when DOM is ready
