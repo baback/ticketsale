@@ -279,7 +279,7 @@ async function loadTickets() {
         
         const { data: events, error: eventsError } = await supabase
           .from('events')
-          .select('id, name, venue, event_date')
+          .select('id, title, location, event_date')
           .in('id', eventIds);
         
         if (eventsError) {
@@ -369,8 +369,8 @@ async function loadTickets() {
           <div class="glass rounded-xl p-6 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all cursor-pointer" onclick="viewTickets('${order.id}')">
             <div class="flex items-start justify-between gap-4 mb-4">
               <div class="flex-1">
-                <h3 class="text-lg font-semibold mb-1">${event.name}</h3>
-                <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-1">${event.venue || 'TBA'}</p>
+                <h3 class="text-lg font-semibold mb-1">${event.title}</h3>
+                <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-1">${event.location || 'TBA'}</p>
                 <p class="text-sm text-neutral-600 dark:text-neutral-400">${eventDate}</p>
               </div>
               <div class="text-right">
@@ -416,7 +416,7 @@ async function viewTickets(orderId) {
     // Get event
     const { data: event } = await supabase
       .from('events')
-      .select('id, name, venue, event_date')
+      .select('id, title, location, event_date')
       .eq('id', order.event_id)
       .single();
     
@@ -469,7 +469,7 @@ async function viewTickets(orderId) {
       <div class="bg-white dark:bg-neutral-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div class="sticky top-0 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 p-6 flex items-center justify-between z-10">
           <div>
-            <h2 class="text-2xl font-bold mb-1">${event.name}</h2>
+            <h2 class="text-2xl font-bold mb-1">${event.title}</h2>
             <p class="text-sm text-neutral-600 dark:text-neutral-400">${eventDate}</p>
           </div>
           <button onclick="this.closest('.fixed').remove()" class="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
@@ -489,7 +489,7 @@ async function viewTickets(orderId) {
               </div>
               <div class="flex justify-between">
                 <span class="text-neutral-600 dark:text-neutral-400">Event</span>
-                <span class="font-medium">${event.name}</span>
+                <span class="font-medium">${event.title}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-neutral-600 dark:text-neutral-400">Date & Time</span>
@@ -497,7 +497,7 @@ async function viewTickets(orderId) {
               </div>
               <div class="flex justify-between">
                 <span class="text-neutral-600 dark:text-neutral-400">Location</span>
-                <span class="font-medium">${event.venue || 'TBA'}</span>
+                <span class="font-medium">${event.location || 'TBA'}</span>
               </div>
               <div class="flex justify-between pt-2 border-t border-neutral-200 dark:border-neutral-700">
                 <span class="text-neutral-600 dark:text-neutral-400">Tickets</span>
@@ -527,7 +527,7 @@ async function viewTickets(orderId) {
                   <div class="space-y-2 text-sm">
                     <p><span class="text-neutral-600 dark:text-neutral-400">Type:</span> <span class="font-medium">${ticketType?.name || 'General'}</span></p>
                     <p><span class="text-neutral-600 dark:text-neutral-400">Ticket #:</span> <span class="font-mono text-xs">${ticket.ticket_number}</span></p>
-                    <p><span class="text-neutral-600 dark:text-neutral-400">Location:</span> <span class="font-medium">${event.venue || 'TBA'}</span></p>
+                    <p><span class="text-neutral-600 dark:text-neutral-400">Location:</span> <span class="font-medium">${event.location || 'TBA'}</span></p>
                   </div>
                 </div>
                 <div class="flex flex-col items-center gap-2">
@@ -620,8 +620,8 @@ async function loadEvents() {
         <div class="glass rounded-xl p-4 border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-all cursor-pointer">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
-              <h3 class="font-semibold mb-1">${event.name}</h3>
-              <p class="text-sm text-neutral-600 dark:text-neutral-400">${event.venue}</p>
+              <h3 class="font-semibold mb-1">${event.title}</h3>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">${event.location}</p>
               <p class="text-sm text-neutral-600 dark:text-neutral-400">${new Date(event.event_date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</p>
               <div class="mt-2 inline-block px-2 py-1 rounded-full text-xs font-medium ${
                 event.status === 'published' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
