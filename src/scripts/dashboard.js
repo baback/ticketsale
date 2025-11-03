@@ -366,7 +366,7 @@ async function loadTickets() {
         });
         
         return `
-          <div class="glass rounded-xl p-6 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all cursor-pointer" onclick="viewTickets('${order.id}')">
+          <a href="/mytickets/order/?id=${order.id}" class="block glass rounded-xl p-6 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
             <div class="flex items-start justify-between gap-4 mb-4">
               <div class="flex-1">
                 <h3 class="text-lg font-semibold mb-1">${event.title}</h3>
@@ -386,7 +386,7 @@ async function loadTickets() {
                 <div class="text-sm font-medium text-neutral-900 dark:text-white">View Tickets →</div>
               </div>
             </div>
-          </div>
+          </a>
         `;
       }).join('');
     } else {
