@@ -271,40 +271,73 @@ async function loadTickets() {
     
     if (ordersError) throw ordersError;
     
-    // Fetch related data separately
+    // Fetch related data separately with error handling
     if (orders && orders.length > 0) {
-      const eventIds = [...new Set(orders.map(o => o.event_id))];
-      
-      const { data: events } = await supabase
-        .from('events')
-        .select('id, name, venue, event_date')
-        .in('id', eventIds);
-      
-      const { data: orderItems } = await supabase
-        .from('order_items')
-        .select('id, order_id, quantity, ticket_type_id')
-        .in('order_id', orders.map(o => o.id));
-      
-      const ticketTypeIds = [...new Set(orderItems?.map(oi => oi.ticket_type_id) || [])];
-      const { data: ticketTypes } = await supabase
-        .from('ticket_types')
-        .select('id, name, price')
-        .in('id', ticketTypeIds);
-      
-      const { data: tickets } = await supabase
-        .from('tickets')
-        .select('id, order_id, ticket_number, qr_code, status, created_at')
-        .in('order_id', orders.map(o => o.id));
-      
-      // Combine the data
-      orders.forEach(order => {
-        order.events = events?.find(e => e.id === order.event_id);
-        order.order_items = orderItems?.filter(oi => oi.order_id === order.id).map(oi => ({
-          ...oi,
-          ticket_types: ticketTypes?.find(tt => tt.id === oi.ticket_type_id)
-        })) || [];
-        order.tickets = tickets?.filter(t => t.order_id === order.id) || [];
-      });
+      try {
+        const eventIds = [...new Set(orders.map(o => o.event_id))];
+        console.log('Fetching events for IDs:', eventIds);
+        
+        const { data: events, error: eventsError } = await supabase
+          .from('events')
+          .select('id, name, venue, event_date')
+          .in('id', eventIds);
+        
+        if (eventsError) {
+          console.error('Events query error:', eventsError);
+          throw eventsError;
+        }
+        
+        console.log('Fetching order items...');
+        const { data: orderItems, error: orderItemsError } = await supabase
+          .from('order_items')
+          .select('id, order_id, quantity, ticket_type_id')
+          .in('order_id', orders.map(o => o.id));
+        
+        if (orderItemsError) {
+          console.error('Order items query error:', orderItemsError);
+          throw orderItemsError;
+        }
+        
+        const ticketTypeIds = [...new Set(orderItems?.map(oi => oi.ticket_type_id) || [])];
+        console.log('Fetching ticket types for IDs:', ticketTypeIds);
+        
+        const { data: ticketTypes, error: ticketTypesError } = await supabase
+          .from('ticket_types')
+          .select('id, name, price')
+          .in('id', ticketTypeIds);
+        
+        if (ticketTypesError) {
+          console.error('Ticket types query error:', ticketTypesError);
+          throw ticketTypesError;
+        }
+        
+        console.log('Fetching tickets...');
+        const { data: tickets, error: ticketsError } = await supabase
+          .from('tickets')
+          .select('id, order_id, ticket_number, qr_code, status, created_at')
+          .in('order_id', orders.map(o => o.id));
+        
+        if (ticketsError) {
+          console.error('Tickets query error:', ticketsError);
+          throw ticketsError;
+        }
+        
+        console.log('Combining data...');
+        // Combine the data
+        orders.forEach(order => {
+          order.events = events?.find(e => e.id === order.event_id);
+          order.order_items = orderItems?.filter(oi => oi.order_id === order.id).map(oi => ({
+            ...oi,
+            ticket_types: ticketTypes?.find(tt => tt.id === oi.ticket_type_id)
+          })) || [];
+          order.tickets = tickets?.filter(t => t.order_id === order.id) || [];
+        });
+        
+        console.log('Data combined successfully:', orders);
+      } catch (err) {
+        console.error('Error fetching related data:', err);
+        throw err;
+      }
     }
     
     const ticketsList = document.getElementById('ticketsList');
