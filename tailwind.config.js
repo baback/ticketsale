@@ -11,6 +11,7 @@ module.exports = {
     "./privacy/**/*.html",
     "./support/**/*.html",
     "./auth/**/*.html",
+    "./mytickets/**/*.html",
     "./src/scripts/**/*.js"
   ],
   darkMode: 'class',
