@@ -34,7 +34,7 @@ async function loadOrderDetails() {
     // Get event
     const { data: event } = await supabase
       .from('events')
-      .select('id, title, location, event_date')
+      .select('id, title, location, event_date, image_url')
       .eq('id', order.event_id)
       .single();
 
@@ -89,11 +89,18 @@ function displayOrder(order) {
 
   const content = document.getElementById('content');
   content.innerHTML = `
-    <!-- Header -->
-    <div class="glass rounded-2xl p-8 border border-neutral-200 dark:border-neutral-800">
-      <h1 class="text-3xl font-bold mb-2">${event.title}</h1>
-      <p class="text-lg text-neutral-600 dark:text-neutral-400 mb-4">${eventDate}</p>
-      <p class="text-neutral-600 dark:text-neutral-400">${event.location || 'TBA'}</p>
+    <!-- Header with Event Image -->
+    <div class="glass rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
+      ${event.image_url ? `
+        <div class="aspect-[21/9] w-full overflow-hidden">
+          <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover" />
+        </div>
+      ` : ''}
+      <div class="p-8">
+        <h1 class="text-3xl font-bold mb-2">${event.title}</h1>
+        <p class="text-lg text-neutral-600 dark:text-neutral-400 mb-4">${eventDate}</p>
+        <p class="text-neutral-600 dark:text-neutral-400">${event.location || 'TBA'}</p>
+      </div>
     </div>
 
     <!-- Order Summary -->
@@ -172,16 +179,6 @@ function displayOrder(order) {
           <p>Present these QR codes at the entrance. Each ticket is valid for one person only. You can print this page or show it on your phone.</p>
         </div>
       </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="flex gap-3">
-      <button onclick="window.print()" class="flex-1 px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full font-medium hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors">
-        Print Tickets
-      </button>
-      <a href="/dashboard" class="px-6 py-3 border border-neutral-200 dark:border-neutral-800 rounded-full font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-center">
-        Back to Dashboard
-      </a>
     </div>
   `;
 
