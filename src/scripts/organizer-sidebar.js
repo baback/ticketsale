@@ -1,7 +1,7 @@
-// Dashboard Sidebar Component Script
-// This script handles all sidebar functionality across dashboard pages
+// Organizer Dashboard Sidebar Component Script
+// This script handles all sidebar functionality for organizer pages
 
-(async function initDashboardSidebar() {
+(async function initOrganizerSidebar() {
   // Check authentication
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -10,17 +10,17 @@
   }
 
   // Load sidebar HTML
-  const sidebarContainer = document.getElementById('dashboardSidebar');
+  const sidebarContainer = document.getElementById('organizerSidebar');
   if (sidebarContainer) {
     try {
-      const response = await fetch('/dashboard/sidebar.html');
+      const response = await fetch('/dashboard/organizer-sidebar.html');
       const sidebarHTML = await response.text();
       sidebarContainer.innerHTML = sidebarHTML;
       
       // Initialize sidebar after loading
       initSidebarFunctionality();
     } catch (error) {
-      console.error('Error loading sidebar:', error);
+      console.error('Error loading organizer sidebar:', error);
     }
   }
 
@@ -58,7 +58,13 @@
       });
     }
 
-    // Switch mode button is now a link, no JS needed
+    // Switch to buyer mode
+    const switchModeBtn = document.getElementById('switchModeBtn');
+    if (switchModeBtn) {
+      switchModeBtn.addEventListener('click', () => {
+        window.location.href = '/dashboard/';
+      });
+    }
 
     // Logout
     const logoutBtn = document.getElementById('logoutBtn');
@@ -105,10 +111,9 @@
       
       const navType = link.getAttribute('data-nav');
       if (
-        (navType === 'overview' && path === '/dashboard') ||
-        (navType === 'overview' && path === '/dashboard/') ||
-        (navType === 'mytickets' && path.includes('/dashboard/mytickets')) ||
-        (navType === 'events' && path.includes('/dashboard/events')) ||
+        (navType === 'overview' && (path === '/dashboard/organizer' || path === '/dashboard/organizer/')) ||
+        (navType === 'events' && path.includes('/dashboard/organizer/events') && !path.includes('/create')) ||
+        (navType === 'create' && path.includes('/dashboard/organizer/events/create')) ||
         (navType === 'settings' && path.includes('/dashboard/settings'))
       ) {
         link.classList.add('bg-neutral-100', 'dark:bg-neutral-800');
