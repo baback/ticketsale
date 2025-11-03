@@ -11,15 +11,19 @@ async function loadTickets() {
     const { data: orders, error } = await supabase
       .from('orders')
       .select(`
-        *,
-        events (
+        id,
+        status,
+        total,
+        created_at,
+        events!event_id (
           id,
           name,
           venue,
           event_date
         ),
         order_items (
-          *,
+          id,
+          quantity,
           ticket_types (
             name,
             price
@@ -129,8 +133,11 @@ async function viewTickets(orderId) {
     const { data: order, error } = await supabase
       .from('orders')
       .select(`
-        *,
-        events (
+        id,
+        status,
+        total,
+        created_at,
+        events!event_id (
           id,
           name,
           venue,

@@ -369,7 +369,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
     })
 
     const ticketType = order.order_items[0]?.ticket_types?.name || 'General Admission'
-    const totalAmount = `$${(order.total_amount / 100).toFixed(2)}`
+    const totalAmount = `$${Number(order.total).toFixed(2)}`
     const orderNumber = `#${order.id.slice(0, 8).toUpperCase()}`
     const dashboardUrl = `${Deno.env.get('SITE_URL') || 'https://ticketsale.ca'}/dashboard`
 
