@@ -152,7 +152,7 @@ function displayOrder(order) {
             </div>
             <div class="flex flex-col items-center gap-2">
               <div class="bg-white p-3 rounded-lg border border-neutral-200">
-                <img src="${ticket.qr_code}" alt="QR Code" class="w-32 h-32" />
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.qr_code)}" alt="QR Code" class="w-32 h-32" />
               </div>
               <p class="text-xs text-neutral-600 dark:text-neutral-400">Scan at entry</p>
             </div>

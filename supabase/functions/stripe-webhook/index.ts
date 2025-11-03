@@ -233,8 +233,8 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
             </svg>
           </div>
           <div class="ticket-body">
-            <h1 class="event-name">${event.name}</h1>
-            <p class="event-subtitle">${event.venue || 'Venue TBA'}</p>
+            <h1 class="event-name">${event.title}</h1>
+            <p class="event-subtitle">${event.location || 'Venue TBA'}</p>
             
             <div class="details-grid">
               <div class="detail-item">
@@ -247,7 +247,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
               </div>
               <div class="detail-item">
                 <div class="detail-label">Location</div>
-                <div class="detail-value">${event.venue || 'TBA'}</div>
+                <div class="detail-value">${event.location || 'TBA'}</div>
               </div>
               <div class="detail-item">
                 <div class="detail-label">Order Number</div>
@@ -264,7 +264,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
             </div>
 
             <div class="qr-section">
-              <img src="${ticket.qr_code}" alt="QR Code" class="qr-code" />
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.qr_code)}" alt="QR Code" class="qr-code" />
               <div class="qr-label">Scan at Entry</div>
               <div class="ticket-number">${ticket.ticket_number}</div>
             </div>
@@ -404,7 +404,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
     const ticketType = order.order_items[0]?.ticket_types?.name || 'General Admission'
     const totalAmount = `$${Number(order.total).toFixed(2)}`
     const orderNumber = `#${order.id.slice(0, 8).toUpperCase()}`
-    const dashboardUrl = `${Deno.env.get('SITE_URL') || 'https://ticketsale.ca'}/dashboard`
+    const dashboardUrl = `${Deno.env.get('SITE_URL') || 'https://ticketsale.ca'}`
 
     const emailTemplate = getEmailTemplate(
       orderNumber,
