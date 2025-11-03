@@ -281,6 +281,7 @@ async function renderEvent(event) {
     // Check if user is logged in
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     const isLoggedIn = !!session;
+    console.log('User logged in:', isLoggedIn, 'Event ID:', event.id);
     
     // Format date
     const eventDate = new Date(event.event_date);
