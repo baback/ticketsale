@@ -15,9 +15,8 @@ async function loadTickets() {
         events (
           id,
           name,
-          location,
-          date,
-          venue
+          venue,
+          event_date
         ),
         order_items (
           *,
@@ -59,7 +58,7 @@ async function loadTickets() {
         const tickets = order.tickets || [];
         const ticketType = order.order_items[0]?.ticket_types;
         
-        const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+        const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
           weekday: 'short',
           year: 'numeric',
           month: 'short',
@@ -78,7 +77,7 @@ async function loadTickets() {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
-                  ${event.location || event.venue || 'TBA'}
+                  ${event.venue || 'TBA'}
                 </p>
                 <p class="text-sm text-neutral-600 dark:text-neutral-400">
                   <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,9 +133,8 @@ async function viewTickets(orderId) {
         events (
           id,
           name,
-          location,
-          date,
-          venue
+          venue,
+          event_date
         ),
         order_items (
           *,
@@ -162,7 +160,7 @@ async function viewTickets(orderId) {
     const tickets = order.tickets || [];
     const ticketType = order.order_items[0]?.ticket_types;
     
-    const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+    const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -210,7 +208,7 @@ async function viewTickets(orderId) {
                   <div class="space-y-2 text-sm">
                     <p><span class="text-neutral-600 dark:text-neutral-400">Type:</span> <span class="font-medium">${ticketType?.name || 'General'}</span></p>
                     <p><span class="text-neutral-600 dark:text-neutral-400">Ticket #:</span> <span class="font-mono text-xs">${ticket.ticket_number}</span></p>
-                    <p><span class="text-neutral-600 dark:text-neutral-400">Location:</span> <span class="font-medium">${event.location || event.venue || 'TBA'}</span></p>
+                    <p><span class="text-neutral-600 dark:text-neutral-400">Location:</span> <span class="font-medium">${event.venue || 'TBA'}</span></p>
                   </div>
                 </div>
                 <div class="flex flex-col items-center gap-2">

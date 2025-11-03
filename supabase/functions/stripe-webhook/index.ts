@@ -216,7 +216,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
         item.id === ticket.order_item_id
       )?.ticket_types
 
-      const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+      const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -247,7 +247,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
               </div>
               <div class="detail-item">
                 <div class="detail-label">Location</div>
-                <div class="detail-value">${event.location || 'TBA'}</div>
+                <div class="detail-value">${event.venue || 'TBA'}</div>
               </div>
               <div class="detail-item">
                 <div class="detail-label">Order Number</div>
@@ -377,7 +377,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
       orderNumber,
       event.name,
       eventDate,
-      event.location || 'TBA',
+      event.venue || 'TBA',
       tickets.length.toString(),
       ticketType,
       totalAmount,
