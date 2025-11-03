@@ -19,12 +19,18 @@ serve(async (req) => {
 
   if (!signature) {
     console.error('Missing stripe-signature header')
-    return new Response('Missing signature', { status: 400 })
+    return new Response(JSON.stringify({ error: 'Missing signature' }), { 
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
   
   if (!webhookSecret) {
     console.error('Missing STRIPE_WEBHOOK_SECRET env var')
-    return new Response('Missing webhook secret', { status: 400 })
+    return new Response(JSON.stringify({ error: 'Missing webhook secret' }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
 
   try {
@@ -169,11 +175,374 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
 
     console.log('Ticket availability updated')
 
-    // TODO: Send confirmation email with tickets
+    // Generate PDF and send email
+    await generateAndSendTickets(order, tickets, supabaseAdmin)
+
     console.log('Order processing complete for:', orderId)
 
   } catch (error) {
     console.error('Error handling checkout complete:', error)
     throw error
   }
+}
+
+async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin: any) {
+  try {
+    console.log('Generating PDF for order:', order.id)
+
+    // Get event details
+    const { data: event } = await supabaseAdmin
+      .from('events')
+      .select('*')
+      .eq('id', order.event_id)
+      .single()
+
+    if (!event) {
+      console.error('Event not found')
+      return
+    }
+
+    // Get user details
+    const { data: user } = await supabaseAdmin.auth.admin.getUserById(order.user_id)
+    
+    if (!user) {
+      console.error('User not found')
+      return
+    }
+
+    // Generate ticket HTML
+    const ticketsHtml = tickets.map(ticket => {
+      const ticketType = order.order_items.find((item: any) => 
+        item.id === ticket.order_item_id
+      )?.ticket_types
+
+      const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+
+      return `
+        <div class="ticket">
+          <div class="ticket-header">
+            <svg width="180" height="20" viewBox="0 0 433 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.25872 3.48535C8.45986 2.59539 9.96562 2.21848 11.4443 2.43848H55.8896C57.3682 2.65852 58.857 3.73049 59.747 4.93164C60.637 6.13283 61.0129 7.6385 60.7929 9.11719L59.1337 20.2676C57.6551 20.0476 56.1493 20.4245 54.9482 21.3145C53.7472 22.2044 52.9485 23.5351 52.7284 25.0137C52.5084 26.4923 52.8853 27.998 53.7753 29.1992C54.6653 30.4003 55.9959 31.1989 57.4745 31.4189L55.8154 42.5693C55.5953 44.0479 54.7967 45.3786 53.5956 46.2686C52.3944 47.1586 50.8888 47.5355 49.4101 47.3154H4.96477C3.48608 47.0954 1.99735 46.0235 1.10735 44.8223C0.217404 43.6211 -0.158589 42.1154 0.0614515 40.6367L1.72063 29.4863C3.19928 29.7063 4.70502 29.3294 5.90618 28.4395C7.10721 27.5495 7.90588 26.2188 8.1259 24.7402C8.34591 23.2616 7.969 21.7558 7.07903 20.5547C6.18904 19.3537 4.85838 18.555 3.37981 18.335L5.03899 7.18457C5.25902 5.70601 6.0577 4.37535 7.25872 3.48535Z" fill="white"/>
+            </svg>
+          </div>
+          <div class="ticket-body">
+            <h1 class="event-name">${event.name}</h1>
+            <p class="event-subtitle">${event.venue || 'Venue TBA'}</p>
+            
+            <div class="details-grid">
+              <div class="detail-item">
+                <div class="detail-label">Date & Time</div>
+                <div class="detail-value">${eventDate}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Ticket Type</div>
+                <div class="detail-value">${ticketType?.name || 'General Admission'}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Location</div>
+                <div class="detail-value">${event.location || 'TBA'}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Order Number</div>
+                <div class="detail-value">#${order.id.slice(0, 8).toUpperCase()}</div>
+              </div>
+            </div>
+
+            <div class="important-notice">
+              <div class="notice-title">Important Information</div>
+              <div class="notice-text">
+                Present this ticket at the entrance. Each ticket is valid for one person only. 
+                Screenshots are not accepted - please show the original QR code.
+              </div>
+            </div>
+
+            <div class="qr-section">
+              <img src="${ticket.qr_code}" alt="QR Code" class="qr-code" />
+              <div class="qr-label">Scan at Entry</div>
+              <div class="ticket-number">${ticket.ticket_number}</div>
+            </div>
+          </div>
+          <div class="ticket-footer">
+            <p class="footer-text">
+              This ticket is non-transferable and non-refundable.<br/>
+              For support, contact support@ticketsale.ca
+            </p>
+          </div>
+        </div>
+      `
+    }).join('')
+
+    // Build PDF HTML
+    const pdfTemplate = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif; background: #0a0a0a; padding: 40px; }
+        .ticket-container { max-width: 800px; margin: 0 auto; }
+        .ticket { background: linear-gradient(135deg, #171717 0%, #262626 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); margin-bottom: 40px; page-break-after: always; }
+        .ticket:last-child { margin-bottom: 0; page-break-after: auto; }
+        .ticket-header { background: #000000; padding: 32px 40px; border-bottom: 2px solid #404040; }
+        .ticket-body { padding: 40px; }
+        .event-name { font-size: 36px; font-weight: 700; color: #ffffff; margin-bottom: 8px; letter-spacing: -1px; }
+        .event-subtitle { font-size: 18px; color: #a3a3a3; margin-bottom: 32px; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+        .detail-item { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid #404040; }
+        .detail-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #737373; margin-bottom: 8px; font-weight: 600; }
+        .detail-value { font-size: 18px; color: #ffffff; font-weight: 600; }
+        .qr-section { background: #ffffff; padding: 32px; border-radius: 16px; text-align: center; margin-top: 32px; }
+        .qr-code { width: 200px; height: 200px; margin: 0 auto 16px; }
+        .qr-label { font-size: 14px; color: #171717; font-weight: 600; margin-bottom: 4px; }
+        .ticket-number { font-size: 12px; color: #737373; font-family: 'Courier New', monospace; }
+        .ticket-footer { background: #0a0a0a; padding: 24px 40px; border-top: 1px solid #404040; text-align: center; }
+        .footer-text { font-size: 12px; color: #737373; line-height: 1.6; }
+        .important-notice { background: #1e3a8a; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-top: 24px; }
+        .notice-title { font-size: 14px; font-weight: 600; color: #93c5fd; margin-bottom: 8px; }
+        .notice-text { font-size: 13px; color: #bfdbfe; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="ticket-container">
+        ${ticketsHtml}
+    </div>
+</body>
+</html>`
+
+    // Generate PDF using PDFShift
+    const pdfShiftApiKey = Deno.env.get('PDFSHIFT_API_KEY')
+    if (!pdfShiftApiKey) {
+      console.error('PDFSHIFT_API_KEY not set')
+      return
+    }
+
+    console.log('Calling PDFShift API...')
+    const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${btoa(`api:${pdfShiftApiKey}`)}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        source: pdfTemplate,
+        landscape: false,
+        use_print: false,
+      }),
+    })
+
+    if (!pdfResponse.ok) {
+      const errorText = await pdfResponse.text()
+      console.error('PDFShift error:', errorText)
+      throw new Error(`PDFShift API error: ${pdfResponse.status}`)
+    }
+
+    const pdfBuffer = await pdfResponse.arrayBuffer()
+    const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)))
+    
+    console.log('PDF generated successfully, size:', pdfBuffer.byteLength)
+
+    // Prepare email
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY not set')
+      return
+    }
+
+    // Build email HTML with placeholders
+    const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
+    const ticketType = order.order_items[0]?.ticket_types?.name || 'General Admission'
+    const totalAmount = `$${(order.total_amount / 100).toFixed(2)}`
+    const orderNumber = `#${order.id.slice(0, 8).toUpperCase()}`
+    const dashboardUrl = `${Deno.env.get('SITE_URL') || 'https://ticketsale.ca'}/dashboard`
+
+    const emailTemplate = getEmailTemplate(
+      orderNumber,
+      event.name,
+      eventDate,
+      event.location || 'TBA',
+      tickets.length.toString(),
+      ticketType,
+      totalAmount,
+      dashboardUrl
+    )
+
+    // Send email with Resend
+    console.log('Sending email via Resend...')
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'ticketsale.ca <tickets@ticketsale.ca>',
+        to: [user.user.email],
+        subject: `Your Tickets for ${event.name}`,
+        html: emailTemplate,
+        attachments: [
+          {
+            filename: `tickets-${order.id.slice(0, 8)}.pdf`,
+            content: pdfBase64,
+          },
+        ],
+      }),
+    })
+
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text()
+      console.error('Resend error:', errorText)
+      throw new Error(`Resend API error: ${emailResponse.status}`)
+    }
+
+    const emailResult = await emailResponse.json()
+    console.log('Email sent successfully:', emailResult.id)
+
+  } catch (error) {
+    console.error('Error generating/sending tickets:', error)
+    // Don't throw - we don't want to fail the webhook if email fails
+  }
+}
+
+function getEmailTemplate(
+  orderNumber: string,
+  eventName: string,
+  eventDate: string,
+  eventLocation: string,
+  ticketCount: string,
+  ticketType: string,
+  totalAmount: string,
+  dashboardUrl: string
+): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Tickets - ticketsale.ca</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif; background-color: #0a0a0a;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #171717; border-radius: 24px; border: 1px solid #262626; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);">
+                    <tr>
+                        <td style="padding: 40px 40px 20px 40px; text-align: center;">
+                            <svg width="150" height="16" viewBox="0 0 433 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.25872 3.48535C8.45986 2.59539 9.96562 2.21848 11.4443 2.43848H55.8896C57.3682 2.65852 58.857 3.73049 59.747 4.93164C60.637 6.13283 61.0129 7.6385 60.7929 9.11719L59.1337 20.2676C57.6551 20.0476 56.1493 20.4245 54.9482 21.3145C53.7472 22.2044 52.9485 23.5351 52.7284 25.0137C52.5084 26.4923 52.8853 27.998 53.7753 29.1992C54.6653 30.4003 55.9959 31.1989 57.4745 31.4189L55.8154 42.5693C55.5953 44.0479 54.7967 45.3786 53.5956 46.2686C52.3944 47.1586 50.8888 47.5355 49.4101 47.3154H4.96477C3.48608 47.0954 1.99735 46.0235 1.10735 44.8223C0.217404 43.6211 -0.158589 42.1154 0.0614515 40.6367L1.72063 29.4863C3.19928 29.7063 4.70502 29.3294 5.90618 28.4395C7.10721 27.5495 7.90588 26.2188 8.1259 24.7402C8.34591 23.2616 7.969 21.7558 7.07903 20.5547C6.18904 19.3537 4.85838 18.555 3.37981 18.335L5.03899 7.18457C5.25902 5.70601 6.0577 4.37535 7.25872 3.48535Z" fill="white"/>
+                            </svg>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 20px 40px; text-align: center;">
+                            <div style="width: 64px; height: 64px; background-color: #166534; border-radius: 50%; display: inline-block; text-align: center; line-height: 64px; margin: 0 auto;">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" style="vertical-align: middle;">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px; text-align: center;">
+                            <h2 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">Your Tickets Are Ready!</h2>
+                            <p style="margin: 0; font-size: 16px; line-height: 24px; color: #a3a3a3;">
+                                Thanks for your purchase! Your tickets are attached to this email as a PDF.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #262626; border-radius: 12px; overflow: hidden;">
+                                <tr>
+                                    <td style="padding: 24px;">
+                                        <h3 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px;">Order Details</h3>
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #a3a3a3;">Order Number</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #ffffff; text-align: right; font-weight: 600;">${orderNumber}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #a3a3a3;">Event</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #ffffff; text-align: right; font-weight: 600;">${eventName}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #a3a3a3;">Date & Time</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #ffffff; text-align: right; font-weight: 600;">${eventDate}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #a3a3a3;">Location</td>
+                                                <td style="padding: 8px 0; font-size: 14px; color: #ffffff; text-align: right; font-weight: 600;">${eventLocation}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; border-top: 1px solid #404040; font-size: 14px; color: #a3a3a3;">Tickets</td>
+                                                <td style="padding: 8px 0; border-top: 1px solid #404040; font-size: 14px; color: #ffffff; text-align: right; font-weight: 600;">${ticketCount} × ${ticketType}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; font-size: 16px; color: #ffffff; font-weight: 700;">Total Paid</td>
+                                                <td style="padding: 8px 0; font-size: 16px; color: #22c55e; text-align: right; font-weight: 700;">${totalAmount}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px;">
+                            <div style="background-color: #1e3a8a; border-radius: 12px; padding: 20px; border-left: 4px solid #3b82f6;">
+                                <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #93c5fd;">Important Information</p>
+                                <p style="margin: 0; font-size: 13px; line-height: 20px; color: #bfdbfe;">
+                                    Please bring your ticket PDF (printed or on your phone) to the event. Each ticket contains a unique QR code for entry.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <div style="border-top: 1px solid #262626;"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px 40px 40px 40px; text-align: center;">
+                            <p style="margin: 0 0 16px 0; font-size: 13px; color: #a3a3a3;">
+                                You can also view and download your tickets anytime from your dashboard.
+                            </p>
+                            <a href="${dashboardUrl}" style="display: inline-block; padding: 12px 24px; background-color: #262626; color: #ffffff; text-decoration: none; border-radius: 9999px; font-weight: 600; font-size: 14px; letter-spacing: -0.2px;">
+                                View Dashboard
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px 40px; background-color: #0a0a0a; text-align: center; border-top: 1px solid #262626;">
+                            <p style="margin: 0 0 8px 0; font-size: 13px; color: #a3a3a3;">
+                                Questions? Contact us at support@ticketsale.ca
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #737373;">
+                                © 2025 ticketsale.ca
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`
 }
