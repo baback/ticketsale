@@ -8,8 +8,37 @@
 </head>
 <body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
     <div id="dashboardSidebar"></div>
-        }
-        loadUserInfo();
-    </script>
+
+    <!-- Main Content -->
+    <main class="ml-64 p-8">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">Browse Events</h1>
+            
+            <!-- Search and Filters -->
+            <div class="mb-8 flex gap-4">
+                <input type="text" id="searchInput" placeholder="Search events..." class="flex-1 px-4 py-3 rounded-xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white">
+                <select id="categoryFilter" class="px-4 py-3 rounded-xl glass border border-neutral-200 dark:border-neutral-800 focus:outline-none">
+                    <option value="">All Categories</option>
+                    <option value="music">Music</option>
+                    <option value="sports">Sports</option>
+                    <option value="arts">Arts</option>
+                    <option value="tech">Tech</option>
+                </select>
+            </div>
+
+            <!-- Events Grid -->
+            <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="text-center py-20 col-span-full">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white"></div>
+                    <p class="mt-4 text-neutral-600 dark:text-neutral-400">Loading events...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../src/scripts/supabase.js"></script>
+    <script src="../../src/scripts/dashboard-sidebar.js"></script>
+    <script src="../../src/scripts/event.js"></script>
 </body>
 </html>
