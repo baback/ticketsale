@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Tickets - ticketsale.ca</title>
+    <link rel="icon" type="image/svg+xml" href="../../../src/img/logo/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../src/styles/output.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        #qr-reader {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #qr-reader__dashboard_section_csr {
+            display: none !important;
+        }
+        .scan-success {
+            animation: pulse-green 0.5s ease-in-out;
+        }
+        .scan-error {
+            animation: pulse-red 0.5s ease-in-out;
+        }
+        @keyframes pulse-green {
+            0%, 100% { border-color: transparent; }
+            50% { border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+        }
+        @keyframes pulse-red {
+            0%, 100% { border-color: transparent; }
+            50% { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass border-b border-neutral-200 dark:border-neutral-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="../events/" class="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span>Back to Events</span>
+                </a>
+                <h1 class="text-lg font-bold">Scan Tickets</h1>
+                <div class="w-24"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        
+        <!-- Event Selection -->
+        <div id="eventSelection" class="mb-8">
+            <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800">
+                <h2 class="text-2xl font-bold mb-4">Select Event</h2>
+                <select id="eventSelect" class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white">
+                    <option value="">Loading events...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Scanner Section -->
+        <div id="scannerSection" class="hidden">
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 text-center">
+                    <div class="text-3xl font-bold" id="checkedInCount">0</div>
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400">Checked In</div>
+                </div>
+                <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 text-center">
+                    <div class="text-3xl font-bold" id="totalTickets">0</div>
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400">Total Tickets</div>
+                </div>
+            </div>
+
+            <!-- QR Scanner -->
+            <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800 mb-6">
+                <div id="qr-reader" class="rounded-2xl overflow-hidden border-4 border-transparent transition-all"></div>
+                <div class="mt-4 text-center text-sm text-neutral-600 dark:text-neutral-400">
+                    Position QR code within the frame
+                </div>
+            </div>
+
+            <!-- Manual Entry -->
+            <div class="glass rounded-3xl p-6 border border-neutral-200 dark:border-neutral-800 mb-6">
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        id="manualTicketId" 
+                        placeholder="Enter ticket ID manually" 
+                        class="flex-1 px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                    />
+                    <button 
+                        id="manualCheckBtn"
+                        class="px-6 py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform"
+                    >
+                        Check
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Scans -->
+            <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800">
+                <h3 class="text-xl font-bold mb-4">Recent Scans</h3>
+                <div id="recentScans" class="space-y-3">
+                    <div class="text-center py-8 text-neutral-600 dark:text-neutral-400">
+                        No scans yet
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Ticket Details Modal -->
+    <div id="ticketModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800 max-w-md w-full" id="ticketModalContent">
+            <!-- Content will be inserted here -->
+        </div>
+    </div>
+
+    <script src="../../../src/scripts/supabase.js"></script>
+    <script src="../../../src/scripts/shared.js"></script>
+    <script src="../../../src/scripts/ticket-scanner.js"></script>
+</body>
+</html>
