@@ -980,8 +980,20 @@ async function loadEventData() {
     
     // Set category - convert to lowercase to match dropdown values
     const categoryName = event.event_category_mappings?.[0]?.event_categories?.name;
+    console.log('Category from DB:', categoryName);
     if (categoryName) {
-      document.getElementById('category').value = categoryName.toLowerCase();
+      const categoryValue = categoryName.toLowerCase();
+      console.log('Setting category to:', categoryValue);
+      document.getElementById('category').value = categoryValue;
+      
+      // Double-check it was set
+      setTimeout(() => {
+        const currentValue = document.getElementById('category').value;
+        console.log('Category value after set:', currentValue);
+        if (!currentValue && categoryName) {
+          document.getElementById('category').value = categoryValue;
+        }
+      }, 100);
     }
     
     if (event.event_date) {
