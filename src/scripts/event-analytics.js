@@ -64,14 +64,18 @@ async function loadAnalytics() {
     if (ordersError) throw ordersError;
     
     // Fetch tickets - only from completed orders
-    const orderIds = orders?.map(o => o.id) || [];
-    const { data: tickets, error: ticketsError } = await supabase
-      .from('tickets')
-      .select('*, ticket_types(name, price)')
-      .eq('event_id', eventId)
-      .in('order_id', orderIds);
-    
-    if (ticketsError) throw ticketsError;
+    let tickets = [];
+    if (orders && orders.length > 0) {
+      const orderIds = orders.map(o => o.id);
+      const { data: ticketsData, error: ticketsError } = await supabase
+        .from('tickets')
+        .select('*, ticket_types(name, price)')
+        .eq('event_id', eventId)
+        .in('order_id', orderIds);
+      
+      if (ticketsError) throw ticketsError;
+      tickets = ticketsData || [];
+    }
     
     // Fetch ticket types
     const { data: ticketTypes, error: ticketTypesError } = await supabase
