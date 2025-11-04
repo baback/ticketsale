@@ -61,20 +61,34 @@ async function loadAnalytics() {
       .eq('event_id', eventId)
       .in('status', ['paid', 'completed']);
     
-    if (ordersError) throw ordersError;
+    console.log('Orders query result:', { orders, ordersError, eventId });
+    
+    if (ordersError) {
+      console.error('Orders error:', ordersError);
+      throw ordersError;
+    }
     
     // Fetch tickets - only from completed orders
     let tickets = [];
     if (orders && orders.length > 0) {
       const orderIds = orders.map(o => o.id);
+      console.log('Fetching tickets for order IDs:', orderIds);
+      
       const { data: ticketsData, error: ticketsError } = await supabase
         .from('tickets')
         .select('*, ticket_types(name, price)')
         .eq('event_id', eventId)
         .in('order_id', orderIds);
       
-      if (ticketsError) throw ticketsError;
+      console.log('Tickets query result:', { ticketsData, ticketsError });
+      
+      if (ticketsError) {
+        console.error('Tickets error:', ticketsError);
+        throw ticketsError;
+      }
       tickets = ticketsData || [];
+    } else {
+      console.log('No completed orders found for this event');
     }
     
     // Fetch ticket types
@@ -83,7 +97,12 @@ async function loadAnalytics() {
       .select('*')
       .eq('event_id', eventId);
     
-    if (ticketTypesError) throw ticketTypesError;
+    console.log('Ticket types:', ticketTypes);
+    
+    if (ticketTypesError) {
+      console.error('Ticket types error:', ticketTypesError);
+      throw ticketTypesError;
+    }
     
     // Fetch page views
     const { data: pageViews, error: pageViewsError } = await supabase
@@ -116,8 +135,33 @@ async function loadAnalytics() {
     
   } catch (error) {
     console.error('Error loading analytics:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint
+    });
     hideSkeleton();
-    alert('Failed to load analytics. Please try again.');
+    
+    // Show error message in the UI
+    const analyticsContent = document.getElementById('analyticsContent');
+    if (analyticsContent) {
+      analyticsContent.classList.remove('hidden');
+      analyticsContent.innerHTML = `
+        <div class="glass rounded-2xl p-8 border border-neutral-200 dark:border-neutral-800 text-center">
+          <svg class="w-16 h-16 mx-auto mb-4 text-red-600 dark:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <h3 class="text-xl font-bold mb-2">Failed to Load Analytics</h3>
+          <p class="text-neutral-600 dark:text-neutral-400 mb-4">
+            ${error.message || 'An error occurred while loading analytics data.'}
+          </p>
+          <button onclick="location.reload()" class="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium">
+            Try Again
+          </button>
+        </div>
+      `;
+    }
   }
 }
 
