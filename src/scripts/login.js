@@ -280,12 +280,15 @@ forgotPasswordForm.addEventListener('submit', async (e) => {
     
     const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending...';
+    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
     
     try {
         // Use current origin for redirect (works for both localhost and production)
         const redirectUrl = `${window.location.origin}/login/reset-password/`;
         console.log('Reset redirect URL:', redirectUrl);
+        
+        // Show immediate feedback
+        showMessage('Sending reset link... This may take a few seconds.', false);
         
         const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
             redirectTo: redirectUrl
@@ -293,13 +296,13 @@ forgotPasswordForm.addEventListener('submit', async (e) => {
         
         if (error) throw error;
         
-        showMessage('Password reset link sent! Check your email.');
+        showMessage('✓ Password reset link sent! Check your email (including spam folder).');
         
         // Clear form and go back to login after delay
         setTimeout(() => {
             document.getElementById('resetEmail').value = '';
             backToLoginBtn.click();
-        }, 3000);
+        }, 4000);
         
     } catch (error) {
         console.error('Password reset error:', error);
