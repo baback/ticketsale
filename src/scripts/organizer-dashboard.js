@@ -60,9 +60,29 @@ async function loadUserProfile(user) {
   }
 }
 
+// Show skeleton loading
+function showStatsSkeleton() {
+  const statsGrid = document.getElementById('statsGrid');
+  const statsSkeleton = document.getElementById('statsSkeleton');
+  
+  if (statsGrid) statsGrid.classList.add('hidden');
+  if (statsSkeleton) statsSkeleton.classList.remove('hidden');
+}
+
+// Hide skeleton loading
+function hideStatsSkeleton() {
+  const statsGrid = document.getElementById('statsGrid');
+  const statsSkeleton = document.getElementById('statsSkeleton');
+  
+  if (statsGrid) statsGrid.classList.remove('hidden');
+  if (statsSkeleton) statsSkeleton.classList.add('hidden');
+}
+
 // Load dashboard statistics
 async function loadDashboardStats() {
   try {
+    showStatsSkeleton();
+    
     const { data: { user } } = await supabase.auth.getUser();
     
     // Get all events by this organizer
@@ -103,8 +123,11 @@ async function loadDashboardStats() {
     document.getElementById('activeEvents').textContent = activeEvents;
     document.getElementById('totalViews').textContent = '0'; // TODO: Implement view tracking
     
+    hideStatsSkeleton();
+    
   } catch (error) {
     console.error('Error loading stats:', error);
+    hideStatsSkeleton();
   }
 }
 
