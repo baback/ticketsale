@@ -170,15 +170,14 @@ async function loadRecentEvents() {
         };
         
         return `
-          <a href="/dashboard/organizer/events/edit/?id=${event.id}" class="block glass rounded-xl p-4 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-            <div class="flex items-center gap-4">
+          <a href="/dashboard/organizer/events/edit/?id=${event.id}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all group">
+            <!-- Event Image -->
+            <div class="relative h-32 bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
               ${event.image_url ? `
-                <div class="w-16 h-16 shrink-0 bg-neutral-200 dark:bg-neutral-800 rounded-lg overflow-hidden">
-                  <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover" />
-                </div>
+                <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               ` : `
-                <div class="w-16 h-16 shrink-0 bg-neutral-200 dark:bg-neutral-800 rounded-lg flex items-center justify-center">
-                  <svg class="w-8 h-8 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div class="w-full h-full flex items-center justify-center">
+                  <svg class="w-12 h-12 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                     <line x1="16" y1="2" x2="16" y2="6"/>
                     <line x1="8" y1="2" x2="8" y2="6"/>
@@ -186,18 +185,17 @@ async function loadRecentEvents() {
                   </svg>
                 </div>
               `}
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-4 mb-1">
-                  <h3 class="font-semibold truncate">${event.title}</h3>
-                  <span class="text-xs px-2 py-1 rounded-full ${statusColors[event.status] || statusColors.draft} whitespace-nowrap">
-                    ${event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                  </span>
-                </div>
-                <p class="text-sm text-neutral-600 dark:text-neutral-400">${eventDate} • ${event.location || 'TBA'}</p>
+              <div class="absolute top-2 right-2">
+                <span class="text-xs px-2 py-1 rounded-full ${statusColors[event.status] || statusColors.draft} backdrop-blur-sm">
+                  ${event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                </span>
               </div>
-              <svg class="w-5 h-5 text-neutral-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
+            </div>
+            
+            <!-- Event Details -->
+            <div class="p-3">
+              <h3 class="font-semibold mb-1 line-clamp-1">${event.title}</h3>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">${eventDate} • ${event.location || 'TBA'}</p>
             </div>
           </a>
         `;
