@@ -156,31 +156,62 @@
                     });
 
                     return `
-                        <a href="/dashboard/mytickets/order/?id=${order.id}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
+                        <a href="/dashboard/mytickets/order/?id=${order.id}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all group">
                             <div class="flex">
-                                ${event.image_url ? `
-                                    <div class="w-32 h-full shrink-0 bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden">
-                                        <img src="${event.image_url}" alt="${event.title}" class="absolute inset-0 w-full h-full object-cover" />
-                                    </div>
-                                ` : ''}
-                                <div class="flex-1 p-4 min-h-[128px]">
-                                    <div class="flex items-start justify-between gap-4 mb-2">
-                                        <div class="flex-1">
-                                            <h3 class="text-lg font-semibold mb-1">${event.title}</h3>
-                                            <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-1">${event.location || 'TBA'}</p>
-                                            <p class="text-sm text-neutral-600 dark:text-neutral-400">${eventDate}</p>
+                                <!-- Event Image -->
+                                <div class="w-40 h-40 shrink-0 bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden">
+                                    ${event.image_url ? `
+                                        <img src="${event.image_url}" alt="${event.title}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.style.display='none'" />
+                                    ` : `
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <svg class="w-16 h-16 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                                <line x1="3" y1="9" x2="21" y2="9"/>
+                                                <line x1="9" y1="21" x2="9" y2="9"/>
+                                            </svg>
                                         </div>
-                                        <div class="text-right">
-                                            <div class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 mb-2">
-                                                ${orderTickets.length} Ticket${orderTickets.length !== 1 ? 's' : ''}
+                                    `}
+                                </div>
+                                
+                                <!-- Event Details -->
+                                <div class="flex-1 p-4 flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-start justify-between gap-4 mb-2">
+                                            <div class="flex-1">
+                                                <h3 class="text-lg font-semibold mb-1 line-clamp-1">${event.title}</h3>
+                                                <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 mb-1">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    </svg>
+                                                    <span class="truncate">${event.location || 'TBA'}</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                                        <path d="M16 2v4M8 2v4M3 10h18"/>
+                                                    </svg>
+                                                    <span>${eventDate}</span>
+                                                </div>
                                             </div>
-                                            <p class="text-sm text-neutral-600 dark:text-neutral-400">${ticketType?.name || 'General'}</p>
+                                            <div class="text-right shrink-0">
+                                                <div class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 mb-2">
+                                                    ${orderTickets.length} Ticket${orderTickets.length !== 1 ? 's' : ''}
+                                                </div>
+                                                <p class="text-sm text-neutral-600 dark:text-neutral-400">${ticketType?.name || 'General'}</p>
+                                            </div>
                                         </div>
                                     </div>
+                                    
                                     <div class="border-t border-neutral-200 dark:border-neutral-800 pt-3 mt-3">
                                         <div class="flex items-center justify-between">
                                             <div class="text-sm text-neutral-600 dark:text-neutral-400">Order #${order.id.slice(0, 8).toUpperCase()}</div>
-                                            <div class="text-sm font-medium text-neutral-900 dark:text-white">View Tickets →</div>
+                                            <div class="text-sm font-medium text-neutral-900 dark:text-white flex items-center gap-1">
+                                                View Tickets
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
