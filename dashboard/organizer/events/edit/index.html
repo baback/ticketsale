@@ -94,58 +94,21 @@
                 </div>
             </div>
 
-            <!-- Progress Steps -->
+            <!-- Tab Navigation -->
             <div class="mb-8">
-                <div class="flex items-start justify-between">
-                    <!-- Step 1 -->
-                    <div class="flex flex-col items-center flex-1" data-step="1">
-                        <div class="flex items-center justify-center w-full">
-                            <div class="flex-1 h-1 bg-transparent"></div>
-                            <div class="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm step-circle shrink-0">1</div>
-                            <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line"></div>
-                        </div>
-                        <span class="text-xs font-medium mt-2 text-center" id="label1">Basic Info</span>
-                    </div>
-                    
-                    <!-- Step 2 -->
-                    <div class="flex flex-col items-center flex-1" data-step="2">
-                        <div class="flex items-center w-full">
-                            <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mr-2 step-line-before"></div>
-                            <div class="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle shrink-0">2</div>
-                            <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line"></div>
-                        </div>
-                        <span class="text-xs font-medium text-neutral-400 mt-2 text-center" id="label2">Date & Location</span>
-                    </div>
-                    
-                    <!-- Step 3 -->
-                    <div class="flex flex-col items-center flex-1" data-step="3">
-                        <div class="flex items-center w-full">
-                            <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mr-2 step-line-before"></div>
-                            <div class="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle shrink-0">3</div>
-                            <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line"></div>
-                        </div>
-                        <span class="text-xs font-medium text-neutral-400 mt-2 text-center" id="label3">Media</span>
-                    </div>
-                    
-                    <!-- Step 4 -->
-                    <div class="flex flex-col items-center flex-1" data-step="4">
-                        <div class="flex items-center w-full">
-                            <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mr-2 step-line-before"></div>
-                            <div class="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle shrink-0">4</div>
-                            <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line"></div>
-                        </div>
-                        <span class="text-xs font-medium text-neutral-400 mt-2 text-center" id="label4">Tickets</span>
-                    </div>
-                    
-                    <!-- Step 5 -->
-                    <div class="flex flex-col items-center flex-1" data-step="5">
-                        <div class="flex items-center justify-center w-full">
-                            <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mr-2 step-line-before"></div>
-                            <div class="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle shrink-0">5</div>
-                            <div class="flex-1 h-1 bg-transparent"></div>
-                        </div>
-                        <span class="text-xs font-medium text-neutral-400 mt-2 text-center" id="label5">Review</span>
-                    </div>
+                <div class="flex gap-2 border-b border-neutral-200 dark:border-neutral-800">
+                    <button type="button" class="tab-button px-6 py-3 font-medium text-sm transition-colors border-b-2 border-black dark:border-white" data-tab="1">
+                        Basic Info
+                    </button>
+                    <button type="button" class="tab-button px-6 py-3 font-medium text-sm text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors border-b-2 border-transparent" data-tab="2">
+                        Date & Location
+                    </button>
+                    <button type="button" class="tab-button px-6 py-3 font-medium text-sm text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors border-b-2 border-transparent" data-tab="3">
+                        Media
+                    </button>
+                    <button type="button" class="tab-button px-6 py-3 font-medium text-sm text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors border-b-2 border-transparent" data-tab="4">
+                        Tickets
+                    </button>
                 </div>
             </div>
 
@@ -372,69 +335,15 @@
                     </button>
                 </div>
 
-                <!-- Step 5: Review -->
-                <div id="step5" class="step-content hidden">
-                    <h2 class="text-2xl font-bold mb-6">Review & Publish</h2>
-                    
-                    <div class="space-y-6">
-                        <!-- Event Preview -->
-                        <div class="glass rounded-xl p-6 border border-neutral-200 dark:border-neutral-800">
-                            <h3 class="font-semibold mb-4">Event Preview</h3>
-                            <div id="reviewContent" class="space-y-4 text-sm">
-                                <!-- Review content will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Publish Options -->
-                        <div class="glass rounded-xl p-6 border border-neutral-200 dark:border-neutral-800">
-                            <h3 class="font-semibold mb-4">Publishing Options</h3>
-                            <div class="space-y-3">
-                                <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="radio" name="publishStatus" value="published" checked class="w-4 h-4" />
-                                    <div>
-                                        <div class="font-medium">Publish Now</div>
-                                        <div class="text-xs text-neutral-600 dark:text-neutral-400">Make your event visible to everyone immediately</div>
-                                    </div>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="radio" name="publishStatus" value="draft" class="w-4 h-4" />
-                                    <div>
-                                        <div class="font-medium">Save as Draft</div>
-                                        <div class="text-xs text-neutral-600 dark:text-neutral-400">Keep your event private and publish later</div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Navigation Buttons -->
-                <div class="flex items-center justify-between mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-800">
+                <!-- Save Button -->
+                <div class="flex items-center justify-end mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-800">
                     <button 
                         type="button" 
-                        id="prevBtn"
-                        class="px-6 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled
+                        id="saveChangesBtn"
+                        class="px-8 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
                     >
-                        Previous
+                        Save Changes
                     </button>
-                    
-                    <div class="flex gap-3">
-                        <button 
-                            type="button" 
-                            id="saveDraftBtn"
-                            class="px-6 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors font-medium"
-                        >
-                            Save Changes
-                        </button>
-                        <button 
-                            type="button" 
-                            id="nextBtn"
-                            class="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
-                        >
-                            <span id="nextBtnText">Next</span>
-                        </button>
-                    </div>
                 </div>
             </form>
 

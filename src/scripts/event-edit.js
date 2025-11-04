@@ -61,7 +61,7 @@ const toast = {
 
 // State
 let currentStep = 1;
-const totalSteps = 5;
+const totalSteps = 4; // Changed from 5 to 4 (removed review step)
 let eventData = {
   ticketTypes: []
 };
@@ -84,10 +84,16 @@ async function init() {
 
 // Setup event listeners
 function setupEventListeners() {
-  // Navigation buttons
-  document.getElementById('nextBtn').addEventListener('click', handleNext);
-  document.getElementById('prevBtn').addEventListener('click', handlePrev);
-  document.getElementById('saveDraftBtn').addEventListener('click', () => saveChanges());
+  // Tab buttons
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const tabNumber = parseInt(button.dataset.tab);
+      switchTab(tabNumber);
+    });
+  });
+  
+  // Save button
+  document.getElementById('saveChangesBtn').addEventListener('click', () => saveChanges());
   
   // Archive and Delete buttons
   document.getElementById('archiveBtn').addEventListener('click', handleArchiveToggle);
@@ -272,141 +278,33 @@ async function applyCrop() {
   }
 }
 
-// Handle next button
-async function handleNext() {
-  if (!validateCurrentStep()) {
-    return;
-  }
+// Switch between tabs
+function switchTab(tabNumber) {
+  currentStep = tabNumber;
   
-  // Save current step data
-  saveStepData();
-  
-  if (currentStep < totalSteps) {
-    currentStep++;
-    updateStepDisplay();
-    
-    // If moving to review step, populate review
-    if (currentStep === 5) {
-      populateReview();
-    }
-  } else {
-    // Final step - create event
-    await createEvent();
-  }
-}
-
-// Handle previous button
-function handlePrev() {
-  if (currentStep > 1) {
-    currentStep--;
-    updateStepDisplay();
-  }
-}
-
-// Update step display
-function updateStepDisplay() {
   // Hide all steps
-  for (let i = 1; i <= totalSteps; i++) {
+  for (let i = 1; i <= 4; i++) {
     document.getElementById(`step${i}`).classList.add('hidden');
   }
   
-  // Show current step
-  document.getElementById(`step${currentStep}`).classList.remove('hidden');
+  // Show selected step
+  document.getElementById(`step${tabNumber}`).classList.remove('hidden');
   
-  // Update progress indicators
-  document.querySelectorAll('[data-step]').forEach((el, index) => {
-    const stepNum = index + 1;
-    const circle = el.querySelector('.step-circle');
-    const line = el.querySelector('.step-line');
-    const lineBefore = el.querySelector('.step-line-before');
-    
-    if (stepNum < currentStep) {
-      // Completed steps
-      circle.className = 'w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm step-circle shrink-0';
-      if (line) line.className = 'flex-1 h-1 bg-black dark:bg-white ml-2 step-line';
-      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-black dark:bg-white mr-2 step-line-before';
-    } else if (stepNum === currentStep) {
-      // Current step
-      circle.className = 'w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm step-circle shrink-0';
-      if (line) line.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line';
-      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-black dark:bg-white mr-2 step-line-before';
+  // Update tab buttons
+  document.querySelectorAll('.tab-button').forEach(button => {
+    const btnTab = parseInt(button.dataset.tab);
+    if (btnTab === tabNumber) {
+      button.className = 'tab-button px-6 py-3 font-medium text-sm transition-colors border-b-2 border-black dark:border-white';
     } else {
-      // Future steps
-      circle.className = 'w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle shrink-0';
-      if (line) line.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line';
-      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mr-2 step-line-before';
+      button.className = 'tab-button px-6 py-3 font-medium text-sm text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors border-b-2 border-transparent';
     }
   });
-  
-  // Update step labels
-  for (let i = 1; i <= totalSteps; i++) {
-    const label = document.getElementById(`label${i}`);
-    if (label) {
-      if (i === currentStep) {
-        label.className = 'text-xs font-medium mt-2 text-center';
-      } else if (i < currentStep) {
-        label.className = 'text-xs font-medium mt-2 text-center';
-      } else {
-        label.className = 'text-xs font-medium text-neutral-400 mt-2 text-center';
-      }
-    }
-  }
-  
-  // Update buttons
-  document.getElementById('prevBtn').disabled = currentStep === 1;
-  document.getElementById('nextBtn').textContent = currentStep === totalSteps ? 'Create Event' : 'Next';
   
   // Scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Validate current step
-function validateCurrentStep() {
-  // Special validation for step 3 (image) - check first before other validations
-  if (currentStep === 3) {
-    const uploadSection = document.getElementById('uploadSection');
-    const urlSection = document.getElementById('urlSection');
-    
-    if (!uploadSection.classList.contains('hidden')) {
-      // Upload mode - check if image was uploaded
-      if (!uploadedImageUrl) {
-        toast.error('Please upload a cover image');
-        return false;
-      }
-    } else {
-      // URL mode - check if URL is provided
-      const imageUrl = document.getElementById('imageUrl').value;
-      if (!imageUrl) {
-        toast.error('Please provide an image URL');
-        return false;
-      }
-    }
-    return true; // Image validation passed
-  }
-  
-  const step = document.getElementById(`step${currentStep}`);
-  const inputs = step.querySelectorAll('input[required], textarea[required], select[required]');
-  
-  let isValid = true;
-  inputs.forEach(input => {
-    if (!input.value.trim()) {
-      isValid = false;
-      input.classList.add('border-red-500');
-    } else {
-      input.classList.remove('border-red-500');
-    }
-  });
-  
-  // Special validation for step 4 (tickets)
-  if (currentStep === 4) {
-    if (eventData.ticketTypes.length === 0) {
-      toast.error('Please add at least one ticket type');
-      return false;
-    }
-  }
-  
-  return isValid;
-}
+// Removed validateCurrentStep - not needed with tabs
 
 // Save step data
 function saveStepData() {
@@ -813,20 +711,7 @@ function hideSkeleton() {
   if (form) form.classList.remove('hidden');
 }
 
-// Make steps clickable in edit mode
-function makeStepsClickable() {
-  document.querySelectorAll('[data-step]').forEach((el, index) => {
-    const stepNum = index + 1;
-    const circle = el.querySelector('.step-circle');
-    if (circle) {
-      circle.style.cursor = 'pointer';
-      circle.addEventListener('click', () => {
-        currentStep = stepNum;
-        updateStepDisplay();
-      });
-    }
-  });
-}
+// Removed makeStepsClickable - using tabs now
 
 // Custom confirmation modal
 function showConfirmModal({ title, message, confirmText = 'Confirm', cancelText = 'Cancel', type = 'warning', requireInput = null, onConfirm, onCancel }) {
@@ -1092,7 +977,12 @@ async function loadEventData() {
     
     document.getElementById('title').value = event.title || '';
     document.getElementById('description').value = event.description || '';
-    document.getElementById('category').value = event.event_category_mappings?.[0]?.event_categories?.name || '';
+    
+    // Set category - convert to lowercase to match dropdown values
+    const categoryName = event.event_category_mappings?.[0]?.event_categories?.name;
+    if (categoryName) {
+      document.getElementById('category').value = categoryName.toLowerCase();
+    }
     
     if (event.event_date) {
       const d = new Date(event.event_date);
@@ -1130,8 +1020,8 @@ async function loadEventData() {
       addTicketType();
     }
     
-    // Make all steps clickable since data is loaded
-    makeStepsClickable();
+    // Initialize first tab
+    switchTab(1);
     
   } catch (error) {
     console.error('Error:', error);
