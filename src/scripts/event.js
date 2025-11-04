@@ -445,6 +445,11 @@ async function loadEvent() {
         }
 
         renderEvent(data);
+        
+        // Track analytics
+        if (window.analyticsTracker) {
+            window.analyticsTracker.initEventTracking(data.id);
+        }
     } catch (error) {
         console.error('Error loading event:', error);
         showError('Unable to load event details. Please try again later.');

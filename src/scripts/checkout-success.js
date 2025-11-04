@@ -42,12 +42,12 @@ async function verifyPayment() {
         }
 
         // Track purchase conversion
-        if (window.eventTracking && order.event_id) {
-            window.eventTracking.trackConversion(order.event_id, 'purchase', {
-                order_id: order.id,
-                amount: order.total_amount,
-                ticket_count: order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0
-            });
+        if (window.analyticsTracker && order.event_id) {
+            window.analyticsTracker.trackPurchase(
+                order.event_id,
+                order.id,
+                order.total_amount
+            );
         }
         
         // Show success

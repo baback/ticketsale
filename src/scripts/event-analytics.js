@@ -212,8 +212,10 @@ function processAnalytics(orders, tickets, ticketTypes, pageViews, conversions) 
   
   // Calculate revenue per ticket type
   tickets.forEach(ticket => {
-    if (ticket.ticket_types && ticketTypeStats[ticket.ticket_type_id]) {
-      ticketTypeStats[ticket.ticket_type_id].revenue += parseFloat(ticket.ticket_types.price);
+    if (ticketTypeStats[ticket.ticket_type_id]) {
+      // Use the price from ticketTypeStats (which comes from ticket_types table)
+      // This is more reliable than the joined data
+      ticketTypeStats[ticket.ticket_type_id].revenue += ticketTypeStats[ticket.ticket_type_id].price;
     }
   });
   

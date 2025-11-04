@@ -199,6 +199,11 @@ async function loadEvent() {
 
         eventData = data;
         renderEvent();
+        
+        // Track analytics
+        if (window.analyticsTracker) {
+            window.analyticsTracker.initCheckoutTracking(data.id);
+        }
     } catch (error) {
         console.error('Error loading event:', error);
         showError();
