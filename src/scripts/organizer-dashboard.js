@@ -81,8 +81,6 @@ function hideStatsSkeleton() {
 // Load dashboard statistics
 async function loadDashboardStats() {
   try {
-    showStatsSkeleton();
-    
     const { data: { user } } = await supabase.auth.getUser();
     
     // Get all events by this organizer
