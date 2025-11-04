@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../../../../src/styles/output.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
@@ -21,8 +22,37 @@
 <body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
     <div id="organizerSidebar"></div>
 
+    <!-- Live Event Banner -->
+    <div id="liveEventBanner" class="hidden fixed top-0 left-64 right-0 z-50 bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg">
+        <div class="px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                    </span>
+                    <span class="font-bold text-lg">LIVE</span>
+                </div>
+                <div class="h-6 w-px bg-white/30"></div>
+                <span class="font-medium">This event is published and visible to the public</span>
+            </div>
+            <a 
+                id="viewLiveEventLink" 
+                href="#" 
+                target="_blank"
+                class="px-6 py-2 rounded-full bg-white text-green-600 hover:bg-green-50 transition-colors font-semibold flex items-center gap-2"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                View Live Event
+            </a>
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="ml-64 p-8">
+    <main class="ml-64 p-8" id="mainContent">
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
             <div class="mb-8">
@@ -32,18 +62,44 @@
                     </svg>
                     Back to Events
                 </a>
-                <h1 class="text-3xl font-bold">Edit Event</h1>
-                <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                    Update your event details
-                </p>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h1 class="text-3xl font-bold">Edit Event</h1>
+                            <span id="liveIndicator" class="hidden px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold uppercase animate-pulse">
+                                🔴 Live
+                            </span>
+                        </div>
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                            Update your event details
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button 
+                            type="button" 
+                            id="deleteBtn"
+                            class="hidden px-4 py-2 rounded-full border border-red-600 dark:border-red-500 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors text-sm font-medium"
+                        >
+                            Delete Event
+                        </button>
+                        <button 
+                            type="button" 
+                            id="archiveBtn"
+                            class="hidden px-4 py-2 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium"
+                        >
+                            <span id="archiveBtnText">Archive Event</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Progress Steps -->
             <div class="mb-8">
-                <div class="flex items-start justify-between gap-4">
+                <div class="flex items-start justify-between">
                     <!-- Step 1 -->
                     <div class="flex flex-col items-center flex-1" data-step="1">
-                        <div class="flex items-center w-full">
+                        <div class="flex items-center justify-center w-full">
+                            <div class="flex-1 h-1 bg-transparent"></div>
                             <div class="w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm step-circle shrink-0">1</div>
                             <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line"></div>
                         </div>
@@ -82,17 +138,30 @@
                     
                     <!-- Step 5 -->
                     <div class="flex flex-col items-center flex-1" data-step="5">
-                        <div class="flex items-center w-full">
+                        <div class="flex items-center justify-center w-full">
                             <div class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mr-2 step-line-before"></div>
                             <div class="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle shrink-0">5</div>
+                            <div class="flex-1 h-1 bg-transparent"></div>
                         </div>
                         <span class="text-xs font-medium text-neutral-400 mt-2 text-center" id="label5">Review</span>
                     </div>
                 </div>
             </div>
 
+            <!-- Loading Skeleton -->
+            <div id="loadingSkeleton" class="glass rounded-2xl p-6 md:p-8 border border-neutral-200 dark:border-neutral-800">
+                <div class="space-y-6">
+                    <div class="h-8 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse w-1/3"></div>
+                    <div class="space-y-4">
+                        <div class="h-12 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                        <div class="h-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                        <div class="h-12 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Container -->
-            <form id="eventForm" class="glass rounded-2xl p-6 md:p-8 border border-neutral-200 dark:border-neutral-800">
+            <form id="eventForm" class="hidden glass rounded-2xl p-6 md:p-8 border border-neutral-200 dark:border-neutral-800">
                 
                 <!-- Step 1: Basic Info -->
                 <div id="step1" class="step-content">
@@ -355,7 +424,7 @@
                             id="saveDraftBtn"
                             class="px-6 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors font-medium"
                         >
-                            Save Draft
+                            Save Changes
                         </button>
                         <button 
                             type="button" 
@@ -400,6 +469,52 @@
                         Apply Crop
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="confirmModalBackdrop"></div>
+        <div class="relative bg-white dark:bg-neutral-900 rounded-2xl max-w-md w-full shadow-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+            <div class="p-6">
+                <div class="flex items-start gap-4">
+                    <div id="confirmModalIcon" class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center">
+                        <!-- Icon will be inserted here -->
+                    </div>
+                    <div class="flex-1">
+                        <h3 id="confirmModalTitle" class="text-lg font-bold mb-2"></h3>
+                        <p id="confirmModalMessage" class="text-sm text-neutral-600 dark:text-neutral-400"></p>
+                    </div>
+                </div>
+                
+                <!-- Input field for delete confirmation -->
+                <div id="confirmModalInputContainer" class="hidden mt-4">
+                    <label class="block text-sm font-medium mb-2">Type <span class="font-mono font-bold" id="confirmModalInputLabel"></span> to confirm:</label>
+                    <input 
+                        type="text" 
+                        id="confirmModalInput"
+                        class="w-full px-4 py-3 rounded-lg glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                        placeholder="Type here..."
+                    />
+                </div>
+            </div>
+            
+            <div class="flex gap-3 p-6 pt-0">
+                <button 
+                    type="button" 
+                    id="confirmModalCancel"
+                    class="flex-1 px-6 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors font-medium"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="button" 
+                    id="confirmModalConfirm"
+                    class="flex-1 px-6 py-3 rounded-full transition-colors font-medium"
+                >
+                    Confirm
+                </button>
             </div>
         </div>
     </div>

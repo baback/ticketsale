@@ -1,4 +1,4 @@
-// Event Creation Wizard Script
+// Event Edit Script
 
 // Initialize theme
 if (localStorage.getItem('theme') === 'dark') {
@@ -6,6 +6,10 @@ if (localStorage.getItem('theme') === 'dark') {
 } else if (localStorage.getItem('theme') === 'light') {
   document.documentElement.classList.remove('dark');
 }
+
+// Get event ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const eventId = urlParams.get('id');
 
 // Initialize toast notifications using Toastify
 let currentLoadingToast = null;
@@ -63,10 +67,8 @@ let eventData = {
 };
 let draftEventId = null;
 let uploadedImageUrl = null;
-
-// Get event ID from URL
-const urlParams = new URLSearchParams(window.location.search);
-const eventId = urlParams.get('id');
+let currentEventStatus = null;
+let currentEventDate = null;
 
 // Initialize
 async function init() {
@@ -76,14 +78,8 @@ async function init() {
     return;
   }
   
-  if (!eventId) {
-    toast.error('No event ID provided');
-    setTimeout(() => window.location.href = '/dashboard/organizer/events/', 2000);
-    return;
-  }
-  
   setupEventListeners();
-  await loadEventData();
+  addInitialTicketType();
 }
 
 // Setup event listeners
@@ -91,7 +87,11 @@ function setupEventListeners() {
   // Navigation buttons
   document.getElementById('nextBtn').addEventListener('click', handleNext);
   document.getElementById('prevBtn').addEventListener('click', handlePrev);
-  document.getElementById('saveDraftBtn').addEventListener('click', () => saveDraft());
+  document.getElementById('saveDraftBtn').addEventListener('click', () => saveChanges());
+  
+  // Archive and Delete buttons
+  document.getElementById('archiveBtn').addEventListener('click', handleArchiveToggle);
+  document.getElementById('deleteBtn').addEventListener('click', handleDelete);
   
   // Add ticket type button
   document.getElementById('addTicketType').addEventListener('click', addTicketType);
@@ -322,14 +322,14 @@ function updateStepDisplay() {
     
     if (stepNum < currentStep) {
       // Completed steps
-      circle.className = 'w-10 h-10 rounded-full bg-green-600 dark:bg-green-500 text-white flex items-center justify-center font-bold text-sm step-circle shrink-0';
-      if (line) line.className = 'flex-1 h-1 bg-green-600 dark:bg-green-500 ml-2 step-line';
-      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-green-600 dark:bg-green-500 mr-2 step-line-before';
+      circle.className = 'w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm step-circle shrink-0';
+      if (line) line.className = 'flex-1 h-1 bg-black dark:bg-white ml-2 step-line';
+      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-black dark:bg-white mr-2 step-line-before';
     } else if (stepNum === currentStep) {
       // Current step
       circle.className = 'w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm step-circle shrink-0';
       if (line) line.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line';
-      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-green-600 dark:bg-green-500 mr-2 step-line-before';
+      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-black dark:bg-white mr-2 step-line-before';
     } else {
       // Future steps
       circle.className = 'w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle shrink-0';
@@ -345,7 +345,7 @@ function updateStepDisplay() {
       if (i === currentStep) {
         label.className = 'text-xs font-medium mt-2 text-center';
       } else if (i < currentStep) {
-        label.className = 'text-xs font-medium text-green-600 dark:text-green-400 mt-2 text-center';
+        label.className = 'text-xs font-medium mt-2 text-center';
       } else {
         label.className = 'text-xs font-medium text-neutral-400 mt-2 text-center';
       }
@@ -354,8 +354,7 @@ function updateStepDisplay() {
   
   // Update buttons
   document.getElementById('prevBtn').disabled = currentStep === 1;
-  const nextBtnText = document.getElementById('nextBtnText') || document.getElementById('nextBtn');
-  nextBtnText.textContent = currentStep === totalSteps ? (eventId ? 'Update Event' : 'Create Event') : 'Next';
+  document.getElementById('nextBtn').textContent = currentStep === totalSteps ? 'Create Event' : 'Next';
   
   // Scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -610,8 +609,74 @@ function populateReview() {
   `;
 }
 
-// Save draft
+// Save changes (for edit mode)
+async function saveChanges() {
+  try {
+    toast.loading('Saving changes...');
+    
+    // Save current step data
+    saveStepData();
+    
+    // Update event
+    const { error: eventError } = await supabase
+      .from('events')
+      .update({
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        event_date: eventData.event_date || document.getElementById('eventDate').value + 'T' + document.getElementById('eventTime').value + ':00',
+        location: document.getElementById('location').value,
+        address: document.getElementById('address').value || null,
+        image_url: uploadedImageUrl || document.getElementById('imageUrl').value,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', eventId);
+    
+    if (eventError) throw eventError;
+    
+    // Update category if changed
+    const newCategory = document.getElementById('category').value;
+    if (newCategory) {
+      // Delete old category mapping
+      await supabase
+        .from('event_category_mappings')
+        .delete()
+        .eq('event_id', eventId);
+      
+      // Add new category mapping
+      const { data: category } = await supabase
+        .from('event_categories')
+        .select('id')
+        .eq('name', newCategory)
+        .single();
+      
+      if (category) {
+        await supabase
+          .from('event_category_mappings')
+          .insert({
+            event_id: eventId,
+            category_id: category.id
+          });
+      }
+    }
+    
+    toast.dismiss();
+    toast.success('Changes saved successfully!');
+    
+  } catch (error) {
+    console.error('Error saving changes:', error);
+    toast.dismiss();
+    toast.error('Failed to save changes. Please try again.');
+  }
+}
+
+// Save draft (for create mode - keeping for compatibility)
 async function saveDraft() {
+  // In edit mode, just save changes
+  if (eventId) {
+    await saveChanges();
+    return;
+  }
+  
   // Validate at least basic info is filled
   if (!document.getElementById('title').value) {
     toast.error('Please enter an event title before saving');
@@ -643,10 +708,10 @@ async function saveDraft() {
   await createEvent('draft', draftData);
 }
 
-// Create or update event
+// Create event
 async function createEvent(forcedStatus = null, customData = null) {
   try {
-    toast.loading(eventId ? 'Updating event...' : 'Creating event...');
+    toast.loading('Creating event...');
     
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -656,54 +721,22 @@ async function createEvent(forcedStatus = null, customData = null) {
     // Use custom data for draft or full event data
     const dataToSave = customData || eventData;
     
-    let event;
+    // Create event
+    const { data: event, error: eventError } = await supabase
+      .from('events')
+      .insert({
+        organizer_id: user.id,
+        title: dataToSave.title,
+        description: dataToSave.description,
+        event_date: dataToSave.event_date,
+        location: dataToSave.location,
+        image_url: dataToSave.image_url,
+        status: status
+      })
+      .select()
+      .single();
     
-    if (eventId) {
-      // Update existing event
-      const { data, error: eventError } = await supabase
-        .from('events')
-        .update({
-          title: dataToSave.title,
-          description: dataToSave.description,
-          event_date: dataToSave.event_date,
-          location: dataToSave.location,
-          image_url: dataToSave.image_url,
-          status: status
-        })
-        .eq('id', eventId)
-        .select()
-        .single();
-      
-      if (eventError) throw eventError;
-      event = data;
-      
-      // Delete existing ticket types
-      await supabase
-        .from('ticket_types')
-        .delete()
-        .eq('event_id', eventId);
-        
-    } else {
-      // Create new event
-      const { data, error: eventError } = await supabase
-        .from('events')
-        .insert({
-          organizer_id: user.id,
-          title: dataToSave.title,
-          description: dataToSave.description,
-          event_date: dataToSave.event_date,
-          location: dataToSave.location,
-          image_url: dataToSave.image_url,
-          status: status
-        })
-        .select()
-        .single();
-      
-      if (eventError) throw eventError;
-      event = data;
-    }
-    
-    if (!event) throw new Error('Failed to save event');
+    if (eventError) throw eventError;
     
     // Create category mapping (only if category exists)
     if (dataToSave.category) {
@@ -744,12 +777,10 @@ async function createEvent(forcedStatus = null, customData = null) {
     toast.dismiss();
     
     // Show success message
-    if (eventId) {
-      toast.success('Event updated successfully!');
-    } else if (forcedStatus === 'draft') {
+    if (forcedStatus === 'draft') {
       toast.success('Event saved as draft successfully!');
     } else {
-      toast.success(`Event ${status === 'published' ? 'published' : 'saved'} successfully!');
+      toast.success(`Event ${status === 'published' ? 'published' : 'saved'} successfully!`);
     }
     
     // Redirect to events page after a short delay
@@ -764,105 +795,354 @@ async function createEvent(forcedStatus = null, customData = null) {
   }
 }
 
+// Show skeleton loading
+function showSkeleton() {
+  const skeleton = document.getElementById('loadingSkeleton');
+  const form = document.getElementById('eventForm');
+  
+  if (skeleton) skeleton.classList.remove('hidden');
+  if (form) form.classList.add('hidden');
+}
+
+// Hide skeleton loading
+function hideSkeleton() {
+  const skeleton = document.getElementById('loadingSkeleton');
+  const form = document.getElementById('eventForm');
+  
+  if (skeleton) skeleton.classList.add('hidden');
+  if (form) form.classList.remove('hidden');
+}
+
+// Make steps clickable in edit mode
+function makeStepsClickable() {
+  document.querySelectorAll('[data-step]').forEach((el, index) => {
+    const stepNum = index + 1;
+    const circle = el.querySelector('.step-circle');
+    if (circle) {
+      circle.style.cursor = 'pointer';
+      circle.addEventListener('click', () => {
+        currentStep = stepNum;
+        updateStepDisplay();
+      });
+    }
+  });
+}
+
+// Custom confirmation modal
+function showConfirmModal({ title, message, confirmText = 'Confirm', cancelText = 'Cancel', type = 'warning', requireInput = null, onConfirm, onCancel }) {
+  const modal = document.getElementById('confirmModal');
+  const backdrop = document.getElementById('confirmModalBackdrop');
+  const titleEl = document.getElementById('confirmModalTitle');
+  const messageEl = document.getElementById('confirmModalMessage');
+  const iconEl = document.getElementById('confirmModalIcon');
+  const confirmBtn = document.getElementById('confirmModalConfirm');
+  const cancelBtn = document.getElementById('confirmModalCancel');
+  const inputContainer = document.getElementById('confirmModalInputContainer');
+  const input = document.getElementById('confirmModalInput');
+  const inputLabel = document.getElementById('confirmModalInputLabel');
+  
+  // Set content
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+  confirmBtn.textContent = confirmText;
+  cancelBtn.textContent = cancelText;
+  
+  // Set icon and colors based on type
+  if (type === 'danger') {
+    iconEl.className = 'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-red-100 dark:bg-red-950';
+    iconEl.innerHTML = '<svg class="w-6 h-6 text-red-600 dark:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+    confirmBtn.className = 'flex-1 px-6 py-3 rounded-full bg-red-600 dark:bg-red-600 text-white hover:bg-red-700 dark:hover:bg-red-700 transition-colors font-medium';
+  } else if (type === 'warning') {
+    iconEl.className = 'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-yellow-100 dark:bg-yellow-950';
+    iconEl.innerHTML = '<svg class="w-6 h-6 text-yellow-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+    confirmBtn.className = 'flex-1 px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium';
+  } else {
+    iconEl.className = 'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 dark:bg-blue-950';
+    iconEl.innerHTML = '<svg class="w-6 h-6 text-blue-600 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+    confirmBtn.className = 'flex-1 px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium';
+  }
+  
+  // Handle input requirement
+  if (requireInput) {
+    inputContainer.classList.remove('hidden');
+    inputLabel.textContent = requireInput;
+    input.value = '';
+    input.focus();
+    
+    // Enable/disable confirm button based on input
+    const checkInput = () => {
+      confirmBtn.disabled = input.value !== requireInput;
+      confirmBtn.style.opacity = input.value !== requireInput ? '0.5' : '1';
+      confirmBtn.style.cursor = input.value !== requireInput ? 'not-allowed' : 'pointer';
+    };
+    input.addEventListener('input', checkInput);
+    checkInput();
+  } else {
+    inputContainer.classList.add('hidden');
+    confirmBtn.disabled = false;
+    confirmBtn.style.opacity = '1';
+    confirmBtn.style.cursor = 'pointer';
+  }
+  
+  // Show modal
+  modal.classList.remove('hidden');
+  
+  // Handle confirm
+  const handleConfirm = () => {
+    if (requireInput && input.value !== requireInput) {
+      return;
+    }
+    modal.classList.add('hidden');
+    if (onConfirm) onConfirm();
+  };
+  
+  // Handle cancel
+  const handleCancel = () => {
+    modal.classList.add('hidden');
+    if (onCancel) onCancel();
+  };
+  
+  // Set up event listeners
+  confirmBtn.onclick = handleConfirm;
+  cancelBtn.onclick = handleCancel;
+  backdrop.onclick = handleCancel;
+  
+  // Handle Enter key
+  if (requireInput) {
+    input.onkeydown = (e) => {
+      if (e.key === 'Enter' && input.value === requireInput) {
+        handleConfirm();
+      }
+    };
+  }
+}
+
+// Handle archive/reactivate toggle
+async function handleArchiveToggle() {
+  const isArchived = currentEventStatus === 'archived';
+  const newStatus = isArchived ? 'published' : 'archived';
+  const actionText = isArchived ? 'reactivate' : 'archive';
+  
+  showConfirmModal({
+    title: `${isArchived ? 'Reactivate' : 'Archive'} Event`,
+    message: `Are you sure you want to ${actionText} this event? ${isArchived ? 'It will become visible to the public again.' : 'It will be hidden from the public but not deleted.'}`,
+    confirmText: isArchived ? 'Reactivate' : 'Archive',
+    type: 'warning',
+    onConfirm: async () => {
+      try {
+        toast.loading(`${isArchived ? 'Reactivating' : 'Archiving'} event...`);
+        
+        const { error } = await supabase
+          .from('events')
+          .update({ status: newStatus, updated_at: new Date().toISOString() })
+          .eq('id', eventId);
+        
+        if (error) throw error;
+        
+        currentEventStatus = newStatus;
+        updateArchiveButton();
+        
+        toast.dismiss();
+        toast.success(`Event ${isArchived ? 'reactivated' : 'archived'} successfully!`);
+        
+        // Redirect after a short delay
+        setTimeout(() => {
+          window.location.href = '/dashboard/organizer/events/';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Error toggling archive status:', error);
+        toast.dismiss();
+        toast.error(`Failed to ${actionText} event. Please try again.`);
+      }
+    }
+  });
+}
+
+// Update archive button based on status
+function updateArchiveButton() {
+  const archiveBtn = document.getElementById('archiveBtn');
+  const archiveBtnText = document.getElementById('archiveBtnText');
+  const deleteBtn = document.getElementById('deleteBtn');
+  
+  if (currentEventStatus === 'archived') {
+    archiveBtnText.textContent = 'Reactivate Event';
+    archiveBtn.classList.remove('hidden');
+  } else if (currentEventStatus === 'published' || currentEventStatus === 'draft') {
+    archiveBtnText.textContent = 'Archive Event';
+    archiveBtn.classList.remove('hidden');
+  }
+  
+  // Always show delete button
+  deleteBtn.classList.remove('hidden');
+}
+
+// Handle delete event
+async function handleDelete() {
+  showConfirmModal({
+    title: 'Delete Event',
+    message: 'This action cannot be undone. All associated tickets, orders, and data will be permanently removed.',
+    confirmText: 'Delete',
+    type: 'danger',
+    requireInput: 'DELETE',
+    onConfirm: async () => {
+      try {
+        toast.loading('Deleting event...');
+        
+        // Delete event (cascade will handle related records)
+        const { error } = await supabase
+          .from('events')
+          .delete()
+          .eq('id', eventId);
+        
+        if (error) throw error;
+        
+        toast.dismiss();
+        toast.success('Event deleted successfully!');
+        
+        // Redirect after a short delay
+        setTimeout(() => {
+          window.location.href = '/dashboard/organizer/events/';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        toast.dismiss();
+        toast.error('Failed to delete event. Please try again.');
+      }
+    }
+  });
+}
+
+// Check if event is live
+function checkIfLive() {
+  if (currentEventStatus !== 'published' || !currentEventDate) {
+    return false;
+  }
+  
+  const now = new Date();
+  const eventDate = new Date(currentEventDate);
+  const eventEndTime = new Date(eventDate.getTime() + (4 * 60 * 60 * 1000)); // Assume 4 hour duration
+  
+  // Event is live if it's between start time and end time
+  return now >= eventDate && now <= eventEndTime;
+}
+
+// Update live indicator
+function updateLiveIndicator() {
+  const liveIndicator = document.getElementById('liveIndicator');
+  
+  if (checkIfLive()) {
+    liveIndicator.classList.remove('hidden');
+  } else {
+    liveIndicator.classList.add('hidden');
+  }
+}
+
+// Update live event banner
+function updateLiveEventBanner(event) {
+  const banner = document.getElementById('liveEventBanner');
+  const mainContent = document.getElementById('mainContent');
+  const link = document.getElementById('viewLiveEventLink');
+  
+  if (currentEventStatus === 'published') {
+    // Generate event slug from title and ID
+    const slug = event.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    const eventSlug = `${slug}-${eventId}`;
+    
+    // Set link href
+    link.href = `/events/?event=${eventSlug}`;
+    
+    // Show banner and adjust main content padding
+    banner.classList.remove('hidden');
+    mainContent.style.paddingTop = '5rem'; // Add padding to account for banner
+  } else {
+    // Hide banner and remove padding
+    banner.classList.add('hidden');
+    mainContent.style.paddingTop = '0';
+  }
+}
+
 // Load existing event data
 async function loadEventData() {
   try {
-    toast.loading('Loading event...');
+    showSkeleton();
     
     const { data: event, error } = await supabase
       .from('events')
-      .select(`
-        *,
-        ticket_types (*),
-        event_category_mappings (
-          event_categories (name)
-        )
-      `)
+      .select(`*, ticket_types (*), event_category_mappings (event_categories (name))`)
       .eq('id', eventId)
       .single();
     
     if (error) throw error;
     
-    // Populate form fields
+    // Store event status and date
+    currentEventStatus = event.status;
+    currentEventDate = event.event_date;
+    
+    // Update UI based on status
+    updateArchiveButton();
+    updateLiveIndicator();
+    updateLiveEventBanner(event);
+    
+    hideSkeleton();
+    
     document.getElementById('title').value = event.title || '';
     document.getElementById('description').value = event.description || '';
+    document.getElementById('category').value = event.event_category_mappings?.[0]?.event_categories?.name || '';
     
-    // Get category name
-    const categoryName = event.event_category_mappings?.[0]?.event_categories?.name || '';
-    document.getElementById('category').value = categoryName;
-    
-    // Parse date and time
     if (event.event_date) {
-      const eventDate = new Date(event.event_date);
-      document.getElementById('eventDate').value = eventDate.toISOString().split('T')[0];
-      document.getElementById('eventTime').value = eventDate.toTimeString().slice(0, 5);
+      const d = new Date(event.event_date);
+      document.getElementById('eventDate').value = d.toISOString().split('T')[0];
+      document.getElementById('eventTime').value = d.toTimeString().slice(0, 5);
     }
     
     document.getElementById('location').value = event.location || '';
     document.getElementById('address').value = event.address || '';
     
-    // Set image
     if (event.image_url) {
       document.getElementById('imageUrl').value = event.image_url;
       uploadedImageUrl = event.image_url;
-      const preview = document.getElementById('imagePreview');
-      const img = document.getElementById('previewImg');
-      img.src = event.image_url;
-      preview.classList.remove('hidden');
+      document.getElementById('previewImg').src = event.image_url;
+      document.getElementById('imagePreview').classList.remove('hidden');
     }
     
-    // Load ticket types
-    if (event.ticket_types && event.ticket_types.length > 0) {
-      event.ticket_types.forEach((ticket, index) => {
-        if (index === 0) {
-          // Update first ticket type
-          const firstTicket = document.querySelector('[data-ticket-index="0"]');
-          if (firstTicket) {
-            document.querySelector('[data-ticket-field="name"][data-ticket-index="0"]').value = ticket.name;
-            document.querySelector('[data-ticket-field="price"][data-ticket-index="0"]').value = ticket.price;
-            document.querySelector('[data-ticket-field="quantity"][data-ticket-index="0"]').value = ticket.quantity;
-            document.querySelector('[data-ticket-field="description"][data-ticket-index="0"]').value = ticket.description || '';
-            
-            eventData.ticketTypes[0] = {
-              id: ticket.id,
-              name: ticket.name,
-              price: ticket.price,
-              quantity: ticket.quantity,
-              description: ticket.description || ''
-            };
-          }
-        } else {
-          // Add additional ticket types
-          addTicketType();
-          const newIndex = eventData.ticketTypes.length - 1;
-          document.querySelector(`[data-ticket-field="name"][data-ticket-index="${newIndex}"]`).value = ticket.name;
-          document.querySelector(`[data-ticket-field="price"][data-ticket-index="${newIndex}"]`).value = ticket.price;
-          document.querySelector(`[data-ticket-field="quantity"][data-ticket-index="${newIndex}"]`).value = ticket.quantity;
-          document.querySelector(`[data-ticket-field="description"][data-ticket-index="${newIndex}"]`).value = ticket.description || '';
-          
-          eventData.ticketTypes[newIndex] = {
-            id: ticket.id,
-            name: ticket.name,
-            price: ticket.price,
-            quantity: ticket.quantity,
-            description: ticket.description || ''
-          };
-        }
+    const container = document.getElementById('ticketTypesContainer');
+    container.innerHTML = '';
+    eventData.ticketTypes = [];
+    
+    if (event.ticket_types?.length > 0) {
+      event.ticket_types.forEach(t => {
+        addTicketType();
+        const i = eventData.ticketTypes.length - 1;
+        setTimeout(() => {
+          document.querySelector(`[data-ticket-field="name"][data-ticket-index="${i}"]`).value = t.name;
+          document.querySelector(`[data-ticket-field="price"][data-ticket-index="${i}"]`).value = t.price;
+          document.querySelector(`[data-ticket-field="quantity"][data-ticket-index="${i}"]`).value = t.quantity;
+          document.querySelector(`[data-ticket-field="description"][data-ticket-index="${i}"]`).value = t.description || '';
+          eventData.ticketTypes[i] = { id: t.id, name: t.name, price: t.price, quantity: t.quantity, description: t.description || '' };
+        }, 50);
       });
     } else {
-      addInitialTicketType();
+      addTicketType();
     }
     
-    toast.dismiss();
-    toast.success('Event loaded successfully!');
+    // Make all steps clickable since data is loaded
+    makeStepsClickable();
     
   } catch (error) {
-    console.error('Error loading event:', error);
-    toast.dismiss();
+    console.error('Error:', error);
+    hideSkeleton();
     toast.error('Failed to load event');
     setTimeout(() => window.location.href = '/dashboard/organizer/events/', 2000);
   }
 }
 
 // Initialize on page load
-init();
+(async () => {
+  await init();
+  if (eventId) await loadEventData();
+})();

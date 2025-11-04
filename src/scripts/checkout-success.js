@@ -41,6 +41,15 @@ async function verifyPayment() {
             return;
         }
 
+        // Track purchase conversion
+        if (window.eventTracking && order.event_id) {
+            window.eventTracking.trackConversion(order.event_id, 'purchase', {
+                order_id: order.id,
+                amount: order.total_amount,
+                ticket_count: order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0
+            });
+        }
+        
         // Show success
         showSuccess(order);
     } catch (error) {

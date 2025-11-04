@@ -260,6 +260,14 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
             return;
         }
         
+        // Track checkout start
+        if (window.eventTracking) {
+            window.eventTracking.trackConversion(eventId, 'checkout_start', {
+                ticket_count: totalQuantity,
+                subtotal: totals.subtotal
+            });
+        }
+        
         // Call Edge Function to create Stripe checkout session
         const { data, error } = await window.supabaseClient.functions.invoke('create-checkout-session', {
             body: {
