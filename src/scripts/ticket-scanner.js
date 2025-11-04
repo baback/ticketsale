@@ -138,14 +138,20 @@ async function onScanSuccess(decodedText, decodedResult) {
         navigator.vibrate(100);
     }
     
-    // Extract ticket ID from URL or use directly
+    // Extract ticket ID from URL or use QR code directly
     let ticketId = decodedText;
+    let isQrCode = false;
+    
     if (decodedText.includes('verify?t=')) {
+        // It's a URL with ticket ID
         const url = new URL(decodedText);
         ticketId = url.searchParams.get('t');
+    } else if (decodedText.length === 32 && /^[A-F0-9]+$/i.test(decodedText)) {
+        // It's a QR code (32 character hex string)
+        isQrCode = true;
     }
     
-    await processTicket(ticketId);
+    await processTicket(ticketId, isQrCode);
     
     // Reset processing after delay
     setTimeout(() => {
@@ -159,26 +165,35 @@ function onScanError(error) {
 }
 
 // Process ticket
-async function processTicket(ticketId) {
+async function processTicket(ticketId, isQrCode = false) {
     try {
-        // Fetch ticket details
-        const { data: ticket, error } = await supabase
+        // Fetch ticket details - search by QR code or ID
+        let query = supabase
             .from('tickets')
             .select(`
                 *,
                 ticket_types (name, price),
                 orders (customer_name, customer_email, status),
                 events (id, title)
-            `)
-            .eq('id', ticketId)
-            .single();
+            `);
+        
+        if (isQrCode) {
+            query = query.eq('qr_code', ticketId);
+        } else {
+            query = query.eq('id', ticketId);
+        }
+        
+        const { data: ticket, error } = await query.single();
         
         if (error || !ticket) {
+            console.error('Ticket lookup error:', error, 'Searched for:', ticketId, 'Is QR Code:', isQrCode);
             showError('Ticket not found');
             flashScanner('error');
             playSound('error');
             return;
         }
+        
+        console.log('Ticket found:', ticket.id, 'QR Code:', ticket.qr_code);
         
         // Validate ticket
         const validation = validateTicket(ticket);

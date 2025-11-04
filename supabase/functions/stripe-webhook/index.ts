@@ -264,7 +264,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
             <div class="qr-section">
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.qr_code)}" alt="QR Code" class="qr-code" />
               <div class="qr-label">Scan at Entry</div>
-              <div class="ticket-number">${ticket.ticket_number}</div>
+              <div class="ticket-number">${ticket.qr_code}</div>
             </div>
           </div>
           <div class="ticket-footer">
