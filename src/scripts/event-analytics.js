@@ -54,10 +54,14 @@ async function loadAnalytics() {
     
     document.getElementById('eventTitle').textContent = `${event.title} - Analytics`;
     
-    // Fetch orders
+    // Fetch orders with ticket counts
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
-      .select('*, order_items(*, ticket_types(name))')
+      .select(`
+        *,
+        order_items(*, ticket_types(name)),
+        tickets(id)
+      `)
       .eq('event_id', eventId)
       .in('status', ['paid', 'completed']);
     
@@ -129,7 +133,6 @@ async function loadAnalytics() {
     displayRecentOrders(orders);
     displayTicketTypes(analyticsData.ticketTypeStats);
     displayTrafficStats(analyticsData);
-    displayConversionFunnel(analyticsData);
     
     hideSkeleton();
     
@@ -249,11 +252,6 @@ function processAnalytics(orders, tickets, ticketTypes, pageViews, conversions) 
     }
   });
   
-  // Conversion funnel
-  const funnelViews = conversions.filter(c => c.event_type === 'view').length || totalPageViews;
-  const funnelCheckout = conversions.filter(c => c.event_type === 'checkout_start').length;
-  const funnelPurchases = conversions.filter(c => c.event_type === 'purchase').length || totalOrders;
-  
   return {
     totalRevenue,
     ticketsSold,
@@ -269,10 +267,7 @@ function processAnalytics(orders, tickets, ticketTypes, pageViews, conversions) 
     conversionRate,
     trafficSources,
     deviceStats,
-    referrers,
-    funnelViews,
-    funnelCheckout,
-    funnelPurchases
+    referrers
   };
 }
 
@@ -404,7 +399,7 @@ function displayRecentOrders(orders) {
   }
   
   recentOrders.forEach(order => {
-    const ticketCount = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+    const ticketCount = order.tickets?.length || 0;
     const date = new Date(order.created_at).toLocaleDateString('en-US', { 
       month: 'short', 
       day: 'numeric',
@@ -563,25 +558,6 @@ function displayTrafficStats(data) {
       referrersContainer.appendChild(div);
     });
   }
-}
-
-// Display conversion funnel
-function displayConversionFunnel(data) {
-  document.getElementById('funnelViews').textContent = data.funnelViews;
-  document.getElementById('funnelCheckout').textContent = data.funnelCheckout;
-  document.getElementById('funnelPurchases').textContent = data.funnelPurchases;
-  
-  const checkoutPercentage = data.funnelViews > 0 ? (data.funnelCheckout / data.funnelViews) * 100 : 0;
-  const purchasePercentage = data.funnelViews > 0 ? (data.funnelPurchases / data.funnelViews) * 100 : 0;
-  
-  const checkoutBar = document.getElementById('funnelCheckoutBar');
-  const purchaseBar = document.getElementById('funnelPurchaseBar');
-  
-  checkoutBar.style.width = `${checkoutPercentage}%`;
-  checkoutBar.textContent = `${checkoutPercentage.toFixed(1)}%`;
-  
-  purchaseBar.style.width = `${purchasePercentage}%`;
-  purchaseBar.textContent = `${purchasePercentage.toFixed(1)}%`;
 }
 
 // Initialize on page load
