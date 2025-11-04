@@ -161,10 +161,10 @@ function renderEvents() {
             
             <!-- Actions -->
             <div class="flex gap-2">
-              <a href="/dashboard/organizer/events/edit/?id=${event.id}" class="flex-1 px-4 py-2 text-center rounded-lg border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
+              <a href="/dashboard/organizer/events/edit/?id=${event.id}" class="flex-1 px-4 py-2 text-center rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
                 Edit
               </a>
-              <a href="/dashboard/organizer/events/analytics/?id=${event.id}" class="flex-1 px-4 py-2 text-center rounded-lg bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors text-sm font-medium">
+              <a href="/dashboard/organizer/events/analytics/?id=${event.id}" class="flex-1 px-4 py-2 text-center rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors text-sm font-medium">
                 Analytics
               </a>
             </div>

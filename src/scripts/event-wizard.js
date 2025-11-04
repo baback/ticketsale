@@ -7,8 +7,53 @@ if (localStorage.getItem('theme') === 'dark') {
   document.documentElement.classList.remove('dark');
 }
 
-// Initialize Sonner toast
-const toast = window.sonner.toast;
+// Initialize toast notifications using Toastify
+let currentLoadingToast = null;
+let cropper = null;
+let currentImageFile = null;
+
+const toast = {
+  success: (message) => {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      style: {
+        background: "linear-gradient(to right, #10b981, #059669)",
+      }
+    }).showToast();
+  },
+  error: (message) => {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      style: {
+        background: "linear-gradient(to right, #ef4444, #dc2626)",
+      }
+    }).showToast();
+  },
+  loading: (message) => {
+    currentLoadingToast = Toastify({
+      text: message,
+      duration: -1, // Don't auto-dismiss
+      gravity: "top",
+      position: "right",
+      style: {
+        background: "linear-gradient(to right, #3b82f6, #2563eb)",
+      }
+    });
+    currentLoadingToast.showToast();
+  },
+  dismiss: () => {
+    if (currentLoadingToast) {
+      currentLoadingToast.hideToast();
+      currentLoadingToast = null;
+    }
+  }
+};
 
 // State
 let currentStep = 1;
@@ -51,8 +96,10 @@ function setupEventListeners() {
   // Image URL preview
   document.getElementById('imageUrl').addEventListener('input', updateImagePreview);
   
-  // Form validation on input
-  document.getElementById('eventForm').addEventListener('input', validateCurrentStep);
+  // Crop modal buttons
+  document.getElementById('closeCropModal').addEventListener('click', closeCropModal);
+  document.getElementById('cancelCrop').addEventListener('click', closeCropModal);
+  document.getElementById('applyCrop').addEventListener('click', applyCrop);
 }
 
 // Toggle between upload and URL
@@ -63,14 +110,14 @@ function toggleImageInput(mode) {
   const urlSection = document.getElementById('urlSection');
   
   if (mode === 'upload') {
-    uploadTab.className = 'flex-1 px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium';
-    urlTab.className = 'flex-1 px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 font-medium';
+    uploadTab.className = 'px-6 py-2.5 rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium text-sm transition-all';
+    urlTab.className = 'px-6 py-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-medium text-sm transition-all';
     uploadSection.classList.remove('hidden');
     urlSection.classList.add('hidden');
     document.getElementById('imageUrl').removeAttribute('required');
   } else {
-    urlTab.className = 'flex-1 px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium';
-    uploadTab.className = 'flex-1 px-4 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 font-medium';
+    urlTab.className = 'px-6 py-2.5 rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium text-sm transition-all';
+    uploadTab.className = 'px-6 py-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-medium text-sm transition-all';
     urlSection.classList.remove('hidden');
     uploadSection.classList.add('hidden');
     document.getElementById('imageUrl').setAttribute('required', 'required');
@@ -96,45 +143,122 @@ async function handleImageUpload(e) {
     return;
   }
   
+  // Store file and show crop modal
+  currentImageFile = file;
+  showCropModal(file);
+}
+
+// Show crop modal
+function showCropModal(file) {
+  const modal = document.getElementById('cropModal');
+  const image = document.getElementById('cropImage');
+  
+  // Create object URL for the image
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    image.src = e.target.result;
+    modal.classList.remove('hidden');
+    
+    // Initialize cropper
+    if (cropper) {
+      cropper.destroy();
+    }
+    
+    cropper = new Cropper(image, {
+      aspectRatio: 1200 / 630,
+      viewMode: 1,
+      autoCropArea: 1,
+      responsive: true,
+      background: false,
+      guides: true,
+      center: true,
+      highlight: true,
+      cropBoxResizable: true,
+      cropBoxMovable: true,
+      toggleDragModeOnDblclick: false,
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+// Close crop modal
+function closeCropModal() {
+  const modal = document.getElementById('cropModal');
+  modal.classList.add('hidden');
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+  document.getElementById('imageFile').value = '';
+}
+
+// Apply crop and upload
+async function applyCrop() {
+  if (!cropper) return;
+  
   try {
-    toast.loading('Uploading image...');
+    toast.loading('Processing and uploading image...');
     
-    // Upload to Supabase Storage
-    const { data: { user } } = await supabase.auth.getUser();
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-    const filePath = `event-covers/${fileName}`;
+    // Get cropped canvas
+    const canvas = cropper.getCroppedCanvas({
+      width: 1200,
+      height: 630,
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
     
-    const { data, error } = await supabase.storage
-      .from('events')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-    
-    if (error) throw error;
-    
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('events')
-      .getPublicUrl(filePath);
-    
-    uploadedImageUrl = publicUrl;
-    
-    // Show preview
-    const preview = document.getElementById('imagePreview');
-    const img = document.getElementById('previewImg');
-    img.src = publicUrl;
-    preview.classList.remove('hidden');
-    
-    toast.dismiss();
-    toast.success('Image uploaded successfully!');
+    // Convert canvas to blob
+    canvas.toBlob(async (blob) => {
+      try {
+        // Upload to Supabase Storage
+        const { data: { user } } = await supabase.auth.getUser();
+        const fileExt = currentImageFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+        
+        const { data, error } = await supabase.storage
+          .from('events')
+          .upload(filePath, blob, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: 'image/jpeg'
+          });
+        
+        if (error) {
+          console.error('Upload error:', error);
+          throw error;
+        }
+        
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('events')
+          .getPublicUrl(filePath);
+        
+        uploadedImageUrl = urlData.publicUrl;
+        
+        // Show preview
+        const preview = document.getElementById('imagePreview');
+        const img = document.getElementById('previewImg');
+        img.src = uploadedImageUrl;
+        preview.classList.remove('hidden');
+        
+        // Close modal
+        closeCropModal();
+        
+        toast.dismiss();
+        toast.success('Image uploaded successfully!');
+        
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast.dismiss();
+        toast.error(`Failed to upload image: ${error.message || 'Please try again'}`);
+      }
+    }, 'image/jpeg', 0.95);
     
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error('Error cropping image:', error);
     toast.dismiss();
-    toast.error('Failed to upload image. Please try again.');
-    e.target.value = '';
+    toast.error('Failed to process image. Please try again.');
   }
 }
 
@@ -184,19 +308,23 @@ function updateStepDisplay() {
     const stepNum = index + 1;
     const circle = el.querySelector('.step-circle');
     const line = el.querySelector('.step-line');
+    const lineBefore = el.querySelector('.step-line-before');
     
     if (stepNum < currentStep) {
       // Completed steps
-      circle.className = 'w-10 h-10 rounded-full bg-green-600 dark:bg-green-500 text-white flex items-center justify-center font-bold text-sm step-circle';
-      if (line) line.className = 'flex-1 h-1 bg-green-600 dark:bg-green-500 mx-2 step-line';
+      circle.className = 'w-10 h-10 rounded-full bg-green-600 dark:bg-green-500 text-white flex items-center justify-center font-bold text-sm step-circle shrink-0';
+      if (line) line.className = 'flex-1 h-1 bg-green-600 dark:bg-green-500 ml-2 step-line';
+      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-green-600 dark:bg-green-500 mr-2 step-line-before';
     } else if (stepNum === currentStep) {
       // Current step
-      circle.className = 'w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm step-circle';
-      if (line) line.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mx-2 step-line';
+      circle.className = 'w-10 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm step-circle shrink-0';
+      if (line) line.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line';
+      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-green-600 dark:bg-green-500 mr-2 step-line-before';
     } else {
       // Future steps
-      circle.className = 'w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle';
-      if (line) line.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mx-2 step-line';
+      circle.className = 'w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center font-bold text-sm step-circle shrink-0';
+      if (line) line.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 ml-2 step-line';
+      if (lineBefore) lineBefore.className = 'flex-1 h-1 bg-neutral-200 dark:bg-neutral-800 mr-2 step-line-before';
     }
   });
   
@@ -205,11 +333,11 @@ function updateStepDisplay() {
     const label = document.getElementById(`label${i}`);
     if (label) {
       if (i === currentStep) {
-        label.className = 'text-xs font-medium text-center';
+        label.className = 'text-xs font-medium mt-2 text-center';
       } else if (i < currentStep) {
-        label.className = 'text-xs font-medium text-green-600 dark:text-green-400 text-center';
+        label.className = 'text-xs font-medium text-green-600 dark:text-green-400 mt-2 text-center';
       } else {
-        label.className = 'text-xs font-medium text-neutral-400 text-center';
+        label.className = 'text-xs font-medium text-neutral-400 mt-2 text-center';
       }
     }
   }
@@ -224,20 +352,7 @@ function updateStepDisplay() {
 
 // Validate current step
 function validateCurrentStep() {
-  const step = document.getElementById(`step${currentStep}`);
-  const inputs = step.querySelectorAll('input[required], textarea[required], select[required]');
-  
-  let isValid = true;
-  inputs.forEach(input => {
-    if (!input.value.trim()) {
-      isValid = false;
-      input.classList.add('border-red-500');
-    } else {
-      input.classList.remove('border-red-500');
-    }
-  });
-  
-  // Special validation for step 3 (image)
+  // Special validation for step 3 (image) - check first before other validations
   if (currentStep === 3) {
     const uploadSection = document.getElementById('uploadSection');
     const urlSection = document.getElementById('urlSection');
@@ -256,7 +371,21 @@ function validateCurrentStep() {
         return false;
       }
     }
+    return true; // Image validation passed
   }
+  
+  const step = document.getElementById(`step${currentStep}`);
+  const inputs = step.querySelectorAll('input[required], textarea[required], select[required]');
+  
+  let isValid = true;
+  inputs.forEach(input => {
+    if (!input.value.trim()) {
+      isValid = false;
+      input.classList.add('border-red-500');
+    } else {
+      input.classList.remove('border-red-500');
+    }
+  });
   
   // Special validation for step 4 (tickets)
   if (currentStep === 4) {
@@ -280,7 +409,9 @@ function saveStepData() {
     case 2:
       const date = document.getElementById('eventDate').value;
       const time = document.getElementById('eventTime').value;
-      eventData.event_date = `${date}T${time}:00`;
+      if (date && time) {
+        eventData.event_date = `${date}T${time}:00`;
+      }
       eventData.location = document.getElementById('location').value;
       eventData.address = document.getElementById('address').value;
       break;
@@ -478,14 +609,24 @@ async function saveDraft() {
   
   saveStepData();
   
+  // Create a default date (tomorrow at noon) if not set
+  let draftDate = eventData.event_date;
+  if (!draftDate || draftDate.includes('T@')) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(12, 0, 0, 0);
+    draftDate = tomorrow.toISOString();
+  }
+  
   // Prepare minimal event data for draft
   const draftData = {
     title: eventData.title || 'Untitled Event',
     description: eventData.description || '',
-    event_date: eventData.event_date || new Date().toISOString(),
+    event_date: draftDate,
     location: eventData.location || 'TBA',
-    image_url: eventData.image_url || 'https://via.placeholder.com/1200x630',
-    status: 'draft'
+    image_url: eventData.image_url || uploadedImageUrl || 'https://via.placeholder.com/1200x630',
+    category: eventData.category || null,
+    ticketTypes: eventData.ticketTypes || []
   };
   
   await createEvent('draft', draftData);
