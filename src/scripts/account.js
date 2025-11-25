@@ -9,28 +9,6 @@
     return;
   }
 
-  // Determine which sidebar to load based on referrer or current mode
-  const isOrganizerMode = document.referrer.includes('/dashboard/organizer') || 
-                          localStorage.getItem('lastMode') === 'organizer';
-  
-  // Load appropriate sidebar
-  const sidebarContainer = document.getElementById('accountSidebar');
-  if (sidebarContainer) {
-    try {
-      const sidebarPath = isOrganizerMode ? '/dashboard/organizer-sidebar.html' : '/dashboard/sidebar.html';
-      const response = await fetch(sidebarPath);
-      const sidebarHTML = await response.text();
-      sidebarContainer.innerHTML = sidebarHTML;
-      
-      // Load the appropriate sidebar script
-      const script = document.createElement('script');
-      script.src = isOrganizerMode ? '/src/scripts/organizer-sidebar.js' : '/src/scripts/dashboard-sidebar.js';
-      document.body.appendChild(script);
-    } catch (error) {
-      console.error('Error loading sidebar:', error);
-    }
-  }
-
   // Load user data
   loadUserData();
 
