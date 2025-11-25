@@ -9,6 +9,9 @@
     return;
   }
 
+  // Track that we're in buyer mode
+  localStorage.setItem('lastMode', 'buyer');
+
   // Load sidebar HTML
   const sidebarContainer = document.getElementById('dashboardSidebar');
   if (sidebarContainer) {

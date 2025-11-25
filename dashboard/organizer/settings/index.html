@@ -60,12 +60,12 @@
 
                     <!-- Withdraw Button -->
                     <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 mb-8">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col gap-4">
                             <div>
                                 <h3 class="font-semibold mb-1">Request Withdrawal</h3>
                                 <p class="text-sm text-neutral-600 dark:text-neutral-400">Transfer your available balance to your bank account</p>
                             </div>
-                            <button id="withdrawBtn" class="px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform">
+                            <button id="withdrawBtn" class="w-full px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform">
                                 Withdraw Funds
                             </button>
                         </div>
@@ -93,16 +93,16 @@
                     <!-- Invite Team Member -->
                     <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 mb-8">
                         <h3 class="font-semibold mb-4">Invite Team Member</h3>
-                        <div class="flex gap-3">
+                        <div class="flex flex-col gap-3">
                             <input 
                                 type="email" 
                                 id="inviteEmail" 
                                 placeholder="Enter email address" 
-                                class="flex-1 px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                                class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
                             />
                             <select 
                                 id="inviteRole" 
-                                class="px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                                class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
                             >
                                 <option value="staff">Staff</option>
                                 <option value="scanner">Scanner</option>
@@ -110,7 +110,7 @@
                             </select>
                             <button 
                                 id="inviteBtn" 
-                                class="px-6 py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform whitespace-nowrap"
+                                class="w-full px-6 py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform"
                             >
                                 Send Invite
                             </button>

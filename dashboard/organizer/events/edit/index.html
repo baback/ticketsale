@@ -24,24 +24,24 @@
     <div id="organizerSidebar"></div>
 
     <!-- Live Event Banner -->
-    <div id="liveEventBanner" class="hidden fixed top-0 left-64 right-0 z-50 bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg">
-        <div class="px-8 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-4">
+    <div id="liveEventBanner" class="hidden fixed top-0 left-0 lg:left-64 right-0 z-50 bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg">
+        <div class="px-4 md:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3 md:gap-4">
                 <div class="flex items-center gap-2">
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
                     </span>
-                    <span class="font-bold text-lg">LIVE</span>
+                    <span class="font-bold text-base md:text-lg">LIVE</span>
                 </div>
-                <div class="h-6 w-px bg-white/30"></div>
-                <span class="font-medium">This event is published and visible to the public</span>
+                <div class="hidden sm:block h-6 w-px bg-white/30"></div>
+                <span class="font-medium text-sm md:text-base">This event is published and visible to the public</span>
             </div>
             <a 
                 id="viewLiveEventLink" 
                 href="#" 
                 target="_blank"
-                class="px-6 py-2 rounded-full bg-white text-green-600 hover:bg-green-50 transition-colors font-semibold flex items-center gap-2"
+                class="w-full sm:w-auto px-6 py-2 rounded-full bg-white text-green-600 hover:bg-green-50 transition-colors font-semibold flex items-center justify-center gap-2 text-sm md:text-base"
             >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -75,18 +75,18 @@
                             Update your event details
                         </p>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex flex-col gap-2 w-full sm:w-auto">
                         <button 
                             type="button" 
                             id="deleteBtn"
-                            class="hidden px-4 py-2 rounded-full border border-red-600 dark:border-red-500 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors text-sm font-medium"
+                            class="hidden w-full px-4 py-2 rounded-full border border-red-600 dark:border-red-500 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors text-sm font-medium"
                         >
                             Delete Event
                         </button>
                         <button 
                             type="button" 
                             id="archiveBtn"
-                            class="hidden px-4 py-2 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium"
+                            class="hidden w-full px-4 py-2 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium"
                         >
                             <span id="archiveBtnText">Archive Event</span>
                         </button>

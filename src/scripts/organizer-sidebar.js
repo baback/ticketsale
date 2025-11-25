@@ -9,6 +9,9 @@
     return;
   }
 
+  // Track that we're in organizer mode
+  localStorage.setItem('lastMode', 'organizer');
+
   // Load sidebar HTML
   const sidebarContainer = document.getElementById('organizerSidebar');
   if (sidebarContainer) {
