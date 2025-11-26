@@ -231,7 +231,8 @@
         (navType === 'events' && path.includes('/dashboard/organizer/events') && !path.includes('/create')) ||
         (navType === 'create' && path.includes('/dashboard/organizer/events/create')) ||
         (navType === 'revenue' && path.includes('/dashboard/organizer/revenue')) ||
-        (navType === 'team' && path.includes('/dashboard/organizer/team'))
+        (navType === 'team' && path.includes('/dashboard/organizer/team')) ||
+        (navType === 'customers' && path.includes('/dashboard/organizer/customers'))
       ) {
         link.classList.add('bg-neutral-100', 'dark:bg-neutral-800');
       }
