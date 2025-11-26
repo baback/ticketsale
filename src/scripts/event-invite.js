@@ -579,3 +579,120 @@ window.resendInvitation = async function(invitationId) {
 
 // Initialize on page load
 init();
+
+// CRM Contacts Modal
+let crmContacts = [];
+let filteredCrmContacts = [];
+
+async function loadCrmContacts() {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    const { data: contacts, error } = await supabase
+      .from('crm_contacts')
+      .select('*')
+      .eq('organizer_id', user.id)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    crmContacts = contacts || [];
+    filteredCrmContacts = crmContacts;
+    renderCrmContacts();
+  } catch (error) {
+    console.error('Error loading CRM contacts:', error);
+    document.getElementById('crmContactsList').innerHTML = `
+      <div class="text-center py-8 text-neutral-600 dark:text-neutral-400">
+        <p>Failed to load contacts</p>
+      </div>
+    `;
+  }
+}
+
+function renderCrmContacts() {
+  const contactsList = document.getElementById('crmContactsList');
+  
+  if (filteredCrmContacts.length === 0) {
+    contactsList.innerHTML = `
+      <div class="text-center py-8 text-neutral-600 dark:text-neutral-400">
+        <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p>No contacts found</p>
+        <a href="/dashboard/organizer/crm/" class="text-blue-600 dark:text-blue-400 hover:underline text-sm mt-2 inline-block">
+          Add contacts to CRM
+        </a>
+      </div>
+    `;
+    return;
+  }
+  
+  contactsList.innerHTML = filteredCrmContacts.map(contact => `
+    <button 
+      type="button"
+      class="w-full p-4 rounded-lg glass border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left crm-contact-item"
+      data-name="${contact.name}"
+      data-email="${contact.email}"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+          ${contact.name.charAt(0).toUpperCase()}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold truncate">${contact.name}</div>
+          <div class="text-sm text-neutral-600 dark:text-neutral-400 truncate">${contact.email}</div>
+        </div>
+        <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </button>
+  `).join('');
+  
+  // Add click handlers
+  document.querySelectorAll('.crm-contact-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const name = item.dataset.name;
+      const email = item.dataset.email;
+      
+      // Fill the form
+      document.getElementById('inviteeName').value = name;
+      document.getElementById('inviteeEmail').value = email;
+      
+      // Close modal
+      document.getElementById('crmModal').classList.add('hidden');
+      
+      toast.success('Contact selected');
+    });
+  });
+}
+
+function filterCrmContacts(searchQuery) {
+  const query = searchQuery.toLowerCase();
+  filteredCrmContacts = crmContacts.filter(contact => 
+    contact.name.toLowerCase().includes(query) ||
+    contact.email.toLowerCase().includes(query)
+  );
+  renderCrmContacts();
+}
+
+// CRM Modal Event Listeners
+document.getElementById('selectFromCrmBtn')?.addEventListener('click', () => {
+  document.getElementById('crmModal').classList.remove('hidden');
+  loadCrmContacts();
+});
+
+document.getElementById('closeCrmModal')?.addEventListener('click', () => {
+  document.getElementById('crmModal').classList.add('hidden');
+});
+
+document.getElementById('crmSearchInput')?.addEventListener('input', (e) => {
+  filterCrmContacts(e.target.value);
+});
+
+// Close modal on backdrop click
+document.getElementById('crmModal')?.addEventListener('click', (e) => {
+  if (e.target.id === 'crmModal') {
+    document.getElementById('crmModal').classList.add('hidden');
+  }
+});

@@ -68,6 +68,20 @@
                             />
                         </div>
 
+                        <!-- Select from CRM Button -->
+                        <div class="flex justify-center">
+                            <button 
+                                type="button"
+                                id="selectFromCrmBtn"
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                Select from CRM
+                            </button>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium mb-2">Tickets *</label>
                             <button 
@@ -176,6 +190,44 @@
                 >
                     Confirm Selection
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CRM Contacts Modal -->
+    <div id="crmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-2xl">
+            <!-- Modal Header -->
+            <div class="sticky top-0 glass border-b border-neutral-200 dark:border-neutral-800 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold">Select from CRM</h2>
+                    <button 
+                        type="button" 
+                        id="closeCrmModal"
+                        class="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Search -->
+                <input 
+                    type="text" 
+                    id="crmSearchInput"
+                    placeholder="Search contacts..."
+                    class="w-full px-4 py-2 rounded-lg glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                />
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div id="crmContactsList" class="space-y-2">
+                    <!-- Loading state -->
+                    <div class="text-center py-8 text-neutral-600 dark:text-neutral-400">
+                        Loading contacts...
+                    </div>
+                </div>
             </div>
         </div>
     </div>
