@@ -1,7 +1,7 @@
 // Account Page Script
 // Handles account management functionality
 
-(async function initAccountPage() {
+async function initAccountPage() {
   // Check authentication
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -16,14 +16,30 @@
   initTabs();
 
   // Save profile
-  document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
+  const saveBtn = document.getElementById('saveProfileBtn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', saveProfile);
+  }
 
   // Change password
-  document.getElementById('changePasswordBtn').addEventListener('click', changePassword);
+  const changeBtn = document.getElementById('changePasswordBtn');
+  if (changeBtn) {
+    changeBtn.addEventListener('click', changePassword);
+  }
 
   // Logout
-  document.getElementById('logoutBtn').addEventListener('click', logout);
-})();
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', logout);
+  }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAccountPage);
+} else {
+  initAccountPage();
+}
 
 function initTabs() {
   const tabBtns = document.querySelectorAll('.tab-btn');
