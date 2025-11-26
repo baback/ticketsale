@@ -161,7 +161,15 @@ async function handleAccept() {
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Edge function error:', error);
+      throw new Error(error.message || 'Failed to process RSVP');
+    }
+
+    if (data && data.error) {
+      console.error('RSVP processing error:', data.error);
+      throw new Error(data.error);
+    }
 
     loadingToast.hideToast();
     toast.success('RSVP confirmed! Check your email for tickets.');
@@ -172,7 +180,15 @@ async function handleAccept() {
   } catch (error) {
     console.error('Error accepting invitation:', error);
     loadingToast.hideToast();
-    toast.error(error.message || 'Failed to process RSVP');
+    
+    // Show user-friendly error message
+    const errorMessage = error.message || 'Failed to process RSVP. Please try again.';
+    toast.error(errorMessage);
+    
+    // If invitation already processed, show appropriate state
+    if (errorMessage.includes('already processed') || errorMessage.includes('not found')) {
+      showError('This invitation has already been used or is no longer valid.');
+    }
   }
 }
 

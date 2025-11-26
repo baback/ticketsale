@@ -49,15 +49,28 @@ serve(async (req) => {
     // Check/Create user account
     let userId: string
 
-    const { data: existingUser } = await supabaseClient.auth.admin.listUsers()
-    const userExists = existingUser?.users?.find(u => u.email === invitation.invitee_email)
+    // Search for existing user by email
+    const { data: existingUsers, error: listError } = await supabaseClient.auth.admin.listUsers()
+    
+    if (listError) {
+      console.error('Error listing users:', listError)
+      throw new Error('Failed to check existing users')
+    }
+
+    const userExists = existingUsers?.users?.find(u => u.email === invitation.invitee_email)
 
     if (userExists) {
+      console.log('User already exists:', userExists.id)
       userId = userExists.id
     } else {
-      // Create new user
+      console.log('Creating new user for:', invitation.invitee_email)
+      
+      // Create new user with a random password
+      const randomPassword = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12)
+      
       const { data: newUser, error: userError } = await supabaseClient.auth.admin.createUser({
         email: invitation.invitee_email,
+        password: randomPassword,
         email_confirm: true,
         user_metadata: {
           full_name: invitation.invitee_name,
@@ -65,14 +78,20 @@ serve(async (req) => {
         }
       })
 
-      if (userError || !newUser.user) {
-        throw new Error('Failed to create user account')
+      if (userError) {
+        console.error('Error creating user:', userError)
+        throw new Error(`Failed to create user account: ${userError.message}`)
+      }
+
+      if (!newUser.user) {
+        throw new Error('User creation returned no user object')
       }
 
       userId = newUser.user.id
+      console.log('New user created:', userId)
 
       // Create user profile
-      await supabaseClient
+      const { error: profileError } = await supabaseClient
         .from('users')
         .insert({
           id: userId,
@@ -80,6 +99,11 @@ serve(async (req) => {
           full_name: invitation.invitee_name,
           role: 'buyer'
         })
+
+      if (profileError) {
+        console.error('Error creating user profile:', profileError)
+        // Don't throw - user is created, profile is optional
+      }
     }
 
     // Create order
