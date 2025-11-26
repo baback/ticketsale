@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Invitation - ticketsale.ca</title>
+    <link rel="icon" type="image/svg+xml" href="../src/img/logo/favicon.svg">
+    <link rel="stylesheet" href="../src/styles/output.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-neutral-200 dark:border-neutral-800">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <a href="/" class="inline-block">
+                <img src="../src/img/logo/full-black.svg" alt="ticketsale.ca" class="h-6 dark:hidden" />
+                <img src="../src/img/logo/full-white.svg" alt="ticketsale.ca" class="h-6 hidden dark:block" />
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 py-12">
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-20">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-neutral-200 dark:border-neutral-800 border-t-black dark:border-t-white"></div>
+            <p class="mt-4 text-neutral-600 dark:text-neutral-400">Loading invitation...</p>
+        </div>
+
+        <!-- RSVP Content -->
+        <div id="rsvpContent" class="hidden">
+            <!-- Event Card -->
+            <div class="glass rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 mb-8">
+                <!-- Event Image -->
+                <div id="eventImage" class="h-64 bg-neutral-200 dark:bg-neutral-800"></div>
+                
+                <!-- Event Details -->
+                <div class="p-8">
+                    <div class="text-center mb-8">
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">You've been invited to</p>
+                        <h1 id="eventTitle" class="text-3xl md:text-4xl font-bold mb-4">Event Title</h1>
+                        
+                        <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-neutral-600 dark:text-neutral-400">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                                </svg>
+                                <span id="eventDate">Date</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                <span id="eventLocation">Location</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invitation Details -->
+                    <div class="glass rounded-xl p-6 border border-neutral-200 dark:border-neutral-800 mb-8">
+                        <h2 class="font-semibold mb-4">Invitation Details</h2>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-neutral-600 dark:text-neutral-400">Guest Name:</span>
+                                <span id="guestName" class="font-medium">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-neutral-600 dark:text-neutral-400">Ticket Type:</span>
+                                <span id="ticketType" class="font-medium">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-neutral-600 dark:text-neutral-400">Number of Tickets:</span>
+                                <span id="ticketQuantity" class="font-medium">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RSVP Question -->
+                    <div class="text-center">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-8">Will you attend this event?</h2>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button 
+                                id="acceptBtn"
+                                class="flex-1 px-8 py-4 rounded-full bg-green-600 hover:bg-green-700 text-white font-semibold text-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Yes, I'll attend
+                            </button>
+                            <button 
+                                id="declineBtn"
+                                class="flex-1 px-8 py-4 rounded-full border-2 border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 font-semibold text-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                No, I can't make it
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div id="successState" class="hidden text-center py-12">
+            <div class="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold mb-4">You're all set!</h2>
+            <p class="text-neutral-600 dark:text-neutral-400 mb-8">
+                Your tickets have been sent to your email.<br/>
+                Check your inbox for ticket details and QR codes.
+            </p>
+            <a href="/dashboard/mytickets/" class="inline-block px-8 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform font-medium">
+                View My Tickets
+            </a>
+        </div>
+
+        <!-- Declined State -->
+        <div id="declinedState" class="hidden text-center py-12">
+            <div class="w-20 h-20 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold mb-4">Thanks for letting us know</h2>
+            <p class="text-neutral-600 dark:text-neutral-400 mb-8">
+                We're sorry you can't make it.<br/>
+                Hope to see you at future events!
+            </p>
+            <a href="/" class="inline-block px-8 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors font-medium">
+                Browse Events
+            </a>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden text-center py-12">
+            <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold mb-4">Invalid Invitation</h2>
+            <p id="errorMessage" class="text-neutral-600 dark:text-neutral-400 mb-8">
+                This invitation link is invalid or has expired.
+            </p>
+            <a href="/" class="inline-block px-8 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors font-medium">
+                Go to Homepage
+            </a>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../src/scripts/supabase.js"></script>
+    <script src="../src/scripts/invitation-rsvp.js"></script>
+</body>
+</html>

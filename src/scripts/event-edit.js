@@ -955,6 +955,21 @@ function updateLiveEventBanner(event) {
   const shareOptions = document.getElementById('shareOptions');
   const openEventPage = document.getElementById('openEventPage');
   
+  // Set menu links
+  const eventStatsLink = document.getElementById('eventStatsLink');
+  const scanTicketsLink = document.getElementById('scanTicketsLink');
+  const inviteGuestsLink = document.getElementById('inviteGuestsLink');
+  
+  if (eventStatsLink) {
+    eventStatsLink.href = `/dashboard/organizer/events/analytics/?id=${eventId}`;
+  }
+  if (scanTicketsLink) {
+    scanTicketsLink.href = `/dashboard/organizer/scan/?event=${eventId}`;
+  }
+  if (inviteGuestsLink) {
+    inviteGuestsLink.href = `/dashboard/organizer/events/invite/?id=${eventId}`;
+  }
+  
   if (currentEventStatus === 'published') {
     // Generate event slug from title and ID
     const slug = event.title

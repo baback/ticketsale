@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invite Guests - Organizer Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="../../../../src/img/logo/favicon.svg">
+    <link rel="stylesheet" href="../../../../src/styles/output.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
+    <div id="organizerSidebar"></div>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 p-4 md:p-8 pb-24 lg:pb-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8">
+                <a href="#" id="backToEvent" class="inline-flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors mb-4">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                    Back to Event
+                </a>
+                <div>
+                    <h1 class="text-3xl font-bold">Invite Guests</h1>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1" id="eventTitle">
+                        Loading event...
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Invitation Form -->
+                <div class="glass rounded-2xl p-6 md:p-8 border border-neutral-200 dark:border-neutral-800">
+                    <h2 class="text-xl font-bold mb-6">Send Invitation</h2>
+                    
+                    <form id="invitationForm" class="space-y-6">
+                        <div>
+                            <label for="inviteeName" class="block text-sm font-medium mb-2">Guest Name *</label>
+                            <input 
+                                type="text" 
+                                id="inviteeName" 
+                                name="inviteeName"
+                                required
+                                placeholder="John Doe"
+                                class="w-full px-4 py-3 rounded-lg glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="inviteeEmail" class="block text-sm font-medium mb-2">Guest Email *</label>
+                            <input 
+                                type="email" 
+                                id="inviteeEmail" 
+                                name="inviteeEmail"
+                                required
+                                placeholder="john@example.com"
+                                class="w-full px-4 py-3 rounded-lg glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="ticketType" class="block text-sm font-medium mb-2">Ticket Type *</label>
+                            <select 
+                                id="ticketType" 
+                                name="ticketType"
+                                required
+                                class="w-full px-4 py-3 rounded-lg glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                            >
+                                <option value="">Select ticket type...</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="quantity" class="block text-sm font-medium mb-2">Number of Tickets *</label>
+                            <input 
+                                type="number" 
+                                id="quantity" 
+                                name="quantity"
+                                required
+                                min="1"
+                                max="10"
+                                value="1"
+                                class="w-full px-4 py-3 rounded-lg glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                            />
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            id="sendInviteBtn"
+                            class="w-full px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
+                        >
+                            Send Invitation
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Invitations List -->
+                <div class="glass rounded-2xl p-6 md:p-8 border border-neutral-200 dark:border-neutral-800">
+                    <h2 class="text-xl font-bold mb-6">Sent Invitations</h2>
+                    
+                    <!-- Loading State -->
+                    <div id="invitationsLoading" class="space-y-4">
+                        <div class="animate-pulse">
+                            <div class="h-20 bg-neutral-200 dark:bg-neutral-800 rounded-lg"></div>
+                        </div>
+                        <div class="animate-pulse">
+                            <div class="h-20 bg-neutral-200 dark:bg-neutral-800 rounded-lg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Invitations List -->
+                    <div id="invitationsList" class="hidden space-y-4 max-h-[600px] overflow-y-auto">
+                        <!-- Invitations will be inserted here -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="invitationsEmpty" class="hidden text-center py-12">
+                        <div class="w-16 h-16 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">No invitations yet</h3>
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                            Send your first invitation using the form
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../../../src/scripts/supabase.js"></script>
+    <script src="../../../../src/scripts/organizer-sidebar.js"></script>
+    <script src="../../../../src/scripts/event-invite.js"></script>
+</body>
+</html>
