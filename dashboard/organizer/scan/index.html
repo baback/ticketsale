@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../../src/styles/output.css">
+    <!-- Theme Script - Load first to prevent flash -->
+    <script src="../../../src/scripts/theme.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
@@ -57,10 +59,10 @@
     <main class="max-w-4xl mx-auto px-4 py-8">
         
         <!-- Event Selection -->
-        <div id="eventSelection" class="mb-8">
-            <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800">
-                <h2 class="text-2xl font-bold mb-4">Select Event</h2>
-                <select id="eventSelect" class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white">
+        <div id="eventSelection" class="mb-6">
+            <div class="glass rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-neutral-200 dark:border-neutral-800">
+                <h2 class="text-xl sm:text-2xl font-bold mb-4">Select Event</h2>
+                <select id="eventSelect" aria-label="Select event to scan tickets" class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white text-sm sm:text-base">
                     <option value="">Loading events...</option>
                 </select>
             </div>
@@ -70,49 +72,64 @@
         <div id="scannerSection" class="hidden">
             
             <!-- Stats -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 text-center">
-                    <div class="text-3xl font-bold" id="checkedInCount">0</div>
-                    <div class="text-sm text-neutral-600 dark:text-neutral-400">Checked In</div>
+            <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+                <div class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-neutral-200 dark:border-neutral-800 text-center">
+                    <div class="text-2xl sm:text-3xl font-bold" id="checkedInCount">0</div>
+                    <div class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">Checked In</div>
                 </div>
-                <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 text-center">
-                    <div class="text-3xl font-bold" id="totalTickets">0</div>
-                    <div class="text-sm text-neutral-600 dark:text-neutral-400">Total Tickets</div>
+                <div class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-neutral-200 dark:border-neutral-800 text-center">
+                    <div class="text-2xl sm:text-3xl font-bold" id="totalTickets">0</div>
+                    <div class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">Total Tickets</div>
                 </div>
             </div>
 
             <!-- QR Scanner -->
-            <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800 mb-6">
-                <div id="qr-reader" class="rounded-2xl overflow-hidden border-4 border-transparent transition-all"></div>
-                <div class="mt-4 text-center text-sm text-neutral-600 dark:text-neutral-400">
+            <div class="glass rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-neutral-200 dark:border-neutral-800 mb-6">
+                <div id="qr-reader" class="rounded-xl sm:rounded-2xl overflow-hidden border-4 border-transparent transition-all"></div>
+                <div class="mt-4 text-center text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                     Position QR code within the frame
                 </div>
             </div>
 
             <!-- Manual Entry -->
-            <div class="glass rounded-3xl p-6 border border-neutral-200 dark:border-neutral-800 mb-6">
-                <div class="flex gap-2">
+            <div class="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-neutral-200 dark:border-neutral-800 mb-6">
+                <div class="flex flex-col sm:flex-row gap-2">
                     <input 
                         type="text" 
                         id="manualTicketId" 
                         placeholder="Enter ticket ID manually" 
-                        class="flex-1 px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                        class="flex-1 px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white text-sm sm:text-base"
                     />
                     <button 
+                        type="button"
                         id="manualCheckBtn"
-                        class="px-6 py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform"
+                        class="px-6 py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform text-sm sm:text-base"
                     >
                         Check
                     </button>
                 </div>
             </div>
 
-            <!-- Recent Scans -->
-            <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800">
-                <h3 class="text-xl font-bold mb-4">Recent Scans</h3>
-                <div id="recentScans" class="space-y-3">
-                    <div class="text-center py-8 text-neutral-600 dark:text-neutral-400">
-                        No scans yet
+            <!-- Activity Log -->
+            <div class="glass rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-neutral-200 dark:border-neutral-800">
+                <h3 class="text-lg sm:text-xl font-bold mb-4">Activity Log</h3>
+                
+                <!-- Filter Tabs -->
+                <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+                    <button type="button" data-filter="all" class="activity-filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-black dark:bg-white text-white dark:text-black whitespace-nowrap">
+                        All
+                    </button>
+                    <button type="button" data-filter="success" class="activity-filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 whitespace-nowrap">
+                        Check-ins
+                    </button>
+                    <button type="button" data-filter="error" class="activity-filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 whitespace-nowrap">
+                        Errors
+                    </button>
+                </div>
+                
+                <div id="recentScans" class="space-y-2 sm:space-y-3">
+                    <div class="text-center py-8 text-neutral-600 dark:text-neutral-400 text-sm">
+                        No activity yet
                     </div>
                 </div>
             </div>

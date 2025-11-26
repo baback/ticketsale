@@ -5,6 +5,7 @@ let selectedEventId = null;
 let eventData = null;
 let recentScans = [];
 let isProcessing = false;
+let currentFilter = 'all';
 
 // Initialize
 async function init() {
@@ -63,6 +64,33 @@ function setupEventListeners() {
     document.getElementById('manualTicketId').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleManualCheck();
     });
+    
+    // Filter buttons
+    document.querySelectorAll('.activity-filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const filter = e.target.getAttribute('data-filter');
+            setFilter(filter);
+        });
+    });
+}
+
+// Set activity filter
+function setFilter(filter) {
+    currentFilter = filter;
+    
+    // Update button states
+    document.querySelectorAll('.activity-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-filter') === filter) {
+            btn.classList.remove('text-neutral-600', 'dark:text-neutral-400', 'hover:bg-neutral-100', 'dark:hover:bg-neutral-800');
+            btn.classList.add('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
+        } else {
+            btn.classList.add('text-neutral-600', 'dark:text-neutral-400', 'hover:bg-neutral-100', 'dark:hover:bg-neutral-800');
+            btn.classList.remove('bg-black', 'dark:bg-white', 'text-white', 'dark:text-black');
+        }
+    });
+    
+    // Re-render scans with filter
+    renderRecentScans();
 }
 
 // Handle event selection
@@ -386,25 +414,35 @@ function addToRecentScans(ticket, status, message) {
 function renderRecentScans() {
     const container = document.getElementById('recentScans');
     
-    if (recentScans.length === 0) {
-        container.innerHTML = '<div class="text-center py-8 text-neutral-600 dark:text-neutral-400">No scans yet</div>';
+    // Filter scans based on current filter
+    const filteredScans = currentFilter === 'all' 
+        ? recentScans 
+        : recentScans.filter(scan => scan.status === currentFilter);
+    
+    if (filteredScans.length === 0) {
+        const emptyMessage = currentFilter === 'all' 
+            ? 'No activity yet' 
+            : currentFilter === 'success' 
+                ? 'No check-ins yet' 
+                : 'No errors yet';
+        container.innerHTML = `<div class="text-center py-8 text-neutral-600 dark:text-neutral-400 text-sm">${emptyMessage}</div>`;
         return;
     }
     
-    container.innerHTML = recentScans.map(scan => {
+    container.innerHTML = filteredScans.map(scan => {
         const statusColors = {
             success: 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400',
             error: 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400'
         };
         
         return `
-            <div class="flex items-center justify-between p-4 rounded-xl border border-neutral-200 dark:border-neutral-800">
-                <div class="flex-1">
-                    <div class="font-semibold">${scan.ticket.orders?.customer_name || scan.ticket.orders?.customer_email || 'Unknown'}</div>
-                    <div class="text-sm text-neutral-600 dark:text-neutral-400">${scan.ticket.ticket_types?.name || 'Ticket'}</div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 gap-2">
+                <div class="flex-1 min-w-0">
+                    <div class="font-semibold text-sm sm:text-base truncate">${scan.ticket.orders?.customer_name || scan.ticket.orders?.customer_email || 'Unknown'}</div>
+                    <div class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">${scan.ticket.ticket_types?.name || 'Ticket'}</div>
                     <div class="text-xs text-neutral-500 dark:text-neutral-500">${scan.timestamp.toLocaleTimeString()}</div>
                 </div>
-                <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[scan.status]}">
+                <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[scan.status]} self-start sm:self-center whitespace-nowrap">
                     ${scan.message}
                 </span>
             </div>
