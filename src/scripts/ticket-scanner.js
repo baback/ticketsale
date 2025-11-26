@@ -106,6 +106,7 @@ async function handleEventSelect(e) {
     }
     
     await loadEventData();
+    await loadScanLogs(); // Load scan history from database
     document.getElementById('scannerSection').classList.remove('hidden');
     startScanner();
 }
@@ -396,7 +397,7 @@ async function handleManualCheck() {
 }
 
 // Add to recent scans
-function addToRecentScans(ticket, status, message) {
+async function addToRecentScans(ticket, status, message, errorCode = null) {
     const scan = {
         ticket,
         status,
@@ -405,9 +406,65 @@ function addToRecentScans(ticket, status, message) {
     };
     
     recentScans.unshift(scan);
-    if (recentScans.length > 10) recentScans.pop();
+    if (recentScans.length > 50) recentScans.pop();
     
     renderRecentScans();
+    
+    // Save to database
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        await supabase
+            .from('scan_logs')
+            .insert({
+                event_id: selectedEventId,
+                ticket_id: ticket.id,
+                scanner_id: user.id,
+                status: status,
+                message: message,
+                error_code: errorCode
+            });
+    } catch (error) {
+        console.error('Error saving scan log:', error);
+        // Don't block the UI if logging fails
+    }
+}
+
+// Load scan logs from database
+async function loadScanLogs() {
+    try {
+        const { data: logs, error } = await supabase
+            .from('scan_logs')
+            .select(`
+                *,
+                tickets (
+                    id,
+                    qr_code,
+                    ticket_types (name),
+                    orders (customer_name, customer_email)
+                )
+            `)
+            .eq('event_id', selectedEventId)
+            .order('scanned_at', { ascending: false })
+            .limit(50);
+        
+        if (error) throw error;
+        
+        // Convert database logs to scan format
+        recentScans = logs.map(log => ({
+            ticket: log.tickets,
+            status: log.status,
+            message: log.message,
+            timestamp: new Date(log.scanned_at)
+        }));
+        
+        renderRecentScans();
+    } catch (error) {
+        console.error('Error loading scan logs:', error);
+        // Continue with empty scans if loading fails
+        recentScans = [];
+        renderRecentScans();
+    }
 }
 
 // Render recent scans
