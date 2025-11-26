@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Profile - CRM - ticketsale.ca</title>
+    <link rel="icon" type="image/svg+xml" href="../../../../src/img/logo/favicon.svg">
+    <link rel="stylesheet" href="../../../../src/styles/output.css">
+</head>
+<body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
+    <div id="organizerSidebar"></div>
+
+    <main class="lg:ml-64 p-4 md:p-8 pb-24 lg:pb-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Back Button -->
+            <a href="/dashboard/organizer/customers/" class="inline-flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors mb-6">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Back to Customers
+            </a>
+
+            <!-- Customer Header -->
+            <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 mb-6">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-4">
+                        <div id="customerAvatar" class="w-16 h-16 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-2xl">
+                            U
+                        </div>
+                        <div>
+                            <h1 id="customerName" class="text-2xl font-bold mb-1">Loading...</h1>
+                            <p id="customerEmail" class="text-neutral-600 dark:text-neutral-400">email@example.com</p>
+                        </div>
+                    </div>
+                    <button id="sendEmailBtn" class="px-4 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform">
+                        Send Email
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">Total Spent</div>
+                    <div class="text-3xl font-bold" id="totalSpent">$0.00</div>
+                </div>
+                <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">Total Orders</div>
+                    <div class="text-3xl font-bold" id="totalOrders">0</div>
+                </div>
+                <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
+                    <div class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">Total Tickets</div>
+                    <div class="text-3xl font-bold" id="totalTickets">0</div>
+                </div>
+            </div>
+
+            <!-- Purchase History -->
+            <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Purchase History</h2>
+                <div id="purchaseHistory" class="space-y-3">
+                    <div class="text-center py-8 text-neutral-600 dark:text-neutral-400">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Communication History -->
+            <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
+                <h2 class="text-xl font-semibold mb-4">Communication History</h2>
+                <div id="communicationHistory" class="space-y-3">
+                    <div class="text-center py-8 text-neutral-600 dark:text-neutral-400">No communications yet</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Send Email Modal -->
+    <div id="emailModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4">Send Email</h3>
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2">To</label>
+                    <input 
+                        type="email" 
+                        id="emailTo" 
+                        readonly
+                        class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Subject</label>
+                    <input 
+                        type="text" 
+                        id="emailSubject" 
+                        placeholder="Enter email subject"
+                        class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Message</label>
+                    <textarea 
+                        id="emailMessage" 
+                        rows="8"
+                        placeholder="Enter your message"
+                        class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                    ></textarea>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelEmail" class="flex-1 px-6 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors">
+                    Cancel
+                </button>
+                <button id="confirmSendEmail" class="flex-1 px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform">
+                    Send Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../../../src/scripts/supabase.js"></script>
+    <script src="../../../../src/scripts/organizer-sidebar.js"></script>
+    <script src="../../../../src/scripts/organizer-crm-profile.js"></script>
+</body>
+</html>
