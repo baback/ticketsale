@@ -492,16 +492,32 @@ function renderRecentScans() {
             error: 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400'
         };
         
+        const customerName = scan.ticket.orders?.customer_name || 'Unknown';
+        const customerEmail = scan.ticket.orders?.customer_email || '';
+        const ticketType = scan.ticket.ticket_types?.name || 'General Admission';
+        const ticketCode = scan.ticket.qr_code ? scan.ticket.qr_code.slice(-8).toUpperCase() : '';
+        
         return `
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 gap-2">
-                <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-sm sm:text-base truncate">${scan.ticket.orders?.customer_name || scan.ticket.orders?.customer_email || 'Unknown'}</div>
-                    <div class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">${scan.ticket.ticket_types?.name || 'Ticket'}</div>
-                    <div class="text-xs text-neutral-500 dark:text-neutral-500">${scan.timestamp.toLocaleTimeString()}</div>
+            <div class="flex flex-col p-3 sm:p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 gap-3">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-base mb-1">${customerName}</div>
+                        ${customerEmail ? `<div class="text-xs text-neutral-600 dark:text-neutral-400 mb-2">${customerEmail}</div>` : ''}
+                        <div class="flex flex-col gap-1">
+                            <div class="text-sm text-neutral-600 dark:text-neutral-400">
+                                <span class="font-medium">Ticket:</span> ${ticketType}
+                            </div>
+                            ${ticketCode ? `<div class="text-xs text-neutral-500 dark:text-neutral-500 font-mono">#${ticketCode}</div>` : ''}
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[scan.status]} whitespace-nowrap shrink-0">
+                        ${scan.status === 'success' ? '✓' : '✗'} ${scan.status === 'success' ? 'Checked In' : 'Error'}
+                    </span>
                 </div>
-                <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[scan.status]} self-start sm:self-center whitespace-nowrap">
-                    ${scan.message}
-                </span>
+                <div class="flex items-center justify-between text-xs border-t border-neutral-200 dark:border-neutral-800 pt-2">
+                    <span class="text-neutral-500 dark:text-neutral-500">${scan.timestamp.toLocaleTimeString()}</span>
+                    ${scan.status === 'error' ? `<span class="text-red-600 dark:text-red-400">${scan.message}</span>` : ''}
+                </div>
             </div>
         `;
     }).join('');
