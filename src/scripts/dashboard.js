@@ -388,7 +388,7 @@ async function loadTickets() {
           <a href="/dashboard/mytickets/order/?id=${order.id}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all group">
             <div class="flex flex-col sm:flex-row">
               <!-- Event Image -->
-              <div class="relative w-full sm:w-48 h-48 sm:h-auto bg-neutral-200 dark:bg-neutral-800 overflow-hidden shrink-0">
+              <div class="relative w-full sm:w-80 h-56 sm:h-48 bg-neutral-200 dark:bg-neutral-800 overflow-hidden shrink-0">
                 ${event.image_url ? `
                   <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.style.display='none'" />
                 ` : `
@@ -408,8 +408,8 @@ async function loadTickets() {
               </div>
               
               <!-- Event Details -->
-              <div class="flex-1 p-4 flex flex-col justify-center">
-                <h3 class="text-lg font-semibold mb-2 line-clamp-2">${event.title}</h3>
+              <div class="flex-1 p-4 sm:p-6 flex flex-col justify-center">
+                <h3 class="text-lg sm:text-xl font-semibold mb-3 line-clamp-2">${event.title}</h3>
                 <div class="space-y-2">
                   <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
