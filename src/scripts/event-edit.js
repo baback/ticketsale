@@ -99,26 +99,20 @@ function setupEventListeners() {
   document.getElementById('archiveBtn').addEventListener('click', handleArchiveToggle);
   document.getElementById('deleteBtn').addEventListener('click', handleDelete);
   
-  // Share button
-  const shareBtn = document.getElementById('shareBtn');
-  const sharePopover = document.getElementById('sharePopover');
-  if (shareBtn && sharePopover) {
-    shareBtn.addEventListener('mouseenter', () => {
-      sharePopover.classList.remove('hidden');
+  // Actions menu button
+  const actionsMenuBtn = document.getElementById('actionsMenuBtn');
+  const actionsPopover = document.getElementById('actionsPopover');
+  if (actionsMenuBtn && actionsPopover) {
+    actionsMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      actionsPopover.classList.toggle('hidden');
     });
-    shareBtn.addEventListener('mouseleave', (e) => {
-      // Delay hiding to allow moving to popover
-      setTimeout(() => {
-        if (!sharePopover.matches(':hover') && !shareBtn.matches(':hover')) {
-          sharePopover.classList.add('hidden');
-        }
-      }, 100);
-    });
-    sharePopover.addEventListener('mouseleave', () => {
-      sharePopover.classList.add('hidden');
-    });
-    sharePopover.addEventListener('mouseenter', () => {
-      sharePopover.classList.remove('hidden');
+    
+    // Close popover when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!actionsMenuBtn.contains(e.target) && !actionsPopover.contains(e.target)) {
+        actionsPopover.classList.add('hidden');
+      }
     });
   }
   
@@ -958,7 +952,7 @@ function updateLiveEventBanner(event) {
   const banner = document.getElementById('liveEventBanner');
   const mainContent = document.getElementById('mainContent');
   const link = document.getElementById('viewLiveEventLink');
-  const shareButtonContainer = document.getElementById('shareButtonContainer');
+  const shareOptions = document.getElementById('shareOptions');
   const openEventPage = document.getElementById('openEventPage');
   
   if (currentEventStatus === 'published') {
@@ -976,18 +970,18 @@ function updateLiveEventBanner(event) {
       openEventPage.href = eventUrl;
     }
     
-    // Show share button
-    if (shareButtonContainer) {
-      shareButtonContainer.classList.remove('hidden');
+    // Show share options in menu
+    if (shareOptions) {
+      shareOptions.classList.remove('hidden');
     }
     
     // Show banner and adjust main content padding
     banner.classList.remove('hidden');
     mainContent.style.paddingTop = '5rem'; // Add padding to account for banner
   } else {
-    // Hide share button
-    if (shareButtonContainer) {
-      shareButtonContainer.classList.add('hidden');
+    // Hide share options
+    if (shareOptions) {
+      shareOptions.classList.add('hidden');
     }
     
     // Hide banner and remove padding
@@ -1013,7 +1007,7 @@ async function handleCopyEventUrl() {
     toast.success('Event URL copied to clipboard!');
     
     // Hide popover after copy
-    document.getElementById('sharePopover').classList.add('hidden');
+    document.getElementById('actionsPopover').classList.add('hidden');
   } catch (error) {
     console.error('Error copying URL:', error);
     toast.error('Failed to copy URL');
