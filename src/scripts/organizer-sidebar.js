@@ -61,8 +61,9 @@
     const mobileThemeToggle = document.getElementById('mobileThemeToggle');
     if (mobileThemeToggle) {
       mobileThemeToggle.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        if (typeof window.toggleTheme === 'function') {
+          window.toggleTheme();
+        }
       });
     }
     
@@ -97,8 +98,9 @@
     const themeToggle = document.getElementById('dropdownThemeToggle');
     if (themeToggle) {
       themeToggle.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        if (typeof window.toggleTheme === 'function') {
+          window.toggleTheme();
+        }
       });
     }
 
