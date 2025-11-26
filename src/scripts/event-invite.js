@@ -666,7 +666,7 @@ function renderCrmContacts() {
       data-email="${contact.email}"
     >
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+        <div class="w-10 h-10 rounded-full bg-white dark:bg-white flex items-center justify-center text-black font-semibold">
           ${contact.name.charAt(0).toUpperCase()}
         </div>
         <div class="flex-1 min-w-0">
