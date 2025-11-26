@@ -228,7 +228,7 @@ async function generateAndSendTickets(order: any, tickets: any[], supabaseAdmin:
       return `
         <div class="ticket">
           <div class="ticket-header">
-            <img src="https://ticketsale.ca/img/logo/full-white.png" alt="ticketsale.ca" style="width: 180px; height: auto;" />
+            <img src="https://ticketsale.ca/src/img/logo/full-white.png" alt="ticketsale.ca" style="width: 180px; height: auto;" />
           </div>
           <div class="ticket-body">
             <h1 class="event-name">${event.title}</h1>
