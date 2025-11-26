@@ -6,14 +6,8 @@
     <title>Order Details - ticketsale.ca</title>
     <link rel="icon" type="image/svg+xml" href="../../../src/img/logo/favicon.svg">
     <link rel="stylesheet" href="../../../src/styles/output.css">
-    <script>
-        // Initialize theme immediately to prevent flash
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
+    <!-- Theme Script - Load first to prevent flash -->
+    <script src="../../../src/scripts/theme.js"></script>
 </head>
 <body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
     <div id="dashboardSidebar"></div>

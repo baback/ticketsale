@@ -6,19 +6,13 @@
     <title>Edit Event - Organizer Dashboard</title>
     <link rel="icon" type="image/svg+xml" href="../../../../src/img/logo/favicon.svg">
     <link rel="stylesheet" href="../../../../src/styles/output.css">
+    <!-- Theme Script - Load first to prevent flash -->
+    <script src="../../../../src/scripts/theme.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script>
-        // Initialize theme immediately to prevent flash
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
 </head>
 <body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
     <div id="organizerSidebar"></div>
