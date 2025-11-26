@@ -171,6 +171,7 @@
       
       const navType = link.getAttribute('data-nav');
       if (
+        (navType === 'overview' && (path === '/dashboard/organizer' || path === '/dashboard/organizer/')) ||
         (navType === 'events' && path.includes('/dashboard/organizer/events') && !path.includes('/create')) ||
         (navType === 'create' && path.includes('/dashboard/organizer/events/create')) ||
         (navType === 'revenue' && path.includes('/dashboard/organizer/revenue')) ||
