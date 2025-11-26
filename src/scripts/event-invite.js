@@ -404,6 +404,29 @@ async function handleSubmit(e) {
 // Send invitation email
 async function sendInvitationEmail(invitation) {
   try {
+    // Call Supabase Edge Function to send email
+    const { data, error } = await supabase.functions.invoke('send-invitation-email', {
+      body: {
+        invitation_id: invitation.id
+      }
+    });
+
+    if (error) {
+      console.error('Error sending invitation email:', error);
+      throw error;
+    }
+
+    console.log('Invitation email sent successfully:', data);
+    
+  } catch (error) {
+    console.error('Error sending email:', error);
+    // Don't throw - invitation is created, email is secondary
+  }
+}
+
+// Legacy email template (kept for reference)
+async function sendInvitationEmailLegacy(invitation) {
+  try {
     const inviteUrl = `${window.location.origin}/invite/?id=${invitation.invitation_token}`;
     
     // Get event and organizer details
