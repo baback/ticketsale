@@ -6,17 +6,12 @@
     <title>My Account - ticketsale.ca</title>
     <link rel="icon" type="image/svg+xml" href="../../src/img/logo/favicon.svg">
     <link rel="stylesheet" href="../../src/styles/output.css">
-    <script>
-        // Initialize theme immediately to prevent flash
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
+    <!-- Theme Script - Load first to prevent flash -->
+    <script src="../../src/scripts/theme.js"></script>
 </head>
 <body class="bg-white dark:bg-black text-black dark:text-white min-h-screen">
-    <div id="dashboardSidebar"></div>
+    <!-- Dynamic sidebar container - will be populated based on user role -->
+    <div id="dynamicSidebar"></div>
 
     <!-- Main Content -->
     <main class="lg:ml-64 p-4 md:p-8 pb-24 lg:pb-8">
@@ -119,7 +114,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../src/scripts/supabase.js"></script>
-    <script src="../../src/scripts/dashboard-sidebar.js"></script>
+    <script src="../../src/scripts/account-sidebar.js"></script>
     <script src="../../src/scripts/account.js"></script>
 </body>
 </html>
