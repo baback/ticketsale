@@ -69,29 +69,29 @@
                         </div>
 
                         <div>
-                            <label for="ticketType" class="block text-sm font-medium mb-2">Ticket Type *</label>
-                            <select 
-                                id="ticketType" 
-                                name="ticketType"
-                                required
-                                class="w-full px-4 py-3 rounded-lg glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                            <label class="block text-sm font-medium mb-2">Tickets *</label>
+                            <button 
+                                type="button"
+                                id="selectTicketsBtn"
+                                class="w-full px-4 py-3 rounded-lg glass border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left flex items-center justify-between"
                             >
-                                <option value="">Select ticket type...</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="quantity" class="block text-sm font-medium mb-2">Number of Tickets *</label>
-                            <input 
-                                type="number" 
-                                id="quantity" 
-                                name="quantity"
-                                required
-                                min="1"
-                                max="10"
-                                value="1"
-                                class="w-full px-4 py-3 rounded-lg glass border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-                            />
+                                <span id="selectedTicketsText" class="text-neutral-600 dark:text-neutral-400">Select tickets...</span>
+                                <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            <div id="selectedTicketsSummary" class="hidden mt-3 p-3 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+                                <div class="flex items-center justify-between">
+                                    <div id="ticketsSummaryText" class="text-sm"></div>
+                                    <button 
+                                        type="button"
+                                        id="editTicketsBtn"
+                                        class="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                                    >
+                                        Edit
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <button 
@@ -142,6 +142,43 @@
             </div>
         </div>
     </main>
+
+    <!-- Ticket Selection Modal -->
+    <div id="ticketModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-2xl">
+            <!-- Modal Header -->
+            <div class="sticky top-0 glass border-b border-neutral-200 dark:border-neutral-800 p-6 flex items-center justify-between">
+                <h2 class="text-2xl font-bold">Select Tickets</h2>
+                <button 
+                    type="button" 
+                    id="closeTicketModal"
+                    class="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div id="ticketTypesList" class="space-y-4">
+                    <!-- Ticket types will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="sticky bottom-0 glass border-t border-neutral-200 dark:border-neutral-800 p-6">
+                <button 
+                    type="button" 
+                    id="confirmTicketsBtn"
+                    class="w-full px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
+                >
+                    Confirm Selection
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../../../src/scripts/supabase.js"></script>

@@ -50,6 +50,7 @@ const toast = {
 
 let currentEvent = null;
 let ticketTypes = [];
+let selectedTickets = {}; // { ticketTypeId: quantity }
 
 // Initialize
 async function init() {
@@ -91,21 +92,86 @@ async function loadEventData() {
     document.getElementById('eventTitle').textContent = event.title;
     document.getElementById('backToEvent').href = `/dashboard/organizer/events/edit/?id=${eventId}`;
 
-    // Populate ticket types dropdown
-    const ticketTypeSelect = document.getElementById('ticketType');
-    ticketTypeSelect.innerHTML = '<option value="">Select ticket type...</option>';
-    
-    ticketTypes.forEach(type => {
-      const option = document.createElement('option');
-      option.value = type.id;
-      option.textContent = `${type.name} - $${parseFloat(type.price).toFixed(2)}`;
-      ticketTypeSelect.appendChild(option);
-    });
+    // Render ticket types in modal
+    renderTicketTypes();
 
   } catch (error) {
     console.error('Error loading event:', error);
     toast.error('Failed to load event data');
     setTimeout(() => window.location.href = '/dashboard/organizer/events/', 2000);
+  }
+}
+
+// Render ticket types in modal
+function renderTicketTypes() {
+  const container = document.getElementById('ticketTypesList');
+  
+  container.innerHTML = ticketTypes.map(type => `
+    <div class="glass rounded-xl p-4 border border-neutral-200 dark:border-neutral-800" data-ticket-id="${type.id}">
+      <div class="flex items-start justify-between mb-3">
+        <div class="flex-1">
+          <h3 class="font-semibold text-lg">${type.name}</h3>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+            $${parseFloat(type.price).toFixed(2)} per ticket
+          </p>
+          ${type.description ? `
+            <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">${type.description}</p>
+          ` : ''}
+        </div>
+      </div>
+      
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-neutral-600 dark:text-neutral-400">
+          ${type.available} available
+        </span>
+        <div class="flex items-center gap-3">
+          <button 
+            type="button"
+            onclick="decrementTicket('${type.id}')"
+            class="w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center justify-center"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+            </svg>
+          </button>
+          <span id="quantity-${type.id}" class="text-lg font-semibold w-8 text-center">0</span>
+          <button 
+            type="button"
+            onclick="incrementTicket('${type.id}')"
+            class="w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center justify-center"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Increment ticket quantity
+window.incrementTicket = function(ticketTypeId) {
+  const type = ticketTypes.find(t => t.id === ticketTypeId);
+  if (!type) return;
+  
+  const current = selectedTickets[ticketTypeId] || 0;
+  if (current < type.available && current < 10) {
+    selectedTickets[ticketTypeId] = current + 1;
+    document.getElementById(`quantity-${ticketTypeId}`).textContent = current + 1;
+  }
+};
+
+// Decrement ticket quantity
+window.decrementTicket = function(ticketTypeId) {
+  const current = selectedTickets[ticketTypeId] || 0;
+  if (current > 0) {
+    selectedTickets[ticketTypeId] = current - 1;
+    document.getElementById(`quantity-${ticketTypeId}`).textContent = current - 1;
+    
+    if (current - 1 === 0) {
+      delete selectedTickets[ticketTypeId];
+    }
   }
 }
 
@@ -190,6 +256,71 @@ function renderInvitations(invitations) {
 function setupEventListeners() {
   const form = document.getElementById('invitationForm');
   form.addEventListener('submit', handleSubmit);
+  
+  // Ticket selection modal
+  const selectTicketsBtn = document.getElementById('selectTicketsBtn');
+  const editTicketsBtn = document.getElementById('editTicketsBtn');
+  const closeTicketModal = document.getElementById('closeTicketModal');
+  const confirmTicketsBtn = document.getElementById('confirmTicketsBtn');
+  const ticketModal = document.getElementById('ticketModal');
+  
+  selectTicketsBtn.addEventListener('click', () => {
+    ticketModal.classList.remove('hidden');
+  });
+  
+  editTicketsBtn.addEventListener('click', () => {
+    ticketModal.classList.remove('hidden');
+  });
+  
+  closeTicketModal.addEventListener('click', () => {
+    ticketModal.classList.add('hidden');
+  });
+  
+  confirmTicketsBtn.addEventListener('click', () => {
+    confirmTicketSelection();
+  });
+  
+  // Close modal on backdrop click
+  ticketModal.addEventListener('click', (e) => {
+    if (e.target === ticketModal) {
+      ticketModal.classList.add('hidden');
+    }
+  });
+}
+
+// Confirm ticket selection
+function confirmTicketSelection() {
+  const totalTickets = Object.values(selectedTickets).reduce((sum, qty) => sum + qty, 0);
+  
+  if (totalTickets === 0) {
+    toast.error('Please select at least one ticket');
+    return;
+  }
+  
+  // Update UI
+  const selectedText = document.getElementById('selectedTicketsText');
+  const summary = document.getElementById('selectedTicketsSummary');
+  const summaryText = document.getElementById('ticketsSummaryText');
+  
+  // Build summary text
+  const ticketSummary = Object.entries(selectedTickets)
+    .map(([typeId, qty]) => {
+      const type = ticketTypes.find(t => t.id === typeId);
+      return `${qty}x ${type?.name || 'Unknown'}`;
+    })
+    .join(', ');
+  
+  selectedText.textContent = ticketSummary;
+  selectedText.classList.remove('text-neutral-600', 'dark:text-neutral-400');
+  selectedText.classList.add('text-black', 'dark:text-white', 'font-medium');
+  
+  summaryText.textContent = `${totalTickets} ticket${totalTickets !== 1 ? 's' : ''} selected`;
+  summary.classList.remove('hidden');
+  
+  // Close modal
+  document.getElementById('ticketModal').classList.add('hidden');
+  
+  toast.success('Tickets selected');
 }
 
 // Handle form submission
@@ -198,11 +329,15 @@ async function handleSubmit(e) {
 
   const name = document.getElementById('inviteeName').value.trim();
   const email = document.getElementById('inviteeEmail').value.trim();
-  const ticketTypeId = document.getElementById('ticketType').value;
-  const quantity = parseInt(document.getElementById('quantity').value);
 
-  if (!name || !email || !ticketTypeId || !quantity) {
-    toast.error('Please fill in all fields');
+  if (!name || !email) {
+    toast.error('Please enter guest name and email');
+    return;
+  }
+
+  const totalTickets = Object.values(selectedTickets).reduce((sum, qty) => sum + qty, 0);
+  if (totalTickets === 0) {
+    toast.error('Please select tickets');
     return;
   }
 
@@ -211,31 +346,50 @@ async function handleSubmit(e) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Create invitation
-    const { data: invitation, error } = await supabase
-      .from('event_invitations')
-      .insert({
-        event_id: eventId,
-        organizer_id: user.id,
-        invitee_name: name,
-        invitee_email: email,
-        ticket_type_id: ticketTypeId,
-        quantity: quantity,
-        status: 'invited'
-      })
-      .select()
-      .single();
+    // Create invitations for each ticket type
+    const invitations = [];
+    for (const [ticketTypeId, quantity] of Object.entries(selectedTickets)) {
+      if (quantity > 0) {
+        const { data: invitation, error } = await supabase
+          .from('event_invitations')
+          .insert({
+            event_id: eventId,
+            organizer_id: user.id,
+            invitee_name: name,
+            invitee_email: email,
+            ticket_type_id: ticketTypeId,
+            quantity: quantity,
+            status: 'invited'
+          })
+          .select()
+          .single();
 
-    if (error) throw error;
+        if (error) throw error;
+        invitations.push(invitation);
+      }
+    }
 
-    // Send invitation email
-    await sendInvitationEmail(invitation);
+    // Send invitation email (send once with all tickets)
+    if (invitations.length > 0) {
+      await sendInvitationEmail(invitations[0]); // Use first invitation for email
+    }
 
     loadingToast.hideToast();
     toast.success('Invitation sent successfully!');
 
     // Reset form
     document.getElementById('invitationForm').reset();
+    selectedTickets = {};
+    document.getElementById('selectedTicketsText').textContent = 'Select tickets...';
+    document.getElementById('selectedTicketsText').classList.remove('text-black', 'dark:text-white', 'font-medium');
+    document.getElementById('selectedTicketsText').classList.add('text-neutral-600', 'dark:text-neutral-400');
+    document.getElementById('selectedTicketsSummary').classList.add('hidden');
+    
+    // Reset modal quantities
+    ticketTypes.forEach(type => {
+      const qtyEl = document.getElementById(`quantity-${type.id}`);
+      if (qtyEl) qtyEl.textContent = '0';
+    });
 
     // Reload invitations
     await loadInvitations();
