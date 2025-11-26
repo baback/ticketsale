@@ -99,6 +99,35 @@ function setupEventListeners() {
   document.getElementById('archiveBtn').addEventListener('click', handleArchiveToggle);
   document.getElementById('deleteBtn').addEventListener('click', handleDelete);
   
+  // Share button
+  const shareBtn = document.getElementById('shareBtn');
+  const sharePopover = document.getElementById('sharePopover');
+  if (shareBtn && sharePopover) {
+    shareBtn.addEventListener('mouseenter', () => {
+      sharePopover.classList.remove('hidden');
+    });
+    shareBtn.addEventListener('mouseleave', (e) => {
+      // Delay hiding to allow moving to popover
+      setTimeout(() => {
+        if (!sharePopover.matches(':hover') && !shareBtn.matches(':hover')) {
+          sharePopover.classList.add('hidden');
+        }
+      }, 100);
+    });
+    sharePopover.addEventListener('mouseleave', () => {
+      sharePopover.classList.add('hidden');
+    });
+    sharePopover.addEventListener('mouseenter', () => {
+      sharePopover.classList.remove('hidden');
+    });
+  }
+  
+  // Copy event URL
+  const copyEventUrl = document.getElementById('copyEventUrl');
+  if (copyEventUrl) {
+    copyEventUrl.addEventListener('click', handleCopyEventUrl);
+  }
+  
   // Add ticket type button
   document.getElementById('addTicketType').addEventListener('click', addTicketType);
   
@@ -929,6 +958,8 @@ function updateLiveEventBanner(event) {
   const banner = document.getElementById('liveEventBanner');
   const mainContent = document.getElementById('mainContent');
   const link = document.getElementById('viewLiveEventLink');
+  const shareButtonContainer = document.getElementById('shareButtonContainer');
+  const openEventPage = document.getElementById('openEventPage');
   
   if (currentEventStatus === 'published') {
     // Generate event slug from title and ID
@@ -937,17 +968,72 @@ function updateLiveEventBanner(event) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
     const eventSlug = `${slug}-${eventId}`;
+    const eventUrl = `${window.location.origin}/events/?event=${eventSlug}`;
     
     // Set link href
-    link.href = `/events/?event=${eventSlug}`;
+    link.href = eventUrl;
+    if (openEventPage) {
+      openEventPage.href = eventUrl;
+    }
+    
+    // Show share button
+    if (shareButtonContainer) {
+      shareButtonContainer.classList.remove('hidden');
+    }
     
     // Show banner and adjust main content padding
     banner.classList.remove('hidden');
     mainContent.style.paddingTop = '5rem'; // Add padding to account for banner
   } else {
+    // Hide share button
+    if (shareButtonContainer) {
+      shareButtonContainer.classList.add('hidden');
+    }
+    
     // Hide banner and remove padding
     banner.classList.add('hidden');
     mainContent.style.paddingTop = '0';
+  }
+}
+
+// Handle copy event URL
+async function handleCopyEventUrl() {
+  try {
+    const event = await getCurrentEvent();
+    if (!event) return;
+    
+    const slug = event.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    const eventSlug = `${slug}-${eventId}`;
+    const eventUrl = `${window.location.origin}/events/?event=${eventSlug}`;
+    
+    await navigator.clipboard.writeText(eventUrl);
+    toast.success('Event URL copied to clipboard!');
+    
+    // Hide popover after copy
+    document.getElementById('sharePopover').classList.add('hidden');
+  } catch (error) {
+    console.error('Error copying URL:', error);
+    toast.error('Failed to copy URL');
+  }
+}
+
+// Get current event data
+async function getCurrentEvent() {
+  try {
+    const { data: event, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', eventId)
+      .single();
+    
+    if (error) throw error;
+    return event;
+  } catch (error) {
+    console.error('Error fetching event:', error);
+    return null;
   }
 }
 
