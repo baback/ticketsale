@@ -63,7 +63,7 @@
             
             <div class="h-px bg-neutral-200 dark:bg-neutral-800 my-2"></div>
             
-            <a href="/dashboard/organizer/" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm">
+            <button type="button" id="switchToOrganizerBtn" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="17 1 21 5 17 9"/>
                     <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
@@ -71,7 +71,7 @@
                     <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
                 </svg>
                 <span>Switch to Organizer</span>
-            </a>
+            </button>
             
             <div class="h-px bg-neutral-200 dark:bg-neutral-800 my-2"></div>
             
@@ -161,7 +161,7 @@
             <span>My Account</span>
         </a>
         
-        <a href="/organizer/" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
+        <button type="button" id="mobileSwitchToOrganizerBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="17 1 21 5 17 9"/>
                 <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
@@ -169,7 +169,7 @@
                 <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
             </svg>
             <span>Switch to Organizer</span>
-        </a>
+        </button>
         
         <button type="button" id="mobileThemeToggle" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
             <svg class="w-5 h-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -195,5 +195,23 @@
         <button type="button" id="closeMobileUserModal" class="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all font-medium">
             Close
         </button>
+    </div>
+</div>
+
+<!-- Role Switch Confirmation Modal -->
+<div id="roleSwitchModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800 max-w-md w-full">
+        <h3 class="text-2xl font-bold mb-4">Switch to Organizer Mode?</h3>
+        <p class="text-neutral-600 dark:text-neutral-400 mb-6">
+            You'll be able to create and manage events. You can switch back to buyer mode anytime.
+        </p>
+        <div class="flex gap-3">
+            <button id="cancelRoleSwitch" class="flex-1 px-6 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors">
+                Cancel
+            </button>
+            <button id="confirmRoleSwitch" class="flex-1 px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform">
+                Switch
+            </button>
+        </div>
     </div>
 </div>

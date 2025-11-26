@@ -18,6 +18,18 @@ async function initOrganizerDashboard() {
       return;
     }
 
+    // Check user role and redirect if needed
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    if (!userError && userData && userData.role === 'buyer') {
+      window.location.href = '/dashboard/';
+      return;
+    }
+
     // Load user profile
     await loadUserProfile(session.user);
     

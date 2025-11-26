@@ -238,3 +238,21 @@
         </button>
     </div>
 </div>
+
+<!-- Role Switch Confirmation Modal -->
+<div id="roleSwitchModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800 max-w-md w-full">
+        <h3 class="text-2xl font-bold mb-4">Switch to Buyer Mode?</h3>
+        <p class="text-neutral-600 dark:text-neutral-400 mb-6">
+            You'll return to the buyer dashboard where you can browse and purchase tickets.
+        </p>
+        <div class="flex gap-3">
+            <button id="cancelRoleSwitch" class="flex-1 px-6 py-3 rounded-full border border-neutral-200 dark:border-neutral-800 font-medium hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors">
+                Cancel
+            </button>
+            <button id="confirmRoleSwitch" class="flex-1 px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black font-medium hover:scale-105 transition-transform">
+                Switch
+            </button>
+        </div>
+    </div>
+</div>

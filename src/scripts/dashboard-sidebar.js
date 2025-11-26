@@ -102,7 +102,48 @@
       });
     }
 
-    // Switch mode button is now a link, no JS needed
+    // Role switch buttons
+    const switchToOrganizerBtn = document.getElementById('switchToOrganizerBtn');
+    const mobileSwitchToOrganizerBtn = document.getElementById('mobileSwitchToOrganizerBtn');
+    const roleSwitchModal = document.getElementById('roleSwitchModal');
+    const cancelRoleSwitch = document.getElementById('cancelRoleSwitch');
+    const confirmRoleSwitch = document.getElementById('confirmRoleSwitch');
+
+    if (switchToOrganizerBtn) {
+      switchToOrganizerBtn.addEventListener('click', () => {
+        roleSwitchModal.classList.remove('hidden');
+      });
+    }
+
+    if (mobileSwitchToOrganizerBtn) {
+      mobileSwitchToOrganizerBtn.addEventListener('click', () => {
+        roleSwitchModal.classList.remove('hidden');
+        // Close mobile modal
+        const mobileUserModal = document.getElementById('mobileUserModal');
+        if (mobileUserModal) mobileUserModal.classList.add('hidden');
+      });
+    }
+
+    if (cancelRoleSwitch) {
+      cancelRoleSwitch.addEventListener('click', () => {
+        roleSwitchModal.classList.add('hidden');
+      });
+    }
+
+    if (confirmRoleSwitch) {
+      confirmRoleSwitch.addEventListener('click', async () => {
+        await switchRole('organizer');
+      });
+    }
+
+    // Close modal on backdrop click
+    if (roleSwitchModal) {
+      roleSwitchModal.addEventListener('click', (e) => {
+        if (e.target === roleSwitchModal) {
+          roleSwitchModal.classList.add('hidden');
+        }
+      });
+    }
 
     // Logout
     const logoutBtn = document.getElementById('logoutBtn');
@@ -111,6 +152,27 @@
         await supabase.auth.signOut();
         window.location.href = '/';
       });
+    }
+  }
+
+  async function switchRole(newRole) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // Update role in database
+      const { error } = await supabase
+        .from('users')
+        .update({ role: newRole })
+        .eq('id', session.user.id);
+
+      if (error) throw error;
+
+      // Redirect to appropriate dashboard
+      window.location.href = newRole === 'organizer' ? '/dashboard/organizer/' : '/dashboard/';
+    } catch (error) {
+      console.error('Error switching role:', error);
+      alert('Failed to switch role. Please try again.');
     }
   }
 

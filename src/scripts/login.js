@@ -10,7 +10,18 @@ async function checkAuthAndRedirect() {
             if (redirect) {
                 window.location.href = redirect;
             } else {
-                window.location.href = '/dashboard/';
+                // Check user role and redirect accordingly
+                const { data: userData } = await window.supabaseClient
+                    .from('users')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (userData && userData.role === 'organizer') {
+                    window.location.href = '/dashboard/organizer/';
+                } else {
+                    window.location.href = '/dashboard/';
+                }
             }
         }
     } catch (error) {
@@ -145,11 +156,27 @@ loginForm.addEventListener('submit', async (e) => {
         const redirect = urlParams.get('redirect');
         
         // Redirect after short delay
-        setTimeout(() => {
+        setTimeout(async () => {
             if (redirect) {
                 window.location.href = redirect;
             } else {
-                window.location.href = '/dashboard/';
+                // Check user role and redirect accordingly
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    const { data: userData } = await window.supabaseClient
+                        .from('users')
+                        .select('role')
+                        .eq('id', session.user.id)
+                        .single();
+                    
+                    if (userData && userData.role === 'organizer') {
+                        window.location.href = '/dashboard/organizer/';
+                    } else {
+                        window.location.href = '/dashboard/';
+                    }
+                } else {
+                    window.location.href = '/dashboard/';
+                }
             }
         }, 1000);
         

@@ -102,11 +102,36 @@
       });
     }
 
-    // Switch to buyer mode
+    // Role switch buttons
     const switchModeBtn = document.getElementById('switchModeBtn');
+    const roleSwitchModal = document.getElementById('roleSwitchModal');
+    const cancelRoleSwitch = document.getElementById('cancelRoleSwitch');
+    const confirmRoleSwitch = document.getElementById('confirmRoleSwitch');
+
     if (switchModeBtn) {
       switchModeBtn.addEventListener('click', () => {
-        window.location.href = '/dashboard/';
+        roleSwitchModal.classList.remove('hidden');
+      });
+    }
+
+    if (cancelRoleSwitch) {
+      cancelRoleSwitch.addEventListener('click', () => {
+        roleSwitchModal.classList.add('hidden');
+      });
+    }
+
+    if (confirmRoleSwitch) {
+      confirmRoleSwitch.addEventListener('click', async () => {
+        await switchRole('buyer');
+      });
+    }
+
+    // Close modal on backdrop click
+    if (roleSwitchModal) {
+      roleSwitchModal.addEventListener('click', (e) => {
+        if (e.target === roleSwitchModal) {
+          roleSwitchModal.classList.add('hidden');
+        }
       });
     }
 
@@ -117,6 +142,27 @@
         await supabase.auth.signOut();
         window.location.href = '/';
       });
+    }
+  }
+
+  async function switchRole(newRole) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // Update role in database
+      const { error } = await supabase
+        .from('users')
+        .update({ role: newRole })
+        .eq('id', session.user.id);
+
+      if (error) throw error;
+
+      // Redirect to appropriate dashboard
+      window.location.href = newRole === 'organizer' ? '/dashboard/organizer/' : '/dashboard/';
+    } catch (error) {
+      console.error('Error switching role:', error);
+      alert('Failed to switch role. Please try again.');
     }
   }
 

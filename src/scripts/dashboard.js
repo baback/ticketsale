@@ -30,6 +30,18 @@ async function initDashboard() {
       return;
     }
 
+    // Check user role and redirect if needed
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    if (!userError && userData && userData.role === 'organizer') {
+      window.location.href = '/dashboard/organizer/';
+      return;
+    }
+
     // Load user profile
     await loadUserProfile(session.user);
     
