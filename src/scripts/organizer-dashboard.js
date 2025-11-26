@@ -102,6 +102,7 @@ async function loadDashboardStats() {
       .eq('organizer_id', user.id);
     
     if (!events || events.length === 0) {
+      hideStatsSkeleton();
       return;
     }
     
@@ -110,17 +111,17 @@ async function loadDashboardStats() {
     // Get total revenue from completed orders
     const { data: orders } = await supabase
       .from('orders')
-      .select('total')
+      .select('id, total')
       .in('event_id', eventIds)
       .eq('status', 'completed');
     
     const totalRevenue = orders?.reduce((sum, order) => sum + parseFloat(order.total), 0) || 0;
     
-    // Get total tickets sold
+    // Get total tickets sold from completed orders
     const { data: tickets } = await supabase
       .from('tickets')
       .select('id')
-      .in('order_id', orders?.map(o => o.id) || []);
+      .in('event_id', eventIds);
     
     const ticketsSold = tickets?.length || 0;
     
@@ -155,10 +156,19 @@ async function loadRecentEvents() {
     
     const { data: events } = await supabase
       .from('events')
-      .select('*')
+      .select(`
+        *,
+        ticket_types (
+          id,
+          name,
+          price,
+          quantity,
+          available
+        )
+      `)
       .eq('organizer_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(5);
+      .limit(3);
     
     const eventsList = document.getElementById('eventsList');
     const eventsEmpty = document.getElementById('eventsEmpty');
@@ -173,14 +183,25 @@ async function loadRecentEvents() {
     if (eventsList) eventsList.classList.remove('hidden');
     if (eventsEmpty) eventsEmpty.classList.add('hidden');
     
-    // Render events
+    // Render events with same card design as events page
     if (eventsList) {
       eventsList.innerHTML = events.map(event => {
-        const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
+        const eventDate = new Date(event.event_date);
+        const formattedDate = eventDate.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
-          year: 'numeric'
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
         });
+        
+        const isPast = eventDate < new Date();
+        
+        // Calculate tickets sold
+        const totalTickets = event.ticket_types?.reduce((sum, t) => sum + t.quantity, 0) || 0;
+        const availableTickets = event.ticket_types?.reduce((sum, t) => sum + t.available, 0) || 0;
+        const soldTickets = totalTickets - availableTickets;
+        const soldPercentage = totalTickets > 0 ? (soldTickets / totalTickets * 100).toFixed(0) : 0;
         
         const statusColors = {
           published: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
@@ -188,57 +209,81 @@ async function loadRecentEvents() {
           cancelled: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
         };
         
-        // Determine link based on status: draft -> edit, published -> analytics
-        const eventLink = event.status === 'draft' 
-          ? `/dashboard/organizer/events/edit/?id=${event.id}`
-          : `/dashboard/organizer/events/analytics/?id=${event.id}`;
-        
         return `
-          <a href="${eventLink}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all group">
-            <div class="flex flex-col sm:flex-row sm:h-48">
-              <!-- Event Image -->
-              <div class="relative w-full sm:w-80 h-56 sm:h-auto bg-neutral-200 dark:bg-neutral-800 overflow-hidden shrink-0">
-                ${event.image_url ? `
-                  <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                ` : `
-                  <div class="w-full h-full flex items-center justify-center">
-                    <svg class="w-16 h-16 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6"/>
-                      <line x1="8" y1="2" x2="8" y2="6"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                  </div>
-                `}
-                <div class="absolute top-3 right-3">
-                  <span class="text-xs px-3 py-1 rounded-full ${statusColors[event.status] || statusColors.draft} backdrop-blur-sm font-medium">
-                    ${event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+          <div class="glass rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all group">
+            <!-- Event Image -->
+            <div class="relative h-48 bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+              ${event.image_url ? `
+                <img src="${event.image_url}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              ` : `
+                <div class="w-full h-full flex items-center justify-center">
+                  <svg class="w-16 h-16 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="3" y1="9" x2="21" y2="9"/>
+                    <line x1="9" y1="21" x2="9" y2="9"/>
+                  </svg>
+                </div>
+              `}
+              <div class="absolute top-3 right-3">
+                <span class="text-xs px-3 py-1.5 rounded-full ${statusColors[event.status] || statusColors.draft} font-medium backdrop-blur-sm">
+                  ${event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                </span>
+              </div>
+              ${isPast ? `
+                <div class="absolute top-3 left-3">
+                  <span class="text-xs px-3 py-1.5 rounded-full bg-neutral-900/80 text-white font-medium backdrop-blur-sm">
+                    Past Event
                   </span>
+                </div>
+              ` : ''}
+            </div>
+            
+            <!-- Event Info -->
+            <div class="p-4">
+              <h3 class="font-bold text-lg mb-2 line-clamp-2">${event.title}</h3>
+              
+              <div class="space-y-2 text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                  </svg>
+                  <span>${formattedDate}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <span class="truncate">${event.location || 'TBA'}</span>
                 </div>
               </div>
               
-              <!-- Event Details -->
-              <div class="flex-1 p-4 sm:p-6 flex flex-col justify-center">
-                <h3 class="text-xl sm:text-2xl font-bold mb-4 line-clamp-2">${event.title}</h3>
-                <div class="space-y-3">
-                  <div class="flex items-center gap-3 text-base text-neutral-600 dark:text-neutral-400">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <path d="M16 2v4M8 2v4M3 10h18"/>
-                    </svg>
-                    <span class="truncate">${eventDate}</span>
-                  </div>
-                  <div class="flex items-center gap-3 text-base text-neutral-600 dark:text-neutral-400">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span class="truncate">${event.location || 'TBA'}</span>
-                  </div>
+              <!-- Ticket Stats -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between text-sm mb-2">
+                  <span class="text-neutral-600 dark:text-neutral-400">Tickets Sold</span>
+                  <span class="font-semibold">${soldTickets} / ${totalTickets}</span>
+                </div>
+                <div class="w-full h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all" style="width: ${soldPercentage}%"></div>
                 </div>
               </div>
+              
+              <!-- Actions -->
+              <div class="grid grid-cols-2 gap-2 mb-2">
+                <a href="/dashboard/organizer/events/edit/?id=${event.id}" class="px-3 py-2 text-center rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
+                  Edit
+                </a>
+                <a href="/dashboard/organizer/events/analytics/?id=${event.id}" class="px-3 py-2 text-center rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors text-sm font-medium">
+                  Stats
+                </a>
+              </div>
+              <a href="/dashboard/organizer/scan/?event=${event.id}" class="block w-full px-3 py-2 text-center rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
+                Scan Tickets
+              </a>
             </div>
-          </a>
+          </div>
         `;
       }).join('');
     }

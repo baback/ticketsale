@@ -160,17 +160,17 @@ function renderEvents() {
             </div>
             
             <!-- Actions -->
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-2 gap-2 mb-2">
               <a href="/dashboard/organizer/events/edit/?id=${event.id}" class="px-3 py-2 text-center rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
                 Edit
-              </a>
-              <a href="/dashboard/organizer/scan/?event=${event.id}" class="px-3 py-2 text-center rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
-                Scan
               </a>
               <a href="/dashboard/organizer/events/analytics/?id=${event.id}" class="px-3 py-2 text-center rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors text-sm font-medium">
                 Stats
               </a>
             </div>
+            <a href="/dashboard/organizer/scan/?event=${event.id}" class="block w-full px-3 py-2 text-center rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
+              Scan Tickets
+            </a>
           </div>
         </div>
       `;
