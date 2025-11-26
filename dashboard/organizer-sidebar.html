@@ -10,16 +10,6 @@
 
     <!-- Navigation -->
     <nav class="flex-1 p-4 space-y-2">
-        <a href="/dashboard/organizer/" data-nav="overview" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm font-medium">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7"/>
-                <rect x="14" y="3" width="7" height="7"/>
-                <rect x="14" y="14" width="7" height="7"/>
-                <rect x="3" y="14" width="7" height="7"/>
-            </svg>
-            <span>Overview</span>
-        </a>
-        
         <a href="/dashboard/organizer/events/" data-nav="events" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm font-medium">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -38,12 +28,22 @@
             <span>Create Event</span>
         </a>
         
-        <a href="/dashboard/organizer/settings/" data-nav="settings" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm font-medium">
+        <a href="/dashboard/organizer/revenue/" data-nav="revenue" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm font-medium">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
-            <span>Settings</span>
+            <span>Revenue</span>
+        </a>
+        
+        <a href="/dashboard/organizer/team/" data-nav="team" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all text-sm font-medium">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>Team</span>
         </a>
     </nav>
 
@@ -114,16 +114,6 @@
 <!-- Mobile Bottom Navigation -->
 <nav class="lg:hidden fixed bottom-0 left-0 right-0 glass border-t border-neutral-200 dark:border-neutral-800 z-50 pb-safe">
     <div class="flex items-center justify-around px-2 py-3">
-        <a href="/dashboard/organizer/" data-nav="overview" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors min-w-0">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7"/>
-                <rect x="14" y="3" width="7" height="7"/>
-                <rect x="14" y="14" width="7" height="7"/>
-                <rect x="3" y="14" width="7" height="7"/>
-            </svg>
-            <span class="text-xs font-medium">Home</span>
-        </a>
-        
         <a href="/dashboard/organizer/events/" data-nav="events" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors min-w-0">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -144,12 +134,22 @@
             <span class="text-xs font-medium">Create</span>
         </a>
         
-        <a href="/dashboard/organizer/settings/" data-nav="settings" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors min-w-0">
+        <a href="/dashboard/organizer/revenue/" data-nav="revenue" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors min-w-0">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
-            <span class="text-xs font-medium">Settings</span>
+            <span class="text-xs font-medium">Revenue</span>
+        </a>
+        
+        <a href="/dashboard/organizer/team/" data-nav="team" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors min-w-0">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span class="text-xs font-medium">Team</span>
         </a>
         
         <button type="button" id="mobileUserMenuBtn" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors min-w-0">

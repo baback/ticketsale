@@ -168,8 +168,7 @@
         (navType === 'overview' && path === '/dashboard') ||
         (navType === 'overview' && path === '/dashboard/') ||
         (navType === 'mytickets' && path.includes('/dashboard/mytickets')) ||
-        (navType === 'events' && path.includes('/dashboard/events')) ||
-        (navType === 'settings' && path.includes('/dashboard/settings'))
+        (navType === 'events' && path.includes('/dashboard/events'))
       ) {
         link.classList.add('bg-neutral-100', 'dark:bg-neutral-800');
       }

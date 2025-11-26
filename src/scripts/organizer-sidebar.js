@@ -171,10 +171,10 @@
       
       const navType = link.getAttribute('data-nav');
       if (
-        (navType === 'overview' && (path === '/dashboard/organizer' || path === '/dashboard/organizer/')) ||
         (navType === 'events' && path.includes('/dashboard/organizer/events') && !path.includes('/create')) ||
         (navType === 'create' && path.includes('/dashboard/organizer/events/create')) ||
-        (navType === 'settings' && path.includes('/dashboard/settings'))
+        (navType === 'revenue' && path.includes('/dashboard/organizer/revenue')) ||
+        (navType === 'team' && path.includes('/dashboard/organizer/team'))
       ) {
         link.classList.add('bg-neutral-100', 'dark:bg-neutral-800');
       }
