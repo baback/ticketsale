@@ -127,8 +127,15 @@ async function loadDashboardStats() {
     // Count active (published) events
     const activeEvents = events.filter(e => e.status === 'published').length;
     
-    // Update UI
-    document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+    // Update UI with formatted currency
+    const formattedRevenue = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(totalRevenue);
+    
+    document.getElementById('totalRevenue').textContent = formattedRevenue;
     document.getElementById('ticketsSold').textContent = ticketsSold;
     document.getElementById('activeEvents').textContent = activeEvents;
     document.getElementById('totalViews').textContent = '0'; // TODO: Implement view tracking
