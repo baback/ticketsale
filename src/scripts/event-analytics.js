@@ -1,5 +1,15 @@
 // Event Analytics Script
 
+// Format currency helper
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount || 0);
+}
+
 // Initialize theme
 if (localStorage.getItem('theme') === 'dark') {
   document.documentElement.classList.add('dark');
@@ -273,11 +283,11 @@ function processAnalytics(orders, tickets, ticketTypes, pageViews, conversions) 
 
 // Display metrics
 function displayMetrics(data) {
-  document.getElementById('totalRevenue').textContent = `$${data.totalRevenue.toFixed(2)}`;
+  document.getElementById('totalRevenue').textContent = formatCurrency(data.totalRevenue);
   document.getElementById('ticketsSold').textContent = data.ticketsSold;
   document.getElementById('ticketsAvailable').textContent = data.totalAvailable;
   document.getElementById('totalOrders').textContent = data.totalOrders;
-  document.getElementById('avgOrderValue').textContent = `Avg: $${data.avgOrderValue.toFixed(2)}`;
+  document.getElementById('avgOrderValue').textContent = `Avg: ${formatCurrency(data.avgOrderValue)}`;
   document.getElementById('checkIns').textContent = data.checkIns;
   document.getElementById('checkInRate').textContent = `${data.checkInRate.toFixed(1)}% attendance`;
 }
@@ -419,7 +429,7 @@ function displayRecentOrders(orders) {
       <td class="py-3 px-4 text-sm font-mono">#${order.id.slice(0, 8)}</td>
       <td class="py-3 px-4 text-sm">${order.customer_name || order.customer_email || 'Guest'}</td>
       <td class="py-3 px-4 text-sm">${ticketCount}</td>
-      <td class="py-3 px-4 text-sm font-semibold">$${parseFloat(order.total_amount || 0).toFixed(2)}</td>
+      <td class="py-3 px-4 text-sm font-semibold">${formatCurrency(parseFloat(order.total_amount || 0))}</td>
       <td class="py-3 px-4">
         <span class="px-2 py-1 rounded-full text-xs font-medium ${statusColors[order.status] || statusColors.pending}">
           ${order.status}
@@ -445,7 +455,7 @@ function displayTicketTypes(ticketTypeStats) {
       <div class="flex items-center justify-between mb-2">
         <div>
           <div class="font-semibold">${tt.name}</div>
-          <div class="text-sm text-neutral-600 dark:text-neutral-400">$${tt.price.toFixed(2)} per ticket</div>
+          <div class="text-sm text-neutral-600 dark:text-neutral-400">${formatCurrency(tt.price)} per ticket</div>
         </div>
         <div class="text-right">
           <div class="text-2xl font-bold">${tt.sold}</div>
@@ -457,7 +467,7 @@ function displayTicketTypes(ticketTypeStats) {
       </div>
       <div class="flex items-center justify-between text-sm">
         <span class="text-neutral-600 dark:text-neutral-400">${soldPercentage.toFixed(1)}% sold</span>
-        <span class="font-semibold">Revenue: $${tt.revenue.toFixed(2)}</span>
+        <span class="font-semibold">Revenue: ${formatCurrency(tt.revenue)}</span>
       </div>
     `;
     container.appendChild(div);

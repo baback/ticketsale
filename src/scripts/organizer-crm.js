@@ -70,9 +70,13 @@ async function loadCustomers(organizerId) {
     allCustomers = Array.from(customerMap.values());
     
     // Update stats
-    document.getElementById('totalCustomers').textContent = allCustomers.length;
-    document.getElementById('totalOrders').textContent = orders.length;
-    document.getElementById('totalRevenue').textContent = formatCurrency(
+    const totalCustomersEl = document.getElementById('totalCustomers');
+    const totalOrdersEl = document.getElementById('totalOrders');
+    const totalRevenueEl = document.getElementById('totalRevenue');
+    
+    totalCustomersEl.textContent = allCustomers.length;
+    totalOrdersEl.textContent = orders.length;
+    totalRevenueEl.textContent = formatCurrency(
       orders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0)
     );
 
@@ -125,6 +129,6 @@ function filterCustomers(query) {
 }
 
 // Initialize on page load
-if (window.location.pathname.includes('/customers/') && !window.location.pathname.includes('/profile/')) {
+if (window.location.pathname.includes('/crm/') && !window.location.pathname.includes('/profile/')) {
   document.addEventListener('DOMContentLoaded', initCRM);
 }

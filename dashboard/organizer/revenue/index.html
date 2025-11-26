@@ -23,15 +23,21 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
                     <div class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">Total Revenue</div>
-                    <div class="text-3xl font-bold" id="totalRevenue">$0.00</div>
+                    <div class="text-3xl font-bold" id="totalRevenue">
+                        <div class="h-9 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    </div>
                 </div>
                 <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
                     <div class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">Available Balance</div>
-                    <div class="text-3xl font-bold text-green-600 dark:text-green-400" id="availableBalance">$0.00</div>
+                    <div class="text-3xl font-bold text-green-600 dark:text-green-400" id="availableBalance">
+                        <div class="h-9 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    </div>
                 </div>
                 <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
                     <div class="text-sm text-neutral-600 dark:text-neutral-400 mb-2">Pending Withdrawals</div>
-                    <div class="text-3xl font-bold text-yellow-600 dark:text-yellow-400" id="pendingWithdrawals">$0.00</div>
+                    <div class="text-3xl font-bold text-yellow-600 dark:text-yellow-400" id="pendingWithdrawals">
+                        <div class="h-9 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    </div>
                 </div>
             </div>
 
@@ -52,7 +58,14 @@
             <div class="glass rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800 mb-8">
                 <h3 class="font-semibold mb-4">Withdrawal Requests</h3>
                 <div id="withdrawalRequests" class="space-y-3">
-                    <div class="text-center py-8 text-neutral-600 dark:text-neutral-400">No withdrawal requests</div>
+                    <!-- Skeleton Loading -->
+                    <div class="flex items-center justify-between p-4 rounded-xl border border-neutral-200 dark:border-neutral-800">
+                        <div>
+                            <div class="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+                            <div class="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                        </div>
+                        <div class="h-6 w-20 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div>
+                    </div>
                 </div>
             </div>
 
