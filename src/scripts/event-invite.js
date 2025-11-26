@@ -588,15 +588,46 @@ async function loadCrmContacts() {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
-    const { data: contacts, error } = await supabase
-      .from('crm_contacts')
-      .select('*')
-      .eq('organizer_id', user.id)
+    // Get unique customers from orders for this organizer's events
+    const { data: events } = await supabase
+      .from('events')
+      .select('id')
+      .eq('organizer_id', user.id);
+    
+    if (!events || events.length === 0) {
+      crmContacts = [];
+      filteredCrmContacts = [];
+      renderCrmContacts();
+      return;
+    }
+    
+    const eventIds = events.map(e => e.id);
+    
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('customer_name, customer_email')
+      .in('event_id', eventIds)
+      .not('customer_email', 'is', null)
+      .not('customer_name', 'is', null)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
     
-    crmContacts = contacts || [];
+    // Get unique contacts by email
+    const uniqueContacts = [];
+    const seenEmails = new Set();
+    
+    orders?.forEach(order => {
+      if (!seenEmails.has(order.customer_email)) {
+        seenEmails.add(order.customer_email);
+        uniqueContacts.push({
+          name: order.customer_name,
+          email: order.customer_email
+        });
+      }
+    });
+    
+    crmContacts = uniqueContacts;
     filteredCrmContacts = crmContacts;
     renderCrmContacts();
   } catch (error) {
