@@ -190,7 +190,7 @@ async function loadRecentEvents() {
         
         return `
           <a href="/dashboard/organizer/events/edit/?id=${event.id}" class="block glass rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all group">
-            <div class="flex flex-col sm:flex-row">
+            <div class="flex flex-col sm:flex-row sm:h-48">
               <!-- Event Image -->
               <div class="relative w-full sm:w-80 h-56 sm:h-auto bg-neutral-200 dark:bg-neutral-800 overflow-hidden shrink-0">
                 ${event.image_url ? `
