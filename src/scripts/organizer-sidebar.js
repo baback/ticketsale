@@ -232,7 +232,7 @@
         (navType === 'create' && path.includes('/dashboard/organizer/events/create')) ||
         (navType === 'revenue' && path.includes('/dashboard/organizer/revenue')) ||
         (navType === 'team' && path.includes('/dashboard/organizer/team')) ||
-        (navType === 'customers' && path.includes('/dashboard/organizer/customers'))
+        (navType === 'crm' && path.includes('/dashboard/organizer/crm'))
       ) {
         link.classList.add('bg-neutral-100', 'dark:bg-neutral-800');
       }

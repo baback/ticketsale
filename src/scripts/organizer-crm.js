@@ -91,7 +91,7 @@ function displayCustomers(customers) {
   }
 
   container.innerHTML = customers.map(customer => `
-    <a href="/dashboard/organizer/customers/profile/?email=${encodeURIComponent(customer.email)}" 
+    <a href="/dashboard/organizer/crm/profile/?email=${encodeURIComponent(customer.email)}" 
        class="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-semibold">

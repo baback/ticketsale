@@ -19,7 +19,7 @@ async function initCustomerProfile() {
   const customerEmail = urlParams.get('email');
 
   if (!customerEmail) {
-    window.location.href = '/dashboard/organizer/customers/';
+    window.location.href = '/dashboard/organizer/crm/';
     return;
   }
 
@@ -50,7 +50,7 @@ async function loadCustomerProfile(organizerId, customerEmail) {
 
     if (!orders || orders.length === 0) {
       alert('Customer not found');
-      window.location.href = '/dashboard/organizer/customers/';
+      window.location.href = '/dashboard/organizer/crm/';
       return;
     }
 
