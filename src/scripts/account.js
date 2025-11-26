@@ -12,6 +12,9 @@
   // Load user data
   loadUserData();
 
+  // Tab switching
+  initTabs();
+
   // Save profile
   document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
 
@@ -21,6 +24,34 @@
   // Logout
   document.getElementById('logoutBtn').addEventListener('click', logout);
 })();
+
+function initTabs() {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.getAttribute('data-tab');
+
+      // Update button states
+      tabBtns.forEach(b => {
+        b.classList.remove('active', 'border-black', 'dark:border-white');
+        b.classList.add('border-transparent', 'text-neutral-600', 'dark:text-neutral-400');
+      });
+      btn.classList.add('active', 'border-black', 'dark:border-white');
+      btn.classList.remove('border-transparent', 'text-neutral-600', 'dark:text-neutral-400');
+
+      // Update content visibility
+      tabContents.forEach(content => {
+        if (content.id === `${targetTab}Tab`) {
+          content.classList.remove('hidden');
+        } else {
+          content.classList.add('hidden');
+        }
+      });
+    });
+  });
+}
 
 async function loadUserData() {
   const { data: { session } } = await supabase.auth.getSession();
