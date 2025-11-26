@@ -117,7 +117,6 @@ function displayPurchaseHistory(orders) {
         <div class="text-right">
           <div class="font-semibold">${formatCurrency(order.total)}</div>
           <div class="text-sm text-neutral-600 dark:text-neutral-400">${order.tickets?.length || 0} ticket${order.tickets?.length !== 1 ? 's' : ''}</div>
-          <a href="/dashboard/mytickets/order/?id=${order.id}" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">View Order</a>
         </div>
       </div>
     `;
