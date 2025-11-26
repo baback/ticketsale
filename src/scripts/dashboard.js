@@ -409,17 +409,17 @@ async function loadTickets() {
               
               <!-- Event Details -->
               <div class="flex-1 p-4 sm:p-6 flex flex-col justify-center">
-                <h3 class="text-lg sm:text-xl font-semibold mb-3 line-clamp-2">${event.title}</h3>
-                <div class="space-y-2">
-                  <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 class="text-xl sm:text-2xl font-bold mb-4 line-clamp-2">${event.title}</h3>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3 text-base text-neutral-600 dark:text-neutral-400">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                       <path d="M16 2v4M8 2v4M3 10h18"/>
                     </svg>
                     <span class="truncate">${eventDate}</span>
                   </div>
-                  <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="flex items-center gap-3 text-base text-neutral-600 dark:text-neutral-400">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
