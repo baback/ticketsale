@@ -25,6 +25,13 @@
     } catch (error) {
       console.error('Error loading sidebar:', error);
     }
+  } else {
+    // Check if sidebar is already loaded (e.g., in account page with dynamicSidebar)
+    const dynamicSidebar = document.getElementById('dynamicSidebar');
+    if (dynamicSidebar && dynamicSidebar.innerHTML.trim() !== '') {
+      // Sidebar already loaded, just initialize functionality
+      initSidebarFunctionality();
+    }
   }
 
   function initSidebarFunctionality() {

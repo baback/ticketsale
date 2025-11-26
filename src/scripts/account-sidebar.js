@@ -48,9 +48,15 @@ async function loadOrganizerSidebar() {
     const sidebarHTML = await response.text();
     sidebarContainer.innerHTML = sidebarHTML;
     
+    // Wait for DOM to update
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
     // Load organizer sidebar script
     const script = document.createElement('script');
     script.src = '/src/scripts/organizer-sidebar.js';
+    script.onload = () => {
+      console.log('Organizer sidebar script loaded');
+    };
     document.body.appendChild(script);
   } catch (error) {
     console.error('Error loading organizer sidebar:', error);
@@ -66,9 +72,15 @@ async function loadBuyerSidebar() {
     const sidebarHTML = await response.text();
     sidebarContainer.innerHTML = sidebarHTML;
     
+    // Wait for DOM to update
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
     // Load buyer sidebar script
     const script = document.createElement('script');
     script.src = '/src/scripts/dashboard-sidebar.js';
+    script.onload = () => {
+      console.log('Buyer sidebar script loaded');
+    };
     document.body.appendChild(script);
   } catch (error) {
     console.error('Error loading buyer sidebar:', error);
