@@ -104,6 +104,7 @@
 
     // Role switch buttons
     const switchModeBtn = document.getElementById('switchModeBtn');
+    const mobileSwitchToBuyerBtn = document.getElementById('mobileSwitchToBuyerBtn');
     const roleSwitchModal = document.getElementById('roleSwitchModal');
     const cancelRoleSwitch = document.getElementById('cancelRoleSwitch');
     const confirmRoleSwitch = document.getElementById('confirmRoleSwitch');
@@ -111,6 +112,15 @@
     if (switchModeBtn) {
       switchModeBtn.addEventListener('click', () => {
         roleSwitchModal.classList.remove('hidden');
+      });
+    }
+
+    if (mobileSwitchToBuyerBtn) {
+      mobileSwitchToBuyerBtn.addEventListener('click', () => {
+        roleSwitchModal.classList.remove('hidden');
+        // Close mobile modal
+        const mobileUserModal = document.getElementById('mobileUserModal');
+        if (mobileUserModal) mobileUserModal.classList.add('hidden');
       });
     }
 
