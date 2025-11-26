@@ -179,10 +179,24 @@ async function handleAccept() {
 
   } catch (error) {
     console.error('Error accepting invitation:', error);
+    console.error('Full error object:', JSON.stringify(error, null, 2));
     loadingToast.hideToast();
     
-    // Show user-friendly error message
-    const errorMessage = error.message || 'Failed to process RSVP. Please try again.';
+    // Try to extract error message from different possible locations
+    let errorMessage = 'Failed to process RSVP. Please try again.';
+    
+    if (error.context?.body) {
+      try {
+        const body = JSON.parse(error.context.body);
+        errorMessage = body.error || errorMessage;
+      } catch (e) {
+        // Ignore parse error
+      }
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    console.log('Extracted error message:', errorMessage);
     toast.error(errorMessage);
     
     // If invitation already processed, show appropriate state
