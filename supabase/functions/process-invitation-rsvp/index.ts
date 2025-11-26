@@ -106,42 +106,52 @@ serve(async (req) => {
       }
     }
 
-    // Create order
+    // Create order (using service role to bypass RLS)
+    console.log('Creating order for user:', userId)
     const { data: order, error: orderError } = await supabaseClient
       .from('orders')
       .insert({
         event_id: invitation.event_id,
         user_id: userId,
-        email: invitation.invitee_email,
-        total: 0.00,
+        customer_email: invitation.invitee_email,
+        customer_name: invitation.invitee_name,
+        total_amount: 0.00,
         subtotal: 0.00,
-        fees: 0.00,
+        service_fee: 0.00,
+        discount_amount: 0.00,
+        total: 0.00,
         status: 'completed',
-        payment_method: 'invitation',
-        payment_intent_id: null
+        payment_intent_id: 'invitation-' + invitation.invitation_token,
+        currency: 'cad'
       })
       .select()
       .single()
 
-    if (orderError || !order) {
-      throw new Error('Failed to create order')
+    if (orderError) {
+      console.error('Order creation error:', orderError)
+      throw new Error(`Failed to create order: ${orderError.message || JSON.stringify(orderError)}`)
     }
+
+    if (!order) {
+      throw new Error('Order creation returned no data')
+    }
+
+    console.log('Order created successfully:', order.id)
 
     // Generate tickets
     const tickets = []
     for (let i = 0; i < invitation.quantity; i++) {
       const qrCode = `${order.id}-${invitation.ticket_type_id}-${Date.now()}-${Math.random().toString(36).substring(7)}`
+      const ticketNumber = `TKT-${Date.now()}-${i + 1}`
       
       tickets.push({
         order_id: order.id,
         event_id: invitation.event_id,
         ticket_type_id: invitation.ticket_type_id,
         user_id: userId,
-        attendee_name: invitation.invitee_name,
-        attendee_email: invitation.invitee_email,
         qr_code: qrCode,
-        status: 'valid',
-        checked_in: false
+        ticket_number: ticketNumber,
+        status: 'valid'
       })
     }
 
@@ -150,7 +160,8 @@ serve(async (req) => {
       .insert(tickets)
 
     if (ticketsError) {
-      throw new Error('Failed to generate tickets')
+      console.error('Ticket creation error:', ticketsError)
+      throw new Error(`Failed to generate tickets: ${ticketsError.message || JSON.stringify(ticketsError)}`)
     }
 
     // Update ticket type availability
@@ -175,8 +186,53 @@ serve(async (req) => {
       })
       .eq('id', invitation.id)
 
-    // TODO: Send ticket confirmation email
-    // You can call your email service here
+    // Generate PDF for tickets
+    try {
+      const pdfResponse = await fetch(
+        `${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-ticket-pdf`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({ order_id: order.id })
+        }
+      )
+
+      if (!pdfResponse.ok) {
+        console.error('Failed to generate PDF:', await pdfResponse.text())
+      } else {
+        console.log('PDF generated successfully')
+      }
+    } catch (pdfError) {
+      console.error('Error generating PDF:', pdfError)
+      // Don't fail the whole process if PDF generation fails
+    }
+
+    // Send ticket confirmation email
+    try {
+      const emailResponse = await fetch(
+        `${Deno.env.get('SUPABASE_URL')}/functions/v1/send-ticket-confirmation`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({ order_id: order.id })
+        }
+      )
+
+      if (!emailResponse.ok) {
+        console.error('Failed to send ticket confirmation email:', await emailResponse.text())
+      } else {
+        console.log('Ticket confirmation email sent successfully')
+      }
+    } catch (emailError) {
+      console.error('Error sending ticket confirmation email:', emailError)
+      // Don't fail the whole process if email fails
+    }
 
     return new Response(
       JSON.stringify({
