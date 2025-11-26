@@ -60,12 +60,23 @@ async function loadEvents() {
 // Setup event listeners
 function setupEventListeners() {
     document.getElementById('eventSelect').addEventListener('change', handleEventSelect);
-    document.getElementById('manualCheckBtn').addEventListener('click', handleManualCheck);
-    document.getElementById('manualTicketId').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleManualCheck();
-    });
     
-    // Filter buttons
+    const manualCheckBtn = document.getElementById('manualCheckBtn');
+    const manualTicketId = document.getElementById('manualTicketId');
+    
+    if (manualCheckBtn) {
+        manualCheckBtn.addEventListener('click', handleManualCheck);
+    }
+    
+    if (manualTicketId) {
+        manualTicketId.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleManualCheck();
+        });
+    }
+}
+
+// Setup filter buttons (called after scanner section is shown)
+function setupFilterButtons() {
     document.querySelectorAll('.activity-filter-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const filter = e.target.getAttribute('data-filter');
@@ -108,6 +119,7 @@ async function handleEventSelect(e) {
     await loadEventData();
     await loadScanLogs(); // Load scan history from database
     document.getElementById('scannerSection').classList.remove('hidden');
+    setupFilterButtons(); // Setup filter buttons after section is shown
     startScanner();
 }
 
