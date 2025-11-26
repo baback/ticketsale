@@ -252,12 +252,122 @@ async function sendInvitationEmail(invitation) {
   try {
     const inviteUrl = `${window.location.origin}/invite/?id=${invitation.invitation_token}`;
     
-    // TODO: Implement email sending via Supabase Edge Function or Resend
-    // For now, we'll just log the URL
-    console.log('Invitation URL:', inviteUrl);
+    // Get event and organizer details
+    const eventDate = new Date(currentEvent.event_date).toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const ticketType = ticketTypes.find(t => t.id === invitation.ticket_type_id);
     
-    // You can call your email service here
-    // await fetch('/api/send-invitation-email', { ... });
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: organizer } = await supabase
+      .from('users')
+      .select('full_name')
+      .eq('id', user.id)
+      .single();
+
+    const organizerName = organizer?.full_name || user.email.split('@')[0];
+
+    // Prepare email data
+    const emailData = {
+      to: invitation.invitee_email,
+      subject: `You're invited to ${currentEvent.title}!`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td align="center" style="padding: 40px 0;">
+                <table role="presentation" style="width: 600px; max-width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                  <tr>
+                    <td style="padding: 40px 40px 20px; text-align: center;">
+                      <h1 style="margin: 0; font-size: 32px; font-weight: bold; color: #000000;">You're Invited!</h1>
+                      <p style="margin: 10px 0 0; font-size: 16px; color: #666666;">${organizerName} has invited you to an event</p>
+                    </td>
+                  </tr>
+                  ${currentEvent.image_url ? `
+                  <tr>
+                    <td style="padding: 0 40px;">
+                      <img src="${currentEvent.image_url}" alt="${currentEvent.title}" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px; display: block;">
+                    </td>
+                  </tr>
+                  ` : ''}
+                  <tr>
+                    <td style="padding: 30px 40px;">
+                      <h2 style="margin: 0 0 20px; font-size: 24px; font-weight: bold; color: #000000;">${currentEvent.title}</h2>
+                      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                          <td style="padding: 12px 0; border-bottom: 1px solid #e5e5e5; font-size: 16px; color: #333333;">
+                            📅 ${eventDate}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 12px 0; border-bottom: 1px solid #e5e5e5; font-size: 16px; color: #333333;">
+                            📍 ${currentEvent.location}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 12px 0; font-size: 16px; color: #333333;">
+                            🎟️ ${invitation.quantity}x ${ticketType?.name || 'Ticket'}
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 0 40px 40px; text-align: center;">
+                      <a href="${inviteUrl}" style="display: inline-block; padding: 16px 48px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 600;">
+                        RSVP Now
+                      </a>
+                      <p style="margin: 20px 0 0; font-size: 14px; color: #999999;">
+                        Or copy this link: ${inviteUrl}
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 30px 40px; background-color: #f9f9f9; text-align: center; border-top: 1px solid #e5e5e5;">
+                      <p style="margin: 0; font-size: 14px; color: #666666;">
+                        This invitation was sent by ${organizerName} via ticketsale.ca
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `
+    };
+
+    // Send via Resend API
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${window.RESEND_API_KEY || 're_123'}`, // Use your Resend API key
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'ticketsale.ca <noreply@ticketsale.ca>',
+        to: [emailData.to],
+        subject: emailData.subject,
+        html: emailData.html
+      })
+    });
+
+    if (!response.ok) {
+      console.error('Failed to send email:', await response.text());
+    }
     
   } catch (error) {
     console.error('Error sending email:', error);
