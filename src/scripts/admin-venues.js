@@ -156,39 +156,67 @@ function viewSeatMap(venueId) {
     const seatMap = venue.seat_map;
     const sections = seatMap.sections || [];
     
-    // Generate SVG
+    // Generate SVG - pixel perfect layout matching the image
     let svgContent = '';
-    let yOffset = 50;
+    
+    // Stage at bottom (y=750)
+    const stageY = 750;
+    const stageHeight = 60;
+    svgContent += `<rect x="200" y="${stageY}" width="800" height="${stageHeight}" class="fill-neutral-400 dark:fill-neutral-600"/>`;
+    svgContent += `<text x="600" y="${stageY + 38}" class="fill-neutral-900 dark:fill-white font-bold text-2xl" text-anchor="middle">STAGE</text>`;
+    
+    // Seat dimensions
+    const seatSize = 22;
+    const seatGap = 4;
+    const rowHeight = seatSize + seatGap;
+    const seatSpacing = seatSize + seatGap;
+    
+    // Starting Y position (Row A closest to stage, working upward)
+    const startY = stageY - 60; // Gap between stage and Row A
     
     sections.forEach((section, sectionIndex) => {
-        const xOffset = sectionIndex * 350 + 50;
+        let xOffset;
+        let labelOffset;
         
-        // Section title
-        svgContent += `<text x="${xOffset + 100}" y="${yOffset - 20}" class="fill-neutral-900 dark:fill-white font-bold text-sm">${section.name}</text>`;
+        // Position sections: House Right (left), House Centre (middle), House Left (right)
+        if (section.id === 'house-right') {
+            xOffset = 50;
+            labelOffset = -35;
+        } else if (section.id === 'house-centre') {
+            xOffset = 350;
+            labelOffset = -35;
+        } else if (section.id === 'house-left') {
+            xOffset = 750;
+            labelOffset = -35;
+        }
+        
+        // Section title at top
+        svgContent += `<text x="${xOffset + 100}" y="30" class="fill-neutral-900 dark:fill-white font-bold text-base">${section.name}</text>`;
         
         const rows = section.rows || [];
-        rows.forEach((row, rowIndex) => {
+        
+        // Reverse rows so A is at bottom (closest to stage)
+        const reversedRows = [...rows].reverse();
+        
+        reversedRows.forEach((row, rowIndex) => {
             const seats = section.seats[row] || [];
-            const rowY = yOffset + (rowIndex * 25);
+            const rowY = startY - (rowIndex * rowHeight);
             
-            // Row label
-            svgContent += `<text x="${xOffset - 20}" y="${rowY + 12}" class="fill-neutral-600 dark:fill-neutral-400 text-xs font-medium">${row}</text>`;
+            // Row label on left
+            svgContent += `<text x="${xOffset + labelOffset}" y="${rowY + 16}" class="fill-neutral-700 dark:fill-neutral-300 text-sm font-semibold">${row}</text>`;
             
             // Seats
             seats.forEach((seatNum, seatIndex) => {
-                const seatX = xOffset + (seatIndex * 20);
-                svgContent += `<rect x="${seatX}" y="${rowY}" width="16" height="16" rx="2" class="fill-neutral-200 dark:fill-neutral-800 stroke-neutral-400 dark:stroke-neutral-600" stroke-width="1"/>`;
-                svgContent += `<text x="${seatX + 8}" y="${rowY + 11}" class="fill-neutral-600 dark:fill-neutral-400 text-[8px]" text-anchor="middle">${seatNum}</text>`;
+                const seatX = xOffset + (seatIndex * seatSpacing);
+                
+                // Check if wheelchair accessible seat
+                const isWheelchair = seatMap.accessibility?.wheelchair_seats?.includes(`${row}-${seatNum}`);
+                
+                svgContent += `<rect x="${seatX}" y="${rowY}" width="${seatSize}" height="${seatSize}" rx="3" class="${isWheelchair ? 'fill-red-500' : 'fill-neutral-300 dark:fill-neutral-700'} stroke-neutral-500 dark:stroke-neutral-500" stroke-width="1"/>`;
+                svgContent += `<text x="${seatX + seatSize/2}" y="${rowY + 15}" class="fill-neutral-900 dark:fill-white text-[10px] font-medium" text-anchor="middle">${seatNum}</text>`;
             });
         });
     });
-
-    // Stage
-    if (seatMap.layout?.stage) {
-        const stage = seatMap.layout.stage;
-        svgContent += `<rect x="${stage.x}" y="${stage.y}" width="${stage.width}" height="${stage.height}" class="fill-neutral-300 dark:fill-neutral-700"/>`;
-        svgContent += `<text x="${stage.x + stage.width/2}" y="${stage.y + stage.height/2 + 5}" class="fill-neutral-900 dark:fill-white font-bold" text-anchor="middle">STAGE</text>`;
-    }
 
     modal.innerHTML = `
         <div class="bg-white dark:bg-neutral-950 rounded-2xl border border-neutral-200 dark:border-neutral-800 w-full max-w-6xl max-h-[90vh] overflow-auto">
@@ -211,11 +239,15 @@ function viewSeatMap(venueId) {
                 </div>
                 <div class="mt-4 flex items-center gap-4 text-sm">
                     <div class="flex items-center gap-2">
-                        <div class="w-4 h-4 rounded bg-neutral-200 dark:bg-neutral-800 border border-neutral-400 dark:border-neutral-600"></div>
+                        <div class="w-5 h-5 rounded bg-neutral-300 dark:bg-neutral-700 border border-neutral-500"></div>
                         <span class="text-neutral-600 dark:text-neutral-400">Available Seat</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <div class="w-16 h-6 rounded bg-neutral-300 dark:bg-neutral-700"></div>
+                        <div class="w-5 h-5 rounded bg-red-500"></div>
+                        <span class="text-neutral-600 dark:text-neutral-400">Wheelchair Accessible</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-16 h-6 rounded bg-neutral-400 dark:bg-neutral-600"></div>
                         <span class="text-neutral-600 dark:text-neutral-400">Stage</span>
                     </div>
                 </div>
