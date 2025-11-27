@@ -48,6 +48,73 @@
         </div>
     </main>
 
+    <!-- Edit Sidebar -->
+    <div id="editSidebar" class="fixed right-0 top-0 h-screen w-96 bg-white dark:bg-neutral-950 border-l border-neutral-200 dark:border-neutral-800 transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold">Edit Event</h2>
+                <button onclick="closeSidebar()" class="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="editEventId">
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Title</label>
+                    <input type="text" id="editTitle" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Description</label>
+                    <textarea id="editDescription" rows="4" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Location</label>
+                    <input type="text" id="editLocation" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Event Date</label>
+                    <input type="datetime-local" id="editEventDate" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Category</label>
+                    <input type="text" id="editCategory" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Status</label>
+                    <select id="editStatus" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Organizer</label>
+                    <input type="text" id="editOrganizer" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900" disabled>
+                </div>
+                
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeSidebar()" class="flex-1 px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform font-medium">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 hidden z-40" onclick="closeSidebar()"></div>
+
     <script src="/src/scripts/admin-guard.js"></script>
     <script>
         fetch('/admin/admin-sidebar.html')

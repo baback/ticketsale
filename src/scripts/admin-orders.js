@@ -72,7 +72,7 @@ function renderTable() {
                     });
 
                     return `
-                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer" onclick="openEditSidebar('${order.id}')"
                             <td class="py-4 px-4">
                                 <div class="font-mono text-xs">${order.id.slice(0, 8).toUpperCase()}</div>
                             </td>
@@ -98,9 +98,62 @@ function renderTable() {
     container.innerHTML = tableHtml;
 }
 
+// Edit sidebar functions
+function openEditSidebar(orderId) {
+    const order = allOrders.find(o => o.id === orderId);
+    if (!order) return;
+
+    document.getElementById('editOrderId').value = order.id;
+    document.getElementById('editOrderIdDisplay').value = order.id.slice(0, 8).toUpperCase();
+    document.getElementById('editCustomerName').value = order.customer_name || '';
+    document.getElementById('editCustomerEmail').value = order.customer_email || '';
+    document.getElementById('editEvent').value = order.events?.title || 'Unknown Event';
+    document.getElementById('editStatus').value = order.status || 'pending';
+    document.getElementById('editTotal').value = `$${parseFloat(order.total).toFixed(2)}`;
+    document.getElementById('editCreatedAt').value = new Date(order.created_at).toLocaleString();
+
+    document.getElementById('editSidebar').classList.remove('translate-x-full');
+    document.getElementById('sidebarOverlay').classList.remove('hidden');
+}
+
+function closeSidebar() {
+    document.getElementById('editSidebar').classList.add('translate-x-full');
+    document.getElementById('sidebarOverlay').classList.add('hidden');
+}
+
+async function saveOrder(e) {
+    e.preventDefault();
+
+    const orderId = document.getElementById('editOrderId').value;
+    const updates = {
+        customer_name: document.getElementById('editCustomerName').value,
+        status: document.getElementById('editStatus').value
+    };
+
+    try {
+        const { error } = await supabase
+            .from('orders')
+            .update(updates)
+            .eq('id', orderId);
+
+        if (error) throw error;
+
+        alert('Order updated successfully!');
+        closeSidebar();
+        await loadOrders();
+    } catch (error) {
+        console.error('Error updating order:', error);
+        alert('Failed to update order: ' + error.message);
+    }
+}
+
+window.openEditSidebar = openEditSidebar;
+window.closeSidebar = closeSidebar;
+
 // Event listeners
 document.getElementById('searchInput').addEventListener('input', filterOrders);
 document.getElementById('statusFilter').addEventListener('change', filterOrders);
+document.getElementById('editForm').addEventListener('submit', saveOrder);
 
 // Initialize
 loadOrders();

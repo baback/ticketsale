@@ -69,7 +69,7 @@ function renderTable() {
                     });
 
                     return `
-                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer" onclick="openEditSidebar('${event.id}')"
                             <td class="py-4 px-4">
                                 <div class="font-medium">${event.title}</div>
                                 <div class="text-sm text-neutral-600 dark:text-neutral-400">${event.category || 'Uncategorized'}</div>
@@ -95,9 +95,66 @@ function renderTable() {
     container.innerHTML = tableHtml;
 }
 
+// Edit sidebar functions
+function openEditSidebar(eventId) {
+    const event = allEvents.find(e => e.id === eventId);
+    if (!event) return;
+
+    document.getElementById('editEventId').value = event.id;
+    document.getElementById('editTitle').value = event.title || '';
+    document.getElementById('editDescription').value = event.description || '';
+    document.getElementById('editLocation').value = event.location || '';
+    document.getElementById('editEventDate').value = event.event_date ? new Date(event.event_date).toISOString().slice(0, 16) : '';
+    document.getElementById('editCategory').value = event.category || '';
+    document.getElementById('editStatus').value = event.status || 'draft';
+    document.getElementById('editOrganizer').value = event.users?.full_name || event.users?.email || 'Unknown';
+
+    document.getElementById('editSidebar').classList.remove('translate-x-full');
+    document.getElementById('sidebarOverlay').classList.remove('hidden');
+}
+
+function closeSidebar() {
+    document.getElementById('editSidebar').classList.add('translate-x-full');
+    document.getElementById('sidebarOverlay').classList.add('hidden');
+}
+
+async function saveEvent(e) {
+    e.preventDefault();
+
+    const eventId = document.getElementById('editEventId').value;
+    const updates = {
+        title: document.getElementById('editTitle').value,
+        description: document.getElementById('editDescription').value,
+        location: document.getElementById('editLocation').value,
+        event_date: document.getElementById('editEventDate').value,
+        category: document.getElementById('editCategory').value,
+        status: document.getElementById('editStatus').value
+    };
+
+    try {
+        const { error } = await supabase
+            .from('events')
+            .update(updates)
+            .eq('id', eventId);
+
+        if (error) throw error;
+
+        alert('Event updated successfully!');
+        closeSidebar();
+        await loadEvents();
+    } catch (error) {
+        console.error('Error updating event:', error);
+        alert('Failed to update event: ' + error.message);
+    }
+}
+
+window.openEditSidebar = openEditSidebar;
+window.closeSidebar = closeSidebar;
+
 // Event listeners
 document.getElementById('searchInput').addEventListener('input', filterEvents);
 document.getElementById('statusFilter').addEventListener('change', filterEvents);
+document.getElementById('editForm').addEventListener('submit', saveEvent);
 
 // Initialize
 loadEvents();
