@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="/src/styles/seat-map.css">
     <script>
         const SUPABASE_URL = 'https://ltvesfeyxyxdzyuqtrmr.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dmVzZmV5eHl4ZHp5dXF0cm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2ODE3MjksImV4cCI6MjA3NTI1NzcyOX0.7LqHe_nqNq_UEA7mi_H1DXBYeIhIg2wTjyMx-gshzBY';
@@ -96,6 +97,7 @@
         </div>
     </div>
 
+    <script src="/src/scripts/seat-map-renderer.js"></script>
     <script src="/src/scripts/admin-guard.js"></script>
     <script>
         fetch('/admin/admin-sidebar.html')

@@ -1,0 +1,174 @@
+/* Seat Map Styles */
+
+.seat-map-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.seat {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: 1.5px solid;
+    position: relative;
+}
+
+.seat-spacer {
+    width: 28px;
+    height: 28px;
+}
+
+/* Available seat */
+.seat.available {
+    background-color: #d4d4d8;
+    border-color: #a1a1aa;
+    color: #18181b;
+}
+
+.dark .seat.available {
+    background-color: #3f3f46;
+    border-color: #52525b;
+    color: #fafafa;
+}
+
+/* Hover state for interactive seats */
+.seat.interactive:not(:disabled):hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    cursor: pointer;
+}
+
+.seat.available.interactive:not(:disabled):hover {
+    background-color: #a3e635;
+    border-color: #84cc16;
+    color: #1a2e05;
+}
+
+.dark .seat.available.interactive:not(:disabled):hover {
+    background-color: #84cc16;
+    border-color: #65a30d;
+    color: #1a2e05;
+}
+
+/* Selected seat */
+.seat.selected {
+    background-color: #3b82f6;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.dark .seat.selected {
+    background-color: #2563eb;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+.seat.selected.interactive:not(:disabled):hover {
+    background-color: #2563eb;
+    border-color: #1d4ed8;
+}
+
+/* Sold seat */
+.seat.sold {
+    background-color: #e5e5e5;
+    border-color: #d4d4d4;
+    color: #a3a3a3;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.dark .seat.sold {
+    background-color: #262626;
+    border-color: #404040;
+    color: #525252;
+}
+
+/* Wheelchair accessible seat */
+.seat.wheelchair {
+    background-color: #ef4444;
+    border-color: #dc2626;
+    color: #ffffff;
+}
+
+.dark .seat.wheelchair {
+    background-color: #dc2626;
+    border-color: #b91c1c;
+    color: #ffffff;
+}
+
+.seat.wheelchair.interactive:not(:disabled):hover {
+    background-color: #dc2626;
+    border-color: #b91c1c;
+}
+
+/* Wheelchair icon overlay */
+.seat.wheelchair::before {
+    content: '♿';
+    position: absolute;
+    font-size: 10px;
+    top: -2px;
+    right: -2px;
+    background: white;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Row label */
+.row-label {
+    user-select: none;
+}
+
+/* Seat number */
+.seat-number {
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Section container */
+.seat-section {
+    user-select: none;
+}
+
+/* Zoom controls */
+.seat-map-controls button {
+    user-select: none;
+}
+
+/* Smooth transitions */
+.seat-map-content {
+    transition: transform 0.2s ease-out;
+}
+
+/* Loading state */
+.seat-map-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .seat {
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
+    }
+    
+    .seat-spacer {
+        width: 24px;
+        height: 24px;
+    }
+}
