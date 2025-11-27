@@ -103,44 +103,35 @@ class SeatMapRenderer {
         // Row label
         html += `<span class="row-label w-8 text-sm font-semibold text-neutral-700 dark:text-neutral-300 text-right mr-2">${rowLabel}</span>`;
         
-        // Seats container with proper alignment
-        html += '<div class="seats-container flex gap-1" style="min-width: 400px;">';
+        // Seats container - just render the actual seats, no spacers
+        html += '<div class="seats-container flex gap-1">';
         
-        // Calculate offset for seat positioning
-        const minSeat = Math.min(...seats);
-        const maxSeat = Math.max(...seats);
-        
-        // Render seats with proper spacing
-        for (let i = 1; i <= maxSeat; i++) {
-            if (seats.includes(i)) {
-                const seatId = `${rowLabel}-${i}`;
-                const isWheelchair = this.seatMapData.accessibility?.wheelchair_seats?.includes(seatId);
-                const isSold = this.options.soldSeats.includes(seatId);
-                const isSelected = this.options.selectedSeats.includes(seatId);
-                
-                let seatClass = 'seat available';
-                if (isSold) seatClass = 'seat sold';
-                else if (isSelected) seatClass = 'seat selected';
-                else if (isWheelchair) seatClass = 'seat wheelchair';
-                
-                html += `
-                    <button 
-                        class="${seatClass} ${this.options.interactive ? 'interactive' : ''}"
-                        data-seat-id="${seatId}"
-                        data-row="${rowLabel}"
-                        data-seat="${i}"
-                        data-section="${sectionId}"
-                        ${isSold ? 'disabled' : ''}
-                        title="Seat ${seatId}${isWheelchair ? ' (Wheelchair Accessible)' : ''}"
-                    >
-                        <span class="seat-number">${i}</span>
-                    </button>
-                `;
-            } else {
-                // Empty space for alignment
-                html += '<div class="seat-spacer"></div>';
-            }
-        }
+        // Only render actual seats, no spacers
+        seats.forEach((seatNum) => {
+            const seatId = `${rowLabel}-${seatNum}`;
+            const isWheelchair = this.seatMapData.accessibility?.wheelchair_seats?.includes(seatId);
+            const isSold = this.options.soldSeats.includes(seatId);
+            const isSelected = this.options.selectedSeats.includes(seatId);
+            
+            let seatClass = 'seat available';
+            if (isSold) seatClass = 'seat sold';
+            else if (isSelected) seatClass = 'seat selected';
+            else if (isWheelchair) seatClass = 'seat wheelchair';
+            
+            html += `
+                <button 
+                    class="${seatClass} ${this.options.interactive ? 'interactive' : ''}"
+                    data-seat-id="${seatId}"
+                    data-row="${rowLabel}"
+                    data-seat="${seatNum}"
+                    data-section="${sectionId}"
+                    ${isSold ? 'disabled' : ''}
+                    title="Seat ${seatId}${isWheelchair ? ' (Wheelchair Accessible)' : ''}"
+                >
+                    <span class="seat-number">${seatNum}</span>
+                </button>
+            `;
+        });
         
         html += '</div></div>';
         
