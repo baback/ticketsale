@@ -108,7 +108,6 @@ class SeatMapRenderer {
     renderRow(rowLabel, seats, sectionId) {
         // Determine row layout based on section
         let rowLayout = 'flex items-center gap-1';
-        let labelPosition = 'mr-2'; // label on left by default
         
         if (sectionId === 'house-right') {
             // House Right: label on left, seats on right
@@ -123,8 +122,8 @@ class SeatMapRenderer {
         
         let html = `<div class="seat-row ${rowLayout}">`;
         
-        // Row label
-        html += `<span class="row-label w-8 text-sm font-semibold text-neutral-700 dark:text-neutral-300 text-right ${labelPosition}">${rowLabel}</span>`;
+        // Row label on LEFT
+        html += `<span class="row-label w-8 text-sm font-semibold text-neutral-700 dark:text-neutral-300 text-right mr-2">${rowLabel}</span>`;
         
         // Seats container - just render the actual seats, no spacers
         html += '<div class="seats-container flex gap-1">';
@@ -156,7 +155,12 @@ class SeatMapRenderer {
             `;
         });
         
-        html += '</div></div>';
+        html += '</div>';
+        
+        // Row label on RIGHT
+        html += `<span class="row-label w-8 text-sm font-semibold text-neutral-700 dark:text-neutral-300 text-left ml-2">${rowLabel}</span>`;
+        
+        html += '</div>';
         
         return html;
     }
