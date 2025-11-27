@@ -6,7 +6,6 @@
     <title>Super Admin Dashboard - ticketsale.ca</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/src/scripts/shared.js"></script>
     <link rel="stylesheet" href="/src/styles/main.css">
 </head>
 <body class="bg-neutral-50 dark:bg-black text-neutral-900 dark:text-white">
@@ -90,7 +89,10 @@
         </div>
     </main>
 
-    <!-- Load Admin Guard FIRST -->
+    <!-- Initialize Supabase FIRST -->
+    <script src="/src/scripts/shared.js"></script>
+    
+    <!-- Load Admin Guard AFTER Supabase is initialized -->
     <script src="/src/scripts/admin-guard.js"></script>
     
     <!-- Load Sidebar -->

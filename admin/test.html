@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Test - ticketsale.ca</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/src/scripts/shared.js"></script>
+</head>
+<body style="font-family: system-ui; padding: 40px; background: #0a0a0a; color: white;">
+    <h1>Admin Access Test</h1>
+    <div id="status">Checking...</div>
+    <div id="details" style="margin-top: 20px; padding: 20px; background: #171717; border-radius: 12px;"></div>
+
+    <script>
+        async function testAccess() {
+            const statusEl = document.getElementById('status');
+            const detailsEl = document.getElementById('details');
+            
+            try {
+                // Step 1: Check session
+                statusEl.innerHTML = '1️⃣ Checking session...';
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError) {
+                    statusEl.innerHTML = '❌ Session Error';
+                    detailsEl.innerHTML = `<pre>${JSON.stringify(sessionError, null, 2)}</pre>`;
+                    return;
+                }
+                
+                if (!session) {
+                    statusEl.innerHTML = '❌ No Session';
+                    detailsEl.innerHTML = 'You are not logged in. <a href="/login/" style="color: #3b82f6;">Login here</a>';
+                    return;
+                }
+                
+                statusEl.innerHTML = '✅ Session found<br>2️⃣ Fetching user data...';
+                detailsEl.innerHTML = `<strong>User ID:</strong> ${session.user.id}<br><strong>Email:</strong> ${session.user.email}`;
+                
+                // Step 2: Fetch user from database
+                const { data: user, error: userError } = await supabase
+                    .from('users')
+                    .select('id, email, user_type, role')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
+                
+                if (userError) {
+                    statusEl.innerHTML = '❌ Database Error';
+                    detailsEl.innerHTML += `<br><br><strong>Error:</strong><pre>${JSON.stringify(userError, null, 2)}</pre>`;
+                    return;
+                }
+                
+                if (!user) {
+                    statusEl.innerHTML = '❌ User Not Found in Database';
+                    detailsEl.innerHTML += '<br><br>Your user record does not exist in the users table.';
+                    return;
+                }
+                
+                statusEl.innerHTML = '✅ User data fetched<br>3️⃣ Checking permissions...';
+                detailsEl.innerHTML += `<br><br><strong>User Type:</strong> ${user.user_type}<br><strong>Role:</strong> ${user.role}`;
+                
+                // Step 3: Check if super admin
+                if (user.user_type === 'super_admin') {
+                    statusEl.innerHTML = '✅✅✅ YOU ARE A SUPER ADMIN!';
+                    detailsEl.innerHTML += '<br><br><strong style="color: #22c55e; font-size: 20px;">Access Granted!</strong><br><br><a href="/admin/" style="display: inline-block; padding: 12px 24px; background: white; color: black; text-decoration: none; border-radius: 999px; font-weight: 600; margin-top: 10px;">Go to Admin Dashboard</a>';
+                } else {
+                    statusEl.innerHTML = '❌ Access Denied';
+                    detailsEl.innerHTML += `<br><br><strong style="color: #ef4444;">You are not a super admin.</strong><br>Your user_type is: <code>${user.user_type}</code>`;
+                }
+                
+            } catch (error) {
+                statusEl.innerHTML = '❌ Unexpected Error';
+                detailsEl.innerHTML = `<pre>${JSON.stringify(error, null, 2)}</pre>`;
+            }
+        }
+        
+        testAccess();
+    </script>
+</body>
+</html>
