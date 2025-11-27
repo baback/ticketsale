@@ -1,5 +1,5 @@
 <!-- Super Admin Sidebar -->
-<aside class="fixed left-0 top-0 h-screen w-64 bg-white dark:bg-neutral-950 border-r border-neutral-200 dark:border-neutral-800 flex flex-col z-50">
+<aside class="fixed left-0 top-0 h-screen w-64 bg-white dark:bg-neutral-950 border-r border-neutral-200 dark:border-neutral-800 flex flex-col z-50 overflow-hidden">
     <!-- Logo -->
     <div class="p-6 border-b border-neutral-200 dark:border-neutral-800">
         <a href="/admin/" class="flex items-center gap-3">
@@ -69,8 +69,8 @@
         </div>
     </nav>
 
-    <!-- User Info & Logout -->
-    <div class="p-4 border-t border-neutral-200 dark:border-neutral-800">
+    <!-- User Info & Logout (Fixed at bottom) -->
+    <div class="p-4 border-t border-neutral-200 dark:border-neutral-800 mt-auto">
         <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black font-bold">
                 <span id="adminUserInitial">A</span>
