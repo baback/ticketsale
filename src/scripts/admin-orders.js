@@ -72,7 +72,7 @@ function renderTable() {
                     });
 
                     return `
-                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer" onclick="openEditSidebar('${order.id}')"
+                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer" onclick="openEditSidebar('${order.id}')">
                             <td class="py-4 px-4">
                                 <div class="font-mono text-xs">${order.id.slice(0, 8).toUpperCase()}</div>
                             </td>

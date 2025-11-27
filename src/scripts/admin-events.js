@@ -69,7 +69,7 @@ function renderTable() {
                     });
 
                     return `
-                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer" onclick="openEditSidebar('${event.id}')"
+                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer" onclick="openEditSidebar('${event.id}')">
                             <td class="py-4 px-4">
                                 <div class="font-medium">${event.title}</div>
                                 <div class="text-sm text-neutral-600 dark:text-neutral-400">${event.category || 'Uncategorized'}</div>
