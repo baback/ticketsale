@@ -31,7 +31,7 @@ serve(async (req) => {
 
     console.log('Generating PDF for order:', order_id)
 
-    // Get order with items
+    // Get order
     const { data: order, error: orderError } = await supabaseClient
       .from('orders')
       .select('*')
@@ -66,7 +66,7 @@ serve(async (req) => {
       throw new Error('No tickets found')
     }
 
-    // Generate ticket HTML
+    // Generate ticket HTML - EXACT SAME AS STRIPE WEBHOOK
     const ticketsHtml = tickets.map(ticket => {
       const ticketType = ticket.ticket_types
 
@@ -79,14 +79,6 @@ serve(async (req) => {
         minute: '2-digit'
       })
 
-      // Build location string with address if available
-      let locationText = event.venue_name || event.location || 'TBA'
-      if (event.address && event.address !== event.venue_name && event.address !== event.location) {
-        locationText = event.address
-      } else if (event.venue_name && event.location && event.venue_name !== event.location) {
-        locationText = `${event.venue_name}, ${event.location}`
-      }
-
       return `
         <div class="ticket">
           <div class="ticket-header">
@@ -94,7 +86,7 @@ serve(async (req) => {
           </div>
           <div class="ticket-body">
             <h1 class="event-name">${event.title}</h1>
-            <p class="event-subtitle">${event.venue_name || event.location || 'Venue TBA'}</p>
+            <p class="event-subtitle">${event.location || 'Venue TBA'}</p>
             
             <div class="details-grid">
               <div class="detail-item">
@@ -107,7 +99,7 @@ serve(async (req) => {
               </div>
               <div class="detail-item">
                 <div class="detail-label">Location</div>
-                <div class="detail-value">${locationText}</div>
+                <div class="detail-value">${event.location || 'TBA'}</div>
               </div>
               <div class="detail-item">
                 <div class="detail-label">Order Number</div>
@@ -126,7 +118,7 @@ serve(async (req) => {
             <div class="qr-section">
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.qr_code)}" alt="QR Code" class="qr-code" />
               <div class="qr-label">Scan at Entry</div>
-              <div class="ticket-number">${ticket.ticket_number || ticket.qr_code}</div>
+              <div class="ticket-number">${ticket.qr_code}</div>
             </div>
           </div>
           <div class="ticket-footer">
@@ -139,7 +131,7 @@ serve(async (req) => {
       `
     }).join('')
 
-    // Build PDF HTML
+    // Build PDF HTML - EXACT SAME AS STRIPE WEBHOOK
     const pdfTemplate = `
 <!DOCTYPE html>
 <html lang="en">
@@ -164,7 +156,7 @@ serve(async (req) => {
         .qr-section { background: #ffffff; padding: 32px; border-radius: 16px; text-align: center; margin-top: 32px; }
         .qr-code { width: 200px; height: 200px; margin: 0 auto 16px; }
         .qr-label { font-size: 14px; color: #171717; font-weight: 600; margin-bottom: 4px; }
-        .ticket-number { font-size: 12px; color: #737373; font-family: 'Courier New', monospace; word-break: break-all; }
+        .ticket-number { font-size: 12px; color: #737373; font-family: 'Courier New', monospace; }
         .ticket-footer { background: #0a0a0a; padding: 24px 40px; border-top: 1px solid #404040; text-align: center; }
         .footer-text { font-size: 12px; color: #737373; line-height: 1.6; }
         .important-notice { background: #1e3a8a; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-top: 24px; }
@@ -179,7 +171,7 @@ serve(async (req) => {
 </body>
 </html>`
 
-    // Generate PDF using PDFShift
+    // Generate PDF using PDFShift - EXACT SAME AS STRIPE WEBHOOK
     const pdfShiftApiKey = Deno.env.get('PDFSHIFT_API_KEY')
     if (!pdfShiftApiKey) {
       throw new Error('PDFSHIFT_API_KEY not configured')
@@ -208,7 +200,7 @@ serve(async (req) => {
     const pdfBuffer = await pdfResponse.arrayBuffer()
     console.log('PDF generated successfully, size:', pdfBuffer.byteLength)
 
-    // Upload PDF to Supabase Storage
+    // Upload PDF to Supabase Storage - EXACT SAME AS STRIPE WEBHOOK
     const fileName = `${order.id}.pdf`
     const { data: uploadData, error: uploadError } = await supabaseClient.storage
       .from('ticket-pdfs')

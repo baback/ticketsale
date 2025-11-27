@@ -138,19 +138,14 @@ serve(async (req) => {
 
     console.log('Order created successfully:', order.id)
 
-    // Generate tickets
+    // Generate tickets (let database trigger generate qr_code and ticket_number)
     const tickets = []
     for (let i = 0; i < invitation.quantity; i++) {
-      const qrCode = `${order.id}-${invitation.ticket_type_id}-${Date.now()}-${Math.random().toString(36).substring(7)}`
-      const ticketNumber = `TKT-${Date.now()}-${i + 1}`
-      
       tickets.push({
         order_id: order.id,
         event_id: invitation.event_id,
         ticket_type_id: invitation.ticket_type_id,
         user_id: userId,
-        qr_code: qrCode,
-        ticket_number: ticketNumber,
         status: 'valid'
       })
     }
