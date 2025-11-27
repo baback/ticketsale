@@ -159,20 +159,33 @@ function viewSeatMap(venueId) {
     // Generate SVG - pixel perfect layout matching the image
     let svgContent = '';
     
-    // Stage at bottom (y=750)
-    const stageY = 750;
-    const stageHeight = 60;
-    svgContent += `<rect x="200" y="${stageY}" width="800" height="${stageHeight}" class="fill-neutral-400 dark:fill-neutral-600"/>`;
-    svgContent += `<text x="600" y="${stageY + 38}" class="fill-neutral-900 dark:fill-white font-bold text-2xl" text-anchor="middle">STAGE</text>`;
-    
     // Seat dimensions
     const seatSize = 22;
     const seatGap = 4;
     const rowHeight = seatSize + seatGap;
     const seatSpacing = seatSize + seatGap;
     
-    // Starting Y position (Row A closest to stage, working upward)
-    const startY = stageY - 60; // Gap between stage and Row A
+    // Find the earliest row (A is earliest) across all sections to position stage
+    const allRows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];
+    let earliestRowIndex = allRows.length;
+    sections.forEach(section => {
+        section.rows.forEach(row => {
+            const idx = allRows.indexOf(row);
+            if (idx !== -1 && idx < earliestRowIndex) {
+                earliestRowIndex = idx;
+            }
+        });
+    });
+    
+    // Calculate stage position - should be below the earliest row (Row A)
+    const topMargin = 50;
+    const rowAPosition = topMargin + (earliestRowIndex * rowHeight);
+    const stageY = rowAPosition + (allRows.length - earliestRowIndex) * rowHeight + 40;
+    const stageHeight = 60;
+    
+    // Draw stage at bottom
+    svgContent += `<rect x="200" y="${stageY}" width="800" height="${stageHeight}" class="fill-neutral-400 dark:fill-neutral-600"/>`;
+    svgContent += `<text x="600" y="${stageY + 38}" class="fill-neutral-900 dark:fill-white font-bold text-2xl" text-anchor="middle">STAGE</text>`;
     
     sections.forEach((section, sectionIndex) => {
         let xOffset;
@@ -195,19 +208,23 @@ function viewSeatMap(venueId) {
         
         const rows = section.rows || [];
         
-        // Reverse rows so A is at bottom (closest to stage)
-        const reversedRows = [...rows].reverse();
-        
-        reversedRows.forEach((row, rowIndex) => {
+        // Render rows from top to bottom (P to A visually, but A is at bottom near stage)
+        rows.forEach((row, rowIndex) => {
             const seats = section.seats[row] || [];
-            const rowY = startY - (rowIndex * rowHeight);
+            
+            // Calculate Y position: later rows (P, O, N...) at top, earlier rows (A, B, C...) at bottom
+            const rowIndexInAllRows = allRows.indexOf(row);
+            const rowY = topMargin + ((allRows.length - 1 - rowIndexInAllRows) * rowHeight);
             
             // Row label on left
             svgContent += `<text x="${xOffset + labelOffset}" y="${rowY + 16}" class="fill-neutral-700 dark:fill-neutral-300 text-sm font-semibold">${row}</text>`;
             
-            // Seats
+            // Seats - handle variable starting positions
+            const firstSeatNum = seats[0];
+            const seatOffset = (firstSeatNum - 1) * seatSpacing; // Offset based on first seat number
+            
             seats.forEach((seatNum, seatIndex) => {
-                const seatX = xOffset + (seatIndex * seatSpacing);
+                const seatX = xOffset + seatOffset + (seatIndex * seatSpacing);
                 
                 // Check if wheelchair accessible seat
                 const isWheelchair = seatMap.accessibility?.wheelchair_seats?.includes(`${row}-${seatNum}`);
