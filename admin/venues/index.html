@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venues - Super Admin - ticketsale.ca</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <script>
+        const SUPABASE_URL = 'https://ltvesfeyxyxdzyuqtrmr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dmVzZmV5eHl4ZHp5dXF0cm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2ODE3MjksImV4cCI6MjA3NTI1NzcyOX0.7LqHe_nqNq_UEA7mi_H1DXBYeIhIg2wTjyMx-gshzBY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.supabaseClient = supabase;
+    </script>
+</head>
+<body class="bg-neutral-50 dark:bg-black text-neutral-900 dark:text-white">
+    
+    <div id="adminSidebar"></div>
+
+    <main class="ml-64 min-h-screen p-8">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Venues</h1>
+                <p class="text-neutral-600 dark:text-neutral-400">Manage venues and their seat maps</p>
+            </div>
+            <button onclick="openAddModal()" class="px-4 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform font-medium">
+                Add Venue
+            </button>
+        </div>
+
+        <!-- Venues Table -->
+        <div class="bg-white dark:bg-neutral-950 rounded-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+            <div id="venuesTable" class="overflow-x-auto">
+                <div class="text-center py-8 text-neutral-500">Loading...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div id="venueModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-neutral-950 rounded-2xl border border-neutral-200 dark:border-neutral-800 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold" id="modalTitle">Add Venue</h2>
+                    <button onclick="closeModal()" class="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <form id="venueForm" class="space-y-4">
+                    <input type="hidden" id="venueId">
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Venue Name *</label>
+                        <input type="text" id="venueName" required class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Address</label>
+                        <input type="text" id="venueAddress" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">City</label>
+                            <input type="text" id="venueCity" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Country</label>
+                            <input type="text" id="venueCountry" value="Canada" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Capacity</label>
+                        <input type="number" id="venueCapacity" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Description</label>
+                        <textarea id="venueDescription" rows="3" class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white"></textarea>
+                    </div>
+                    
+                    <div class="pt-4 flex gap-3">
+                        <button type="button" onclick="closeModal()" class="flex-1 px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors font-medium">
+                            Cancel
+                        </button>
+                        <button type="submit" class="flex-1 px-4 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform font-medium">
+                            Save Venue
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/src/scripts/admin-guard.js"></script>
+    <script>
+        fetch('/admin/admin-sidebar.html')
+            .then(response => response.text())
+            .then(html => document.getElementById('adminSidebar').innerHTML = html);
+    </script>
+    <script src="/src/scripts/admin-venues.js"></script>
+</body>
+</html>
