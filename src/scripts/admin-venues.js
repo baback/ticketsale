@@ -219,12 +219,10 @@ function viewSeatMap(venueId) {
             // Row label on left
             svgContent += `<text x="${xOffset + labelOffset}" y="${rowY + 16}" class="fill-neutral-700 dark:fill-neutral-300 text-sm font-semibold">${row}</text>`;
             
-            // Seats - handle variable starting positions
-            const firstSeatNum = seats[0];
-            const seatOffset = (firstSeatNum - 1) * seatSpacing; // Offset based on first seat number
-            
-            seats.forEach((seatNum, seatIndex) => {
-                const seatX = xOffset + seatOffset + (seatIndex * seatSpacing);
+            // Seats - position based on actual seat number for alignment
+            seats.forEach((seatNum) => {
+                // Calculate X position based on seat number (so seat 10 aligns across all rows)
+                const seatX = xOffset + ((seatNum - 1) * seatSpacing);
                 
                 // Check if wheelchair accessible seat
                 const isWheelchair = seatMap.accessibility?.wheelchair_seats?.includes(`${row}-${seatNum}`);
