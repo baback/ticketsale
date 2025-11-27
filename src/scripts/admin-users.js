@@ -67,7 +67,7 @@ function renderTable() {
                     });
 
                     return `
-                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                        <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer" onclick="openEditSidebar('${user.id}')">
                             <td class="py-4 px-4">
                                 <div class="font-medium">${user.full_name || 'No name'}</div>
                                 <div class="text-sm text-neutral-600 dark:text-neutral-400">${user.email}</div>
@@ -93,10 +93,63 @@ function renderTable() {
     container.innerHTML = tableHtml;
 }
 
+// Edit sidebar functions
+function openEditSidebar(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
+
+    document.getElementById('editUserId').value = user.id;
+    document.getElementById('editFullName').value = user.full_name || '';
+    document.getElementById('editEmail').value = user.email || '';
+    document.getElementById('editRole').value = user.role || 'buyer';
+    document.getElementById('editUserType').value = user.user_type || 'user';
+    document.getElementById('editCreatedAt').value = new Date(user.created_at).toLocaleString();
+
+    document.getElementById('editSidebar').classList.remove('translate-x-full');
+    document.getElementById('sidebarOverlay').classList.remove('hidden');
+}
+
+function closeSidebar() {
+    document.getElementById('editSidebar').classList.add('translate-x-full');
+    document.getElementById('sidebarOverlay').classList.add('hidden');
+}
+
+async function saveUser(e) {
+    e.preventDefault();
+
+    const userId = document.getElementById('editUserId').value;
+    const updates = {
+        full_name: document.getElementById('editFullName').value,
+        role: document.getElementById('editRole').value,
+        user_type: document.getElementById('editUserType').value
+    };
+
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update(updates)
+            .eq('id', userId);
+
+        if (error) throw error;
+
+        alert('User updated successfully!');
+        closeSidebar();
+        await loadUsers();
+    } catch (error) {
+        console.error('Error updating user:', error);
+        alert('Failed to update user: ' + error.message);
+    }
+}
+
+// Make functions global
+window.openEditSidebar = openEditSidebar;
+window.closeSidebar = closeSidebar;
+
 // Event listeners
 document.getElementById('searchInput').addEventListener('input', filterUsers);
 document.getElementById('roleFilter').addEventListener('change', filterUsers);
 document.getElementById('typeFilter').addEventListener('change', filterUsers);
+document.getElementById('editForm').addEventListener('submit', saveUser);
 
 // Initialize
 loadUsers();
