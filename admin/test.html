@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Test - ticketsale.ca</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/src/scripts/shared.js"></script>
 </head>
 <body style="font-family: system-ui; padding: 40px; background: #0a0a0a; color: white;">
     <h1>Admin Access Test</h1>
-    <div id="status">Checking...</div>
+    <div id="status">Loading Supabase...</div>
     <div id="details" style="margin-top: 20px; padding: 20px; background: #171717; border-radius: 12px;"></div>
 
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://ltvesfeyxyxdzyuqtrmr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dmVzZmV5eHl4ZHp5dXF0cm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2ODE3MjksImV4cCI6MjA3NTI1NzcyOX0.7LqHe_nqNq_UEA7mi_H1DXBYeIhIg2wTjyMx-gshzBY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.supabaseClient = supabase; // For compatibility
+        
         async function testAccess() {
             const statusEl = document.getElementById('status');
             const detailsEl = document.getElementById('details');
@@ -70,11 +77,16 @@
                 
             } catch (error) {
                 statusEl.innerHTML = '❌ Unexpected Error';
-                detailsEl.innerHTML = `<pre>${JSON.stringify(error, null, 2)}</pre>`;
+                detailsEl.innerHTML = `<pre>${error.toString()}\n\n${JSON.stringify(error, null, 2)}</pre>`;
             }
         }
         
-        testAccess();
+        // Wait for Supabase to load
+        if (window.supabase) {
+            testAccess();
+        } else {
+            document.getElementById('status').innerHTML = '❌ Supabase failed to load';
+        }
     </script>
 </body>
 </html>
