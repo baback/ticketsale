@@ -148,6 +148,8 @@ function viewSeatMap(venueId) {
     const venue = allVenues.find(v => v.id === venueId);
     if (!venue || !venue.seat_map) return;
 
+    console.log('Venue seat map data:', venue.seat_map);
+
     // Create modal
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4';
@@ -155,6 +157,7 @@ function viewSeatMap(venueId) {
 
     const seatMap = venue.seat_map;
     const sections = seatMap.sections || [];
+    console.log('Sections:', sections);
     
     // Generate SVG - pixel perfect layout matching the image
     let svgContent = '';
