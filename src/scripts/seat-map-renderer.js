@@ -77,13 +77,21 @@ class SeatMapRenderer {
     renderSection(section, allRows) {
         const rows = section.rows || [];
         
-        let html = `<div class="seat-section flex flex-col items-center">`;
+        // Determine alignment based on section
+        let alignClass = 'items-center'; // default center
+        if (section.id === 'house-right') {
+            alignClass = 'items-end'; // right align
+        } else if (section.id === 'house-left') {
+            alignClass = 'items-start'; // left align
+        }
+        
+        let html = `<div class="seat-section flex flex-col ${alignClass}">`;
         
         // Section title
         html += `<h3 class="text-lg font-bold mb-6 text-neutral-900 dark:text-white">${section.name}</h3>`;
         
         // Render rows from P to A (top to bottom visually)
-        html += '<div class="flex flex-col gap-1">';
+        html += `<div class="flex flex-col gap-1 ${alignClass}">`;
         
         // Reverse to show P at top, A at bottom
         const reversedRows = [...rows].reverse();
@@ -98,10 +106,25 @@ class SeatMapRenderer {
     }
     
     renderRow(rowLabel, seats, sectionId) {
-        let html = `<div class="seat-row flex items-center gap-1">`;
+        // Determine row layout based on section
+        let rowLayout = 'flex items-center gap-1';
+        let labelPosition = 'mr-2'; // label on left by default
+        
+        if (sectionId === 'house-right') {
+            // House Right: label on left, seats on right
+            rowLayout = 'flex items-center gap-1 justify-end';
+        } else if (sectionId === 'house-left') {
+            // House Left: label on left, seats on right
+            rowLayout = 'flex items-center gap-1 justify-start';
+        } else {
+            // House Centre: centered
+            rowLayout = 'flex items-center gap-1 justify-center';
+        }
+        
+        let html = `<div class="seat-row ${rowLayout}">`;
         
         // Row label
-        html += `<span class="row-label w-8 text-sm font-semibold text-neutral-700 dark:text-neutral-300 text-right mr-2">${rowLabel}</span>`;
+        html += `<span class="row-label w-8 text-sm font-semibold text-neutral-700 dark:text-neutral-300 text-right ${labelPosition}">${rowLabel}</span>`;
         
         // Seats container - just render the actual seats, no spacers
         html += '<div class="seats-container flex gap-1">';
