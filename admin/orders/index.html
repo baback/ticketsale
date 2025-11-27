@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - Super Admin - ticketsale.ca</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <script>
+        const SUPABASE_URL = 'https://ltvesfeyxyxdzyuqtrmr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dmVzZmV5eHl4ZHp5dXF0cm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2ODE3MjksImV4cCI6MjA3NTI1NzcyOX0.7LqHe_nqNq_UEA7mi_H1DXBYeIhIg2wTjyMx-gshzBY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.supabaseClient = supabase;
+    </script>
+</head>
+<body class="bg-neutral-50 dark:bg-black text-neutral-900 dark:text-white">
+    
+    <div id="adminSidebar"></div>
+
+    <main class="ml-64 min-h-screen p-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Orders</h1>
+            <p class="text-neutral-600 dark:text-neutral-400">Manage all orders in the system</p>
+        </div>
+
+        <!-- Filters & Search -->
+        <div class="bg-white dark:bg-neutral-950 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text" id="searchInput" placeholder="Search by customer or order ID..." 
+                        class="w-full px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                </div>
+                <select id="statusFilter" class="px-4 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white">
+                    <option value="">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-white dark:bg-neutral-950 rounded-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+            <div id="ordersTable" class="overflow-x-auto">
+                <div class="text-center py-8 text-neutral-500">Loading...</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/src/scripts/admin-guard.js"></script>
+    <script>
+        fetch('/admin/admin-sidebar.html')
+            .then(response => response.text())
+            .then(html => document.getElementById('adminSidebar').innerHTML = html);
+    </script>
+    <script src="/src/scripts/admin-orders.js"></script>
+</body>
+</html>
