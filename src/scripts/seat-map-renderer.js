@@ -93,11 +93,18 @@ class SeatMapRenderer {
         // Render rows from P to A (top to bottom visually)
         html += `<div class="flex flex-col gap-1 ${alignClass}">`;
         
-        // Reverse to show P at top, A at bottom
-        const reversedRows = [...rows].reverse();
+        // Render ALL rows (A-P) but show empty space for missing rows
+        // This ensures all sections align horizontally
+        const reversedAllRows = [...allRows].reverse();
         
-        reversedRows.forEach((row) => {
-            html += this.renderRow(row, section.seats[row] || [], section.id);
+        reversedAllRows.forEach((row) => {
+            if (rows.includes(row)) {
+                // This section has this row - render it
+                html += this.renderRow(row, section.seats[row] || [], section.id);
+            } else {
+                // This section doesn't have this row - render empty space
+                html += `<div class="seat-row-empty" style="height: 32px;"></div>`;
+            }
         });
         
         html += '</div></div>';
