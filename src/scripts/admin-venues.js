@@ -36,12 +36,11 @@ function renderTable() {
                     <th class="text-left py-3 px-4 text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">Location</th>
                     <th class="text-left py-3 px-4 text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">Capacity</th>
                     <th class="text-left py-3 px-4 text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">Seat Map</th>
-                    <th class="text-right py-3 px-4 text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 ${allVenues.map(venue => `
-                    <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                    <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer" onclick="openEditSidebar('${venue.id}')">
                         <td class="py-4 px-4">
                             <div class="font-medium">${venue.name}</div>
                             <div class="text-sm text-neutral-600 dark:text-neutral-400">${venue.description || 'No description'}</div>
@@ -52,21 +51,14 @@ function renderTable() {
                         <td class="py-4 px-4 text-sm">${venue.capacity || 'N/A'}</td>
                         <td class="py-4 px-4">
                             ${venue.seat_map ? `
-                                <button onclick="viewSeatMap('${venue.id}')" class="px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-sm font-medium">
-                                    View Map
-                                </button>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-black dark:bg-white text-white dark:text-black">
+                                    Configured
+                                </span>
                             ` : `
                                 <span class="px-3 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-800">
                                     Not Set
                                 </span>
                             `}
-                        </td>
-                        <td class="py-4 px-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <button onclick="editVenue('${venue.id}')" class="px-3 py-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900 text-sm font-medium">
-                                    Edit
-                                </button>
-                            </div>
                         </td>
                     </tr>
                 `).join('')}
@@ -78,34 +70,96 @@ function renderTable() {
 }
 
 function openAddModal() {
-    document.getElementById('modalTitle').textContent = 'Add Venue';
-    document.getElementById('venueForm').reset();
-    document.getElementById('venueId').value = '';
-    document.getElementById('venueModal').classList.remove('hidden');
+    openEditSidebar(null);
 }
 
-function editVenue(venueId) {
-    const venue = allVenues.find(v => v.id === venueId);
-    if (!venue) return;
-
-    document.getElementById('modalTitle').textContent = 'Edit Venue';
-    document.getElementById('venueId').value = venue.id;
-    document.getElementById('venueName').value = venue.name || '';
-    document.getElementById('venueAddress').value = venue.address || '';
-    document.getElementById('venueCity').value = venue.city || '';
-    document.getElementById('venueCountry').value = venue.country || 'Canada';
-    document.getElementById('venueCapacity').value = venue.capacity || '';
-    document.getElementById('venueDescription').value = venue.description || '';
+function openEditSidebar(venueId) {
+    const sidebar = document.getElementById('editSidebar');
+    const venue = venueId ? allVenues.find(v => v.id === venueId) : null;
     
-    document.getElementById('venueModal').classList.remove('hidden');
+    sidebar.innerHTML = `
+        <div class="h-full flex flex-col">
+            <div class="p-6 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+                <h2 class="text-xl font-bold">${venue ? 'Edit Venue' : 'Add Venue'}</h2>
+                <button onclick="closeSidebar()" class="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6">
+                <form id="venueForm" class="space-y-6">
+                    <input type="hidden" id="venueId" value="${venue?.id || ''}">
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Venue Name</label>
+                        <input type="text" id="venueName" value="${venue?.name || ''}" required
+                            class="w-full px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Description</label>
+                        <textarea id="venueDescription" rows="3"
+                            class="w-full px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">${venue?.description || ''}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Address</label>
+                        <input type="text" id="venueAddress" value="${venue?.address || ''}"
+                            class="w-full px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">City</label>
+                            <input type="text" id="venueCity" value="${venue?.city || ''}"
+                                class="w-full px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Country</label>
+                            <input type="text" id="venueCountry" value="${venue?.country || 'Canada'}"
+                                class="w-full px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Capacity</label>
+                        <input type="number" id="venueCapacity" value="${venue?.capacity || ''}"
+                            class="w-full px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
+                    </div>
+                    
+                    ${venue?.seat_map ? `
+                        <div class="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                            <button type="button" onclick="viewSeatMap('${venue.id}')" 
+                                class="w-full px-4 py-3 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform font-medium">
+                                View Seat Map
+                            </button>
+                        </div>
+                    ` : ''}
+                </form>
+            </div>
+            
+            <div class="p-6 border-t border-neutral-200 dark:border-neutral-800 flex gap-3">
+                <button onclick="closeSidebar()" class="flex-1 px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-900">
+                    Cancel
+                </button>
+                <button onclick="saveVenue(event)" class="flex-1 px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform font-medium">
+                    ${venue ? 'Save Changes' : 'Create Venue'}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    sidebar.classList.remove('translate-x-full');
 }
 
-function closeModal() {
-    document.getElementById('venueModal').classList.add('hidden');
+function closeSidebar() {
+    document.getElementById('editSidebar').classList.add('translate-x-full');
 }
 
 async function saveVenue(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
     const venueId = document.getElementById('venueId').value;
     const venueData = {
@@ -126,7 +180,6 @@ async function saveVenue(e) {
                 .eq('id', venueId);
 
             if (error) throw error;
-            alert('Venue updated successfully!');
         } else {
             // Create new venue
             const { error } = await supabase
@@ -134,10 +187,9 @@ async function saveVenue(e) {
                 .insert([venueData]);
 
             if (error) throw error;
-            alert('Venue created successfully!');
         }
 
-        closeModal();
+        closeSidebar();
         await loadVenues();
     } catch (error) {
         console.error('Error saving venue:', error);
@@ -192,10 +244,9 @@ function viewSeatMap(venueId) {
 }
 
 window.openAddModal = openAddModal;
-window.editVenue = editVenue;
+window.openEditSidebar = openEditSidebar;
+window.closeSidebar = closeSidebar;
 window.viewSeatMap = viewSeatMap;
-window.closeModal = closeModal;
-
-document.getElementById('venueForm').addEventListener('submit', saveVenue);
+window.saveVenue = saveVenue;
 
 loadVenues();
