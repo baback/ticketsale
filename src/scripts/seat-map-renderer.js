@@ -53,8 +53,8 @@ class SeatMapRenderer {
     }
     
     renderSeatMap(sections, allRows) {
-        // Wrap everything in a centered container with padding
-        let html = '<div class="seat-map-canvas" style="padding: 200px; display: inline-block;">';
+        // Wrap everything in a centered container with large padding for panning
+        let html = '<div class="seat-map-canvas" style="padding: 400px; display: flex; flex-direction: column; align-items: center;">';
         
         html += '<div class="flex gap-12 items-start justify-center">';
         
@@ -67,7 +67,7 @@ class SeatMapRenderer {
         
         // Add stage
         html += `
-            <div class="mt-8 mx-auto" style="max-width: 800px;">
+            <div class="mt-8" style="width: 800px;">
                 <div class="bg-neutral-400 dark:bg-neutral-600 rounded-lg py-6 text-center">
                     <span class="text-2xl font-bold text-neutral-900 dark:text-white">STAGE</span>
                 </div>
@@ -185,18 +185,31 @@ class SeatMapRenderer {
         const zoomOutBtn = this.container.querySelector('.zoom-out');
         const zoomResetBtn = this.container.querySelector('.zoom-reset');
         
-        // Center the view initially
+        // Auto-zoom to fit and center initially
         setTimeout(() => {
             const canvas = mapContent.querySelector('.seat-map-canvas');
             if (canvas) {
                 const containerWidth = mapContainer.clientWidth;
                 const containerHeight = mapContainer.clientHeight;
-                const contentWidth = canvas.scrollWidth;
-                const contentHeight = canvas.scrollHeight;
+                const contentWidth = mapContent.scrollWidth;
+                const contentHeight = mapContent.scrollHeight;
                 
-                // Center the content
-                mapContainer.scrollLeft = (contentWidth - containerWidth) / 2;
-                mapContainer.scrollTop = (contentHeight - containerHeight) / 2;
+                // Calculate scale to fit
+                const scaleX = containerWidth / contentWidth;
+                const scaleY = containerHeight / contentHeight;
+                const fitScale = Math.min(scaleX, scaleY, 1) * 0.9; // 90% to add some margin
+                
+                this.scale = fitScale;
+                mapContent.style.transform = `scale(${this.scale})`;
+                zoomResetBtn.textContent = `${Math.round(this.scale * 100)}%`;
+                
+                // Center after scaling
+                setTimeout(() => {
+                    const newContentWidth = mapContent.scrollWidth * this.scale;
+                    const newContentHeight = mapContent.scrollHeight * this.scale;
+                    mapContainer.scrollLeft = (newContentWidth - containerWidth) / 2;
+                    mapContainer.scrollTop = (newContentHeight - containerHeight) / 2;
+                }, 50);
             }
         }, 100);
         
