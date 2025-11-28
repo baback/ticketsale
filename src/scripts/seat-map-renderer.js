@@ -190,34 +190,94 @@ class SeatMapRenderer {
         let isDragging = false;
         let startX = 0;
         let startY = 0;
+        let lastX = 0;
+        let lastY = 0;
+        let velocityX = 0;
+        let velocityY = 0;
+        let animationId = null;
         
+        // Smooth transform update using RAF
         const updateTransform = () => {
-            mapContent.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            mapContent.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
             zoomResetBtn.textContent = `${Math.round(scale * 100)}%`;
+        };
+        
+        // Momentum/inertia animation
+        const applyMomentum = () => {
+            if (Math.abs(velocityX) > 0.5 || Math.abs(velocityY) > 0.5) {
+                translateX += velocityX;
+                translateY += velocityY;
+                velocityX *= 0.95; // Friction
+                velocityY *= 0.95;
+                updateTransform();
+                animationId = requestAnimationFrame(applyMomentum);
+            }
+        };
+        
+        // Smooth zoom animation
+        const smoothZoom = (targetScale, centerX, centerY) => {
+            const startScale = scale;
+            const diff = targetScale - startScale;
+            const duration = 200;
+            const startTime = performance.now();
+            
+            const animate = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+                
+                const oldScale = scale;
+                scale = startScale + diff * eased;
+                
+                if (centerX !== undefined && centerY !== undefined) {
+                    translateX = centerX - (centerX - translateX) * (scale / oldScale);
+                    translateY = centerY - (centerY - translateY) * (scale / oldScale);
+                }
+                
+                updateTransform();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            };
+            
+            requestAnimationFrame(animate);
         };
         
         // Zoom controls
         zoomInBtn.onclick = () => {
-            scale = Math.min(scale * 1.2, 3);
-            updateTransform();
+            const rect = mapContainer.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            smoothZoom(Math.min(scale * 1.3, 3), centerX, centerY);
         };
         
         zoomOutBtn.onclick = () => {
-            scale = Math.max(scale / 1.2, 0.3);
-            updateTransform();
+            const rect = mapContainer.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            smoothZoom(Math.max(scale / 1.3, 0.3), centerX, centerY);
         };
         
         zoomResetBtn.onclick = () => {
-            scale = 1;
+            smoothZoom(1, undefined, undefined);
             translateX = 0;
             translateY = 0;
-            updateTransform();
         };
         
-        // Mouse wheel zoom
+        // Smooth mouse wheel zoom
+        let wheelTimeout;
         mapContainer.addEventListener('wheel', (e) => {
             e.preventDefault();
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            
+            clearTimeout(wheelTimeout);
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                velocityX = 0;
+                velocityY = 0;
+            }
+            
+            const delta = e.deltaY > 0 ? 0.95 : 1.05;
             const oldScale = scale;
             scale = Math.min(Math.max(scale * delta, 0.3), 3);
             
@@ -230,35 +290,58 @@ class SeatMapRenderer {
             translateY = mouseY - (mouseY - translateY) * (scale / oldScale);
             
             updateTransform();
-        });
+        }, { passive: false });
         
-        // Pan with mouse drag
+        // Smooth pan with momentum
         mapContainer.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('seat') || e.target.closest('.seat')) return;
+            
             isDragging = true;
             startX = e.clientX - translateX;
             startY = e.clientY - translateY;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            velocityX = 0;
+            velocityY = 0;
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
             mapContainer.style.cursor = 'grabbing';
         });
         
         mapContainer.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            translateX = e.clientX - startX;
-            translateY = e.clientY - startY;
+            
+            const newX = e.clientX - startX;
+            const newY = e.clientY - startY;
+            
+            velocityX = newX - translateX;
+            velocityY = newY - translateY;
+            
+            translateX = newX;
+            translateY = newY;
+            
             updateTransform();
         });
         
-        mapContainer.addEventListener('mouseup', () => {
-            isDragging = false;
-            mapContainer.style.cursor = 'grab';
-        });
+        const stopDragging = () => {
+            if (isDragging) {
+                isDragging = false;
+                mapContainer.style.cursor = 'grab';
+                
+                // Apply momentum
+                if (Math.abs(velocityX) > 1 || Math.abs(velocityY) > 1) {
+                    applyMomentum();
+                }
+            }
+        };
         
-        mapContainer.addEventListener('mouseleave', () => {
-            isDragging = false;
-            mapContainer.style.cursor = 'grab';
-        });
+        mapContainer.addEventListener('mouseup', stopDragging);
+        mapContainer.addEventListener('mouseleave', stopDragging);
         
-        // Initial fit to view
+        // Initial fit to view with smooth animation
         setTimeout(() => {
             const canvas = mapContent.querySelector('.seat-map-canvas');
             if (canvas) {
@@ -267,13 +350,16 @@ class SeatMapRenderer {
                 
                 const scaleX = (containerRect.width * 0.85) / canvasRect.width;
                 const scaleY = (containerRect.height * 0.85) / canvasRect.height;
-                scale = Math.min(scaleX, scaleY, 1);
+                const targetScale = Math.min(scaleX, scaleY, 1);
+                
+                smoothZoom(targetScale, undefined, undefined);
                 
                 // Center it
-                translateX = (containerRect.width - canvasRect.width * scale) / 2;
-                translateY = (containerRect.height - canvasRect.height * scale) / 2;
-                
-                updateTransform();
+                setTimeout(() => {
+                    translateX = (containerRect.width - canvasRect.width * targetScale) / 2;
+                    translateY = (containerRect.height - canvasRect.height * targetScale) / 2;
+                    updateTransform();
+                }, 250);
             }
         }, 100);
         
