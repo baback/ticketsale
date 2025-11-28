@@ -51,17 +51,18 @@ function renderTable() {
                         </td>
                         <td class="py-4 px-4 text-sm">${venue.capacity || 'N/A'}</td>
                         <td class="py-4 px-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-medium ${venue.seat_map ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-neutral-100 dark:bg-neutral-800'}">
-                                ${venue.seat_map ? 'Configured' : 'Not Set'}
-                            </span>
+                            ${venue.seat_map ? `
+                                <button onclick="viewSeatMap('${venue.id}')" class="px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:scale-105 transition-transform text-sm font-medium">
+                                    View Map
+                                </button>
+                            ` : `
+                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-800">
+                                    Not Set
+                                </span>
+                            `}
                         </td>
                         <td class="py-4 px-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                ${venue.seat_map ? `
-                                <button onclick="viewSeatMap('${venue.id}')" class="px-3 py-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900 text-sm font-medium">
-                                    View Map
-                                </button>
-                                ` : ''}
                                 <button onclick="editVenue('${venue.id}')" class="px-3 py-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-900 text-sm font-medium">
                                     Edit
                                 </button>
