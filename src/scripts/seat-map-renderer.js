@@ -23,7 +23,7 @@ class SeatMapRenderer {
         const sections = this.seatMapData.sections || [];
         const allRows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];
         
-        // Create main container with pan/zoom using Panzoom
+        // Create main container with simple pan/zoom
         this.container.innerHTML = `
             <div class="seat-map-wrapper relative w-full h-full overflow-hidden bg-neutral-50 dark:bg-neutral-950">
                 <div class="seat-map-controls absolute top-4 right-4 z-10 flex gap-2">
@@ -33,7 +33,7 @@ class SeatMapRenderer {
                         </svg>
                     </button>
                     <button class="zoom-reset px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg shadow-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
-                        Fit
+                        100%
                     </button>
                     <button class="zoom-in px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg shadow-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,8 +41,8 @@ class SeatMapRenderer {
                         </svg>
                     </button>
                 </div>
-                <div class="seat-map-container w-full h-full flex items-center justify-center">
-                    <div class="seat-map-content" style="touch-action: none;">
+                <div class="seat-map-container w-full h-full cursor-grab" style="overflow: hidden;">
+                    <div class="seat-map-content transition-transform duration-200" style="transform-origin: center center;">
                         ${this.renderSeatMap(sections, allRows)}
                     </div>
                 </div>
@@ -178,80 +178,102 @@ class SeatMapRenderer {
     }
     
     attachEventListeners() {
+        const mapContainer = this.container.querySelector('.seat-map-container');
         const mapContent = this.container.querySelector('.seat-map-content');
         const zoomInBtn = this.container.querySelector('.zoom-in');
         const zoomOutBtn = this.container.querySelector('.zoom-out');
         const zoomResetBtn = this.container.querySelector('.zoom-reset');
         
-        // Initialize Panzoom with smooth animations
-        const panzoom = Panzoom(mapContent, {
-            maxScale: 3,
-            minScale: 0.3,
-            step: 0.3,
-            animate: true,
-            duration: 200,
-            easing: 'ease-in-out',
-            cursor: 'move',
-            canvas: true,
-            contain: 'outside'
-        });
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
         
-        this.panzoom = panzoom;
-        
-        // Enable mouse wheel zoom
-        const parent = mapContent.parentElement;
-        parent.addEventListener('wheel', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                panzoom.zoomWithWheel(e);
-            } else {
-                e.preventDefault();
-                panzoom.zoomWithWheel(e);
-            }
-        });
+        const updateTransform = () => {
+            mapContent.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            zoomResetBtn.textContent = `${Math.round(scale * 100)}%`;
+        };
         
         // Zoom controls
         zoomInBtn.onclick = () => {
-            panzoom.zoomIn();
-            this.updateZoomDisplay();
+            scale = Math.min(scale * 1.2, 3);
+            updateTransform();
         };
         
         zoomOutBtn.onclick = () => {
-            panzoom.zoomOut();
-            this.updateZoomDisplay();
+            scale = Math.max(scale / 1.2, 0.3);
+            updateTransform();
         };
         
         zoomResetBtn.onclick = () => {
-            panzoom.reset({ animate: true });
-            this.updateZoomDisplay();
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
         };
         
-        // Update zoom display on zoom
-        mapContent.addEventListener('panzoomchange', () => {
-            this.updateZoomDisplay();
+        // Mouse wheel zoom
+        mapContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const oldScale = scale;
+            scale = Math.min(Math.max(scale * delta, 0.3), 3);
+            
+            // Zoom towards mouse position
+            const rect = mapContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            translateX = mouseX - (mouseX - translateX) * (scale / oldScale);
+            translateY = mouseY - (mouseY - translateY) * (scale / oldScale);
+            
+            updateTransform();
+        });
+        
+        // Pan with mouse drag
+        mapContainer.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('seat') || e.target.closest('.seat')) return;
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            mapContainer.style.cursor = 'grabbing';
+        });
+        
+        mapContainer.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        });
+        
+        mapContainer.addEventListener('mouseup', () => {
+            isDragging = false;
+            mapContainer.style.cursor = 'grab';
+        });
+        
+        mapContainer.addEventListener('mouseleave', () => {
+            isDragging = false;
+            mapContainer.style.cursor = 'grab';
         });
         
         // Initial fit to view
         setTimeout(() => {
             const canvas = mapContent.querySelector('.seat-map-canvas');
             if (canvas) {
-                const parentRect = parent.getBoundingClientRect();
+                const containerRect = mapContainer.getBoundingClientRect();
                 const canvasRect = canvas.getBoundingClientRect();
                 
-                const scaleX = (parentRect.width * 0.9) / canvasRect.width;
-                const scaleY = (parentRect.height * 0.9) / canvasRect.height;
-                const fitScale = Math.min(scaleX, scaleY, 1);
-                
-                panzoom.zoom(fitScale, { animate: false });
+                const scaleX = (containerRect.width * 0.85) / canvasRect.width;
+                const scaleY = (containerRect.height * 0.85) / canvasRect.height;
+                scale = Math.min(scaleX, scaleY, 1);
                 
                 // Center it
-                setTimeout(() => {
-                    const newCanvasRect = canvas.getBoundingClientRect();
-                    const offsetX = (parentRect.width - newCanvasRect.width) / 2 - newCanvasRect.left + parentRect.left;
-                    const offsetY = (parentRect.height - newCanvasRect.height) / 2 - newCanvasRect.top + parentRect.top;
-                    panzoom.pan(offsetX, offsetY, { animate: false });
-                    this.updateZoomDisplay();
-                }, 50);
+                translateX = (containerRect.width - canvasRect.width * scale) / 2;
+                translateY = (containerRect.height - canvasRect.height * scale) / 2;
+                
+                updateTransform();
             }
         }, 100);
         
@@ -278,14 +300,6 @@ class SeatMapRenderer {
                     }
                 });
             });
-        }
-    }
-    
-    updateZoomDisplay() {
-        const zoomResetBtn = this.container.querySelector('.zoom-reset');
-        if (this.panzoom) {
-            const scale = this.panzoom.getScale();
-            zoomResetBtn.textContent = `${Math.round(scale * 100)}%`;
         }
     }
     
