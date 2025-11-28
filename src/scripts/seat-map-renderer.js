@@ -53,7 +53,10 @@ class SeatMapRenderer {
     }
     
     renderSeatMap(sections, allRows) {
-        let html = '<div class="flex gap-12 items-start justify-center min-w-max">';
+        // Wrap everything in a centered container with padding
+        let html = '<div class="seat-map-canvas" style="padding: 200px; display: inline-block;">';
+        
+        html += '<div class="flex gap-12 items-start justify-center">';
         
         // Render each section
         sections.forEach((section) => {
@@ -70,6 +73,8 @@ class SeatMapRenderer {
                 </div>
             </div>
         `;
+        
+        html += '</div>'; // Close canvas wrapper
         
         return html;
     }
@@ -180,6 +185,21 @@ class SeatMapRenderer {
         const zoomOutBtn = this.container.querySelector('.zoom-out');
         const zoomResetBtn = this.container.querySelector('.zoom-reset');
         
+        // Center the view initially
+        setTimeout(() => {
+            const canvas = mapContent.querySelector('.seat-map-canvas');
+            if (canvas) {
+                const containerWidth = mapContainer.clientWidth;
+                const containerHeight = mapContainer.clientHeight;
+                const contentWidth = canvas.scrollWidth;
+                const contentHeight = canvas.scrollHeight;
+                
+                // Center the content
+                mapContainer.scrollLeft = (contentWidth - containerWidth) / 2;
+                mapContainer.scrollTop = (contentHeight - containerHeight) / 2;
+            }
+        }, 100);
+        
         // Zoom controls
         zoomInBtn.onclick = () => this.zoom(1.2);
         zoomOutBtn.onclick = () => this.zoom(0.8);
@@ -266,8 +286,19 @@ class SeatMapRenderer {
         const mapContainer = this.container.querySelector('.seat-map-container');
         const zoomResetBtn = this.container.querySelector('.zoom-reset');
         mapContent.style.transform = 'scale(1)';
-        mapContainer.scrollLeft = 0;
-        mapContainer.scrollTop = 0;
+        
+        // Re-center the view
+        const canvas = mapContent.querySelector('.seat-map-canvas');
+        if (canvas) {
+            const containerWidth = mapContainer.clientWidth;
+            const containerHeight = mapContainer.clientHeight;
+            const contentWidth = canvas.scrollWidth;
+            const contentHeight = canvas.scrollHeight;
+            
+            mapContainer.scrollLeft = (contentWidth - containerWidth) / 2;
+            mapContainer.scrollTop = (contentHeight - containerHeight) / 2;
+        }
+        
         zoomResetBtn.textContent = '100%';
     }
     
