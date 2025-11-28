@@ -75,6 +75,7 @@ function openAddModal() {
 
 function openEditSidebar(venueId) {
     const sidebar = document.getElementById('editSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
     const venue = venueId ? allVenues.find(v => v.id === venueId) : null;
     
     sidebar.innerHTML = `
@@ -152,10 +153,12 @@ function openEditSidebar(venueId) {
     `;
     
     sidebar.classList.remove('translate-x-full');
+    overlay.classList.remove('hidden');
 }
 
 function closeSidebar() {
     document.getElementById('editSidebar').classList.add('translate-x-full');
+    document.getElementById('sidebarOverlay').classList.add('hidden');
 }
 
 async function saveVenue(e) {
