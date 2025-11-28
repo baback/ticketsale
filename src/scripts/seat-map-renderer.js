@@ -23,7 +23,7 @@ class SeatMapRenderer {
         const sections = this.seatMapData.sections || [];
         const allRows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];
         
-        // Create main container with pan/zoom
+        // Create main container with pan/zoom using Panzoom
         this.container.innerHTML = `
             <div class="seat-map-wrapper relative w-full h-full overflow-hidden bg-neutral-50 dark:bg-neutral-950">
                 <div class="seat-map-controls absolute top-4 right-4 z-10 flex gap-2">
@@ -33,7 +33,7 @@ class SeatMapRenderer {
                         </svg>
                     </button>
                     <button class="zoom-reset px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg shadow-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
-                        100%
+                        Fit
                     </button>
                     <button class="zoom-in px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg shadow-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,8 +41,8 @@ class SeatMapRenderer {
                         </svg>
                     </button>
                 </div>
-                <div class="seat-map-container overflow-auto w-full h-full cursor-grab active:cursor-grabbing" style="scroll-behavior: smooth;">
-                    <div class="seat-map-content inline-block p-8 transition-transform duration-200" style="transform-origin: top left;">
+                <div class="seat-map-container w-full h-full flex items-center justify-center">
+                    <div class="seat-map-content" style="touch-action: none;">
                         ${this.renderSeatMap(sections, allRows)}
                     </div>
                 </div>
@@ -178,87 +178,82 @@ class SeatMapRenderer {
     }
     
     attachEventListeners() {
-        const wrapper = this.container.querySelector('.seat-map-wrapper');
-        const mapContainer = this.container.querySelector('.seat-map-container');
         const mapContent = this.container.querySelector('.seat-map-content');
         const zoomInBtn = this.container.querySelector('.zoom-in');
         const zoomOutBtn = this.container.querySelector('.zoom-out');
         const zoomResetBtn = this.container.querySelector('.zoom-reset');
         
-        // Auto-zoom to fit and center initially
+        // Initialize Panzoom with smooth animations
+        const panzoom = Panzoom(mapContent, {
+            maxScale: 3,
+            minScale: 0.3,
+            step: 0.3,
+            animate: true,
+            duration: 200,
+            easing: 'ease-in-out',
+            cursor: 'move',
+            canvas: true,
+            contain: 'outside'
+        });
+        
+        this.panzoom = panzoom;
+        
+        // Enable mouse wheel zoom
+        const parent = mapContent.parentElement;
+        parent.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                panzoom.zoomWithWheel(e);
+            } else {
+                e.preventDefault();
+                panzoom.zoomWithWheel(e);
+            }
+        });
+        
+        // Zoom controls
+        zoomInBtn.onclick = () => {
+            panzoom.zoomIn();
+            this.updateZoomDisplay();
+        };
+        
+        zoomOutBtn.onclick = () => {
+            panzoom.zoomOut();
+            this.updateZoomDisplay();
+        };
+        
+        zoomResetBtn.onclick = () => {
+            panzoom.reset({ animate: true });
+            this.updateZoomDisplay();
+        };
+        
+        // Update zoom display on zoom
+        mapContent.addEventListener('panzoomchange', () => {
+            this.updateZoomDisplay();
+        });
+        
+        // Initial fit to view
         setTimeout(() => {
             const canvas = mapContent.querySelector('.seat-map-canvas');
             if (canvas) {
-                const containerWidth = mapContainer.clientWidth;
-                const containerHeight = mapContainer.clientHeight;
-                const contentWidth = mapContent.scrollWidth;
-                const contentHeight = mapContent.scrollHeight;
+                const parentRect = parent.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
                 
-                // Calculate scale to fit
-                const scaleX = containerWidth / contentWidth;
-                const scaleY = containerHeight / contentHeight;
-                const fitScale = Math.min(scaleX, scaleY, 1) * 0.9; // 90% to add some margin
+                const scaleX = (parentRect.width * 0.9) / canvasRect.width;
+                const scaleY = (parentRect.height * 0.9) / canvasRect.height;
+                const fitScale = Math.min(scaleX, scaleY, 1);
                 
-                this.scale = fitScale;
-                mapContent.style.transform = `scale(${this.scale})`;
-                zoomResetBtn.textContent = `${Math.round(this.scale * 100)}%`;
+                panzoom.zoom(fitScale, { animate: false });
                 
-                // Center after scaling
+                // Center it
                 setTimeout(() => {
-                    const newContentWidth = mapContent.scrollWidth * this.scale;
-                    const newContentHeight = mapContent.scrollHeight * this.scale;
-                    mapContainer.scrollLeft = (newContentWidth - containerWidth) / 2;
-                    mapContainer.scrollTop = (newContentHeight - containerHeight) / 2;
+                    const newCanvasRect = canvas.getBoundingClientRect();
+                    const offsetX = (parentRect.width - newCanvasRect.width) / 2 - newCanvasRect.left + parentRect.left;
+                    const offsetY = (parentRect.height - newCanvasRect.height) / 2 - newCanvasRect.top + parentRect.top;
+                    panzoom.pan(offsetX, offsetY, { animate: false });
+                    this.updateZoomDisplay();
                 }, 50);
             }
         }, 100);
-        
-        // Zoom controls
-        zoomInBtn.onclick = () => this.zoom(1.2);
-        zoomOutBtn.onclick = () => this.zoom(0.8);
-        zoomResetBtn.onclick = () => this.resetZoom();
-        
-        // Mouse wheel zoom
-        mapContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            this.zoom(delta);
-        });
-        
-        // Pan functionality
-        let isPanning = false;
-        let startX, startY, scrollLeft, scrollTop;
-        
-        mapContainer.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('seat')) return;
-            isPanning = true;
-            startX = e.pageX - mapContainer.offsetLeft;
-            startY = e.pageY - mapContainer.offsetTop;
-            scrollLeft = mapContainer.scrollLeft;
-            scrollTop = mapContainer.scrollTop;
-            mapContainer.style.cursor = 'grabbing';
-        });
-        
-        mapContainer.addEventListener('mouseleave', () => {
-            isPanning = false;
-            mapContainer.style.cursor = 'grab';
-        });
-        
-        mapContainer.addEventListener('mouseup', () => {
-            isPanning = false;
-            mapContainer.style.cursor = 'grab';
-        });
-        
-        mapContainer.addEventListener('mousemove', (e) => {
-            if (!isPanning) return;
-            e.preventDefault();
-            const x = e.pageX - mapContainer.offsetLeft;
-            const y = e.pageY - mapContainer.offsetTop;
-            const walkX = (x - startX) * 2;
-            const walkY = (y - startY) * 2;
-            mapContainer.scrollLeft = scrollLeft - walkX;
-            mapContainer.scrollTop = scrollTop - walkY;
-        });
         
         // Seat interactions
         if (this.options.interactive) {
@@ -266,6 +261,7 @@ class SeatMapRenderer {
             
             seats.forEach(seat => {
                 seat.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     if (this.options.onSeatClick) {
                         const seatId = seat.dataset.seatId;
                         const row = seat.dataset.row;
@@ -285,34 +281,12 @@ class SeatMapRenderer {
         }
     }
     
-    zoom(factor) {
-        this.scale = Math.min(Math.max(this.scale * factor, 0.5), 3);
-        const mapContent = this.container.querySelector('.seat-map-content');
+    updateZoomDisplay() {
         const zoomResetBtn = this.container.querySelector('.zoom-reset');
-        mapContent.style.transform = `scale(${this.scale})`;
-        zoomResetBtn.textContent = `${Math.round(this.scale * 100)}%`;
-    }
-    
-    resetZoom() {
-        this.scale = 1;
-        const mapContent = this.container.querySelector('.seat-map-content');
-        const mapContainer = this.container.querySelector('.seat-map-container');
-        const zoomResetBtn = this.container.querySelector('.zoom-reset');
-        mapContent.style.transform = 'scale(1)';
-        
-        // Re-center the view
-        const canvas = mapContent.querySelector('.seat-map-canvas');
-        if (canvas) {
-            const containerWidth = mapContainer.clientWidth;
-            const containerHeight = mapContainer.clientHeight;
-            const contentWidth = canvas.scrollWidth;
-            const contentHeight = canvas.scrollHeight;
-            
-            mapContainer.scrollLeft = (contentWidth - containerWidth) / 2;
-            mapContainer.scrollTop = (contentHeight - containerHeight) / 2;
+        if (this.panzoom) {
+            const scale = this.panzoom.getScale();
+            zoomResetBtn.textContent = `${Math.round(scale * 100)}%`;
         }
-        
-        zoomResetBtn.textContent = '100%';
     }
     
     // Public methods for updating seat states
